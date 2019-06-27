@@ -10,7 +10,10 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 
 # Installation guide for MitoFinder
 
-## Download mitofinder on [GitLab](https://gitlab.com/RemiAllio/mitofinder)
+## Get MitoFinder
+
+Clone mitofinder from [GitLab](https://gitlab.com/RemiAllio/mitofinder)
+
 ```shell 
 git clone https://gitlab.com/RemiAllio/mitofinder.git
 cd mitofinder
@@ -19,10 +22,20 @@ cd mitofinder
 PATH/TO/MITOFINDER/mitofinder -h  
 ```
 
+or download [mitofinder-master.tar.gz](https://gitlab.com/RemiAllio/mitofinder/-/archive/master/mitofinder-master.tar.gz)  
+
+```shell 
+tar zxvf mitofinder-master.tar.gz
+cd mitofinder-master
+./install.sh
+
+PATH/TO/MITOFINDER/mitofinder -h  
+```
+
 ## Add mitofinder to your path -> linux
 
 ```shell
-cd mitofinder_vX/
+cd PATH/TO/MITOFINDER/
 p=$(pwd)
 echo -e "\n#Path to mitofinder \nexport PATH=$PATH:$p" >> ~/.bashrc 
 source ~/.bashrc  
