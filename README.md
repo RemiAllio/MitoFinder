@@ -12,11 +12,11 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 
 ## Download mitofinder_vX.tar.gz at [www.gitlab.com]
 ```shell 
-tar -zxf mitofinder_vX.tar.gz
-cd mitofinder_vX
+git clone https://gitlab.com/RemiAllio/mitofinder.git
+cd mitofinder
 ./install.sh
 
-PATH/TO/MITOFINDER_VX/mitofinder -h  
+PATH/TO/MITOFINDER/mitofinder -h  
 ```
 
 ## Add mitofinder to your path -> linux
