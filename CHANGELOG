@@ -1,0 +1,91 @@
+v1.14:
+-Fixed some genes being annotated with end position shifted -1.
+-Fixed error with miraMapping module when having non paired-end libraries.
+-Fixed: MIRA would throw an error when using more than 7 libraries in mapping assembly.
+
+v1.13.7:
+-Fixed error when annotating duplicated regions with chloroplast_Maker.py
+-Fixed tRNAs found in the complementary strand not being marked as so.
+-Changed: stop codon won't be counted for the translated sequence anymore.
+
+v1.13.6:
+-Fixed annotations in genbank file being 1 base forward for certain tRNAs.
+
+v1.13.5
+-Added: sanity check for when an assembler encounters an error, but a best build was found.
+
+v1.13.4:
+-Fixed some tRNAs being warned as not found, when they were actually found and annotated.
+
+v.1.13.3:
+-Fixed: error being thrown when only one contig was enough to finish the assembly!
+-Fixed: some errors when deleting temporary files if not using a reference.
+
+v1.13.2:
+-Added sanity check to keep the program running even if MITObim didn't run, but MIRA mapping did.
+
+v1.13.1:
+-Fixed SPAdes not running sometimes with paired-end libraries.
+
+v1.13:
+-Improved logs from recursiveSPAdes and recursiveMira.
+-Recompiled binaries for SPAdes.
+-Fixed: recursiveSPAdes not considering the -p flag.
+-Fixed some instances of the actual best build not being selected.
+
+v1.12:
+-Logs of recursiveSOAP.py should now be more informative in case of problems.
+
+v1.11:
+-Added --keepfolders to keep temporary folders created during a mitoMaker software run.
+ By default, these folders are cleaned up once the program is finished.
+-Improved various warning and error messages in terms of readability and specifications.
+
+v1.1:
+-Added support to SPAdes genome assembler. In order to use it in the De-Novo step, use --spades flag.
+
+v1.03:
+-Organized and commented a few more parts of the code.
+-Added a new metric when selecting the best build (validContigs). If an assembly has the same number of features found and
+ hasn't circularized, the program will pick the one that has the least amount of contigs used to form it. After that it picks the
+ sequence length without counting N's.
+
+v1.02:
+-Changed default final results to file to be the ordered (starting at tRNA-Phe) result.
+-Unordered result now has termination .unordered.
+-If a tRNA is found containing an intron, a warning will be raised to the user and on the .stats file.
+-Added cleanup of various temporary files.
+-Fixed: some rRNAs being translated.
+
+v1.01:
+-Updated SOAPdenovo-Trans to 1.04 (from 1.03)
+
+v1.0:
+-Changed: MIRA will not stop running when in a NFS mounted drive.
+	WARNING: running MIRA ina NFS drive can cause severe slowdowns.
+
+v1.0rc6:
+-Added: option to run with SOAPdenovo instead of SOAP-Trans.
+	By default mitoMaker and cloroplastMaker will run with SOAP-Trans.
+
+v1.0rc5:
+-Fixed problem with naming tRNAs when annotating.
+-Changed: increased font size of PNG annotation image.
+
+v1.0rc4:
+-Fixed tRNAscan-SE not searching with correct genetic code, when one different from vertebrate mitochondria was given.
+
+v1.0rc3:
+-Fixed small bug when inputting start and end positions found with tRNAscan-SE on tRNAs that were found with blastn.
+
+v1.0rc2:
+-Small changes to the .png annotation visualization file (color schemes mainly)
+
+v1.0rc1:
+-Created new branch called generalMaker: split into 3 files -> mitoMaker.py, cloroplastMaker.py and generalMaker.py
+	generalMaker is the main script for handling the assemblies, you can call it as you called plastidMaker.py
+	mitoMaker will call generalMaker with the flags you specify and more specific ones to mitochondrial DNA
+	cloroplastMaker will call generalMaker with the flags you specify and more specific ones to cloroplast DNA (BETA)
+
+-Added: .png annotation result that shows each feature relative position in a png image file
+

@@ -1,0 +1,5 @@
+XSym
+0058
+ea25b0c13600f8d8651518b9fec0c640
+/home/allio/bin/MitoFinder_v1.0.1_exe/metaSpades/spades.py
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
