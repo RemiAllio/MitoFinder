@@ -11,25 +11,21 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 # Installation guide for MitoFinder
 
 ## Download mitofinder_vX.tar.gz at [www.gitlab.com]
-```console  
+```shell 
+tar -zxf mitofinder_vX.tar.gz
+cd mitofinder_vX
+./install.sh
 
-$ tar -zxf mitofinder_vX.tar.gz
-$ cd mitofinder_vX
-$ ./install.sh
-
-$ PATH/TO/MITOFINDER_VX/mitofinder -h  
-
+PATH/TO/MITOFINDER_VX/mitofinder -h  
 ```
 
 ## Add mitofinder to your path -> linux
 
-```shell  
-
+```shell
 cd mitofinder_vX/
 p=$(pwd)
 echo -e "\n#Path to mitofinder \nexport PATH=$PATH:$p" >> ~/.bashrc 
 source ~/.bashrc  
-
 ```
 
 # How to use MitoFinder
@@ -43,24 +39,18 @@ First, you can choose the assembler using the following options:
 ### For mitochondrial genome assembly 
 
 ## Trimmed paired-end reads
-```console  
-
+```shell
 mitofinder -j [jobname] -1 [left_reads.fastq.gz] -2 [right_reads.fastq.gz] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]   
-
 ```
 
 ## Trimmed single-end reads
-```console  
-
+```shell
 mitofinder -j [jobname] -s [SE_reads.fastq.gz] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]
-
 ```
 
 ## MitoFinder can be used with your own assembly (one or several contig.s in fasta format)
-```console  
-
+```shell
 mitofinder -j [jobname] -a [assembly.fasta] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]
-
 ```
 
 ### Restart
