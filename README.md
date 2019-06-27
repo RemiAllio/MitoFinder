@@ -62,20 +62,20 @@ WARNING: If you want to make the assembly again (for example because it failed) 
 ## Result folder
 
 Mitofinder returns several files for each mitochondrial contig found:
-- *[job_name]_partial_mito_1.fasta*				containing a mitochondrial contig
-- *[job_name]_partial_mito_1.gff*				containing the final annotation for a given contig
-- *[job_name]_partial_mito_1.arwen*				containing the result of the tRNA annotation returned by the Arwen software.
-- *[job_name]_partial_mito_1.gb* 				containing the final annotation for a given contig (option --out_gb)
-- *[job_name]_final_genes.fasta*				containing the final genes selected from all contigs by MitoFinder 
+[x] **[job_name]_partial_mito_1.fasta**				containing a mitochondrial contig
+[x] **[job_name]_partial_mito_1.gff**				containing the final annotation for a given contig
+[x] **[job_name]_partial_mito_1.arwen**				containing the result of the tRNA annotation returned by the Arwen software.
+[x] **[job_name]_partial_mito_1.gb** 				containing the final annotation for a given contig (option --out_gb)
+[x] **[job_name]_final_genes.fasta**				containing the final genes selected from all contigs by MitoFinder 
 
 
 ## UCE annotation
 MitoFinder starts by assembling both mitochondrial and nuclear reads. It is only in a second step that mitochondrial contigs are identified and extracted.
 MitoFinder thus provides UCE contigs already assembled and the annotation can be done from the following file:  
-- [job_name]link.scafSeq 	containing all assembled contigs from raw reads. 
+- **[job_name]link.scafSeq** 	containing all assembled contigs from raw reads. 
 
 To do so, we recommend the PHYLUCE pipeline, which is specifically designed to annotate ultraconserved elements (Faircloth  2015; Tutorial: https://phyluce.readthedocs.io/en/latest/tutorial-one.html#finding-uce-loci).  
-You can thus use the file *[job_name]link.scafSeq* and start the pipeline at the _"Finding UCE"_ step.  
+You can thus use the file **[job_name]link.scafSeq** and start the pipeline at the **"Finding UCE"** step.  
   
 # To cite Mitofinder
 
