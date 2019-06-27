@@ -1,4 +1,4 @@
-MitoFinder version 1.0.1		22/03/2019
+MitoFinder version 1.0.2		27/06/2019
 Author : Rémi ALLIO
 
 Mitofinder is a pipeline to assemble mitochondrial genomes and extract mitochondrial genes from trimmed 
@@ -10,7 +10,7 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 
 ### Installation guide for MitoFinder
 
-# Download mitofinder_vX.tar.gz at [www.github.com]
+# Download MitoFinder [gitlab]
 
 $ tar -zxf mitofinder_vX.tar.gz
 $ cd mitofinder_vX
