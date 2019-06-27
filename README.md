@@ -10,7 +10,7 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 
 # Installation guide for MitoFinder
 
-## Download mitofinder_vX.tar.gz at [www.gitlab.com]
+## Download mitofinder on [GitLab](https://gitlab.com/RemiAllio/mitofinder)
 ```shell 
 git clone https://gitlab.com/RemiAllio/mitofinder.git
 cd mitofinder
