@@ -61,12 +61,12 @@ WARNING: If you want to make the assembly again (for example because it failed) 
 
 ## Result folder
 
-Mitofinder returns several files for each mitochondrial contig found:
-[x] **[job_name]_partial_mito_1.fasta**				containing a mitochondrial contig
-[x] **[job_name]_partial_mito_1.gff**				containing the final annotation for a given contig
-[x] **[job_name]_partial_mito_1.arwen**				containing the result of the tRNA annotation returned by the Arwen software.
-[x] **[job_name]_partial_mito_1.gb** 				containing the final annotation for a given contig (option --out_gb)
-[x] **[job_name]_final_genes.fasta**				containing the final genes selected from all contigs by MitoFinder 
+Mitofinder returns several files for each mitochondrial contig found:  
+- [x] **[job_name]_partial_mito_1.fasta**				containing a mitochondrial contig  
+- [x] **[job_name]_partial_mito_1.gff**				containing the final annotation for a given contig  
+- [x] **[job_name]_partial_mito_1.arwen**				containing the result of the tRNA annotation returned by the Arwen software.  
+- [x] **[job_name]_partial_mito_1.gb** 				containing the final annotation for a given contig (option --out_gb)  
+- [x] **[job_name]_final_genes.fasta**				containing the final genes selected from all contigs by MitoFinder   
 
 
 ## UCE annotation
