@@ -23,7 +23,7 @@ $ PATH/TO/MITOFINDER_VX/mitofinder -h
 
 ## Add mitofinder to your path -> linux
 
-```console  
+```shell  
 
 cd mitofinder_vX/
 p=$(pwd)
