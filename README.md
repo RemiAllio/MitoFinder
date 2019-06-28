@@ -91,5 +91,4 @@ To do so, we recommend the PHYLUCE pipeline, which is specifically designed to a
 You can thus use the file **[job_name]link.scafSeq** and start the pipeline at the **"Finding UCE"** step.  
   
 # To cite Mitofinder
-
-Allio R., Schomaker-Bastos A., Romiguier J., Prosdocimi F., Nabholz B. & Delsuc F. (2019). Efficient automated extraction of mitogenomic data in target enrichment phylogenomics with MitoFinder. Molecular Ecology Resources (submitted).
+Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2019). MitoFinder: efficient automated large-scale extraction of mitogenomic data in target enrichment phylogenomics. BioRxiv, 685412. https://doi.org/10.1101/685412
