@@ -42,37 +42,47 @@ source ~/.bashrc
 ```
 
 # How to use MitoFinder
-TIP: use mitofinder --example to print usual examples of use
 
+### Assembler
 First, you can choose the assembler using the following options:  
 -- megahit 				(default: faster)  
 -- metaspades			(recommended: a bit slower but more efficient (see associated paper). WARNING: Not compatible with single-end reads)  
 -- idba  
 
-### For mitochondrial genome assembly 
+## Mitochondrial genome assembly  
 
-## Trimmed paired-end reads
+TIP: use mitofinder --example to print usual examples of use  
+
+### Trimmed paired-end reads
 ```shell
 mitofinder -j [jobname] -1 [left_reads.fastq.gz] -2 [right_reads.fastq.gz] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]   
 ```
 
-## Trimmed single-end reads
+### Trimmed single-end reads
 ```shell
 mitofinder -j [jobname] -s [SE_reads.fastq.gz] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]
 ```
 
-## MitoFinder can be used with your own assembly (one or several contig.s in fasta format)
+### MitoFinder can be used with your own assembly (one or several contig.s in fasta format)
 ```shell
 mitofinder -j [jobname] -a [assembly.fasta] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]
 ```
 
 ### Restart
 Use the same command line.
-WARNING: If you want to make the assembly again (for example because it failed) you have to remove the result assembly directory. If not, MitoFinder will skip the assembly step.
+WARNING: If you want to make the assembly again (for example because it failed) you have to remove the result assembly directory. If not, MitoFinder will skip the assembly step.  
 
-# OUTPUT
+## INPUT
 
-## Result folder
+Mitofinder needs several files to run depending on the method you have choosen (see above):  
+- [x] **Reference_file.gb**				containing at least one mitochondrial genome of reference extracted from [NCBI](https://www.ncbi.nlm.nih.gov/)
+- [] **left_reads.fastq.gz**				containing the left reads of paired-end sequencing  
+- [] **right_reads.fastq.gz**				containing the right reads of paired-end sequencing  
+- [] **SE_reads.fastq.gz** 				containing the reads of single-end sequencing  
+- [] **assembly.fasta**				containing the assembly on which MitoFinder have to find and annotate mitochondrial contig.s   
+
+## OUTPUT  
+### Result folder  
 
 Mitofinder returns several files for each mitochondrial contig found:  
 - [x] **[job_name]_partial_mito_1.fasta**				containing a mitochondrial contig  
@@ -82,7 +92,7 @@ Mitofinder returns several files for each mitochondrial contig found:
 - [x] **[job_name]_final_genes.fasta**				containing the final genes selected from all contigs by MitoFinder   
 
 
-## UCE annotation
+### UCE annotation
 MitoFinder starts by assembling both mitochondrial and nuclear reads. It is only in a second step that mitochondrial contigs are identified and extracted.
 MitoFinder thus provides UCE contigs already assembled and the annotation can be done from the following file:  
 - **[job_name]link.scafSeq** 	containing all assembled contigs from raw reads. 
@@ -91,4 +101,23 @@ To do so, we recommend the PHYLUCE pipeline, which is specifically designed to a
 You can thus use the file **[job_name]link.scafSeq** and start the pipeline at the **"Finding UCE"** step.  
   
 # To cite Mitofinder
-Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2019). MitoFinder: efficient automated large-scale extraction of mitogenomic data in target enrichment phylogenomics. BioRxiv, 685412. https://doi.org/10.1101/685412
+
+Allio R., Schomaker-Bastos A., Romiguier J., Prosdocimi F., Nabholz B. & Delsuc F. (2019). Efficient automated extraction of mitogenomic data in target enrichment phylogenomics with MitoFinder. Molecular Ecology Resources (submitted).
+
+
+
+## HOW TO GET MITOCHONDRIAL GENOMES FROM NCBI
+
+1. Go to [NCBI](https://www.ncbi.nlm.nih.gov/)  
+2. Select "Nucleotide" in the search bar  
+3. Search for mitochondrion genomes:  
+- [x] RefSeq (if available)  
+- [x] Sequence length from 12000 to 20000  
+4. Download complete record in GenBank format  
+
+![](/image/NCBI.png)
+
+
+
+
+
