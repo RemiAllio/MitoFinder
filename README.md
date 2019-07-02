@@ -1,7 +1,9 @@
 # MitoFinder version 1.0.2		22/03/2019
 Author : Rémi ALLIO
 
-![](/image/logo.png =100x)
+<p align="center">
+<img src="/image/logo.png" alt="Drawing" width="250"/>
+</p>
 
 Mitofinder is a pipeline to assemble mitochondrial genomes and extract mitochondrial genes from trimmed 
 sequencing read data.
@@ -19,7 +21,7 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 5. [OUTPUTS](#outputs)
 6. [UCE annotation](UCE-annotation)
 7. [Associated publication](#associated-publication)
-8. [How to get mitochondrial genomes of reference](#how-to-get-mitochondrial-genomes-of-reference)
+8. [How to get reference mitochondrial genomes from ncbi](#how-to-get-reference-mitochondrial-genomes-from-ncbi)
 
 
 # Installation guide for MitoFinder
@@ -203,7 +205,7 @@ You can thus use the file **[job_name]link.scafSeq** and start the pipeline at t
 Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2019). MitoFinder: efficient automated large-scale extraction of mitogenomic data in target enrichment phylogenomics. BioRxiv, 685412. https://doi.org/10.1101/685412
 
 
-# HOW TO GET MITOCHONDRIAL GENOMES FROM NCBI
+# HOW TO GET REFERENCE MITOCHONDRIAL GENOMES FROM NCBI
 
 1. Go to [NCBI](https://www.ncbi.nlm.nih.gov/)  
 2. Select "Nucleotide" in the search bar  
