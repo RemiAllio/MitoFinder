@@ -151,7 +151,7 @@ optional arguments:
                         Cove cutoff for tRNAscan-SE. Default = 7
   -o ORGANISMTYPE, --organism ORGANISMTYPE
                         What should the genome checking and annotation
-                        consider as genetic code type. NCBI's table (integer):
+                        consider as genetic code type. NCBI table (integer):
                         1. The Standard Code 2. The Vertebrate Mitochondrial
                         Code 3. The Yeast Mitochondrial Code 4. The Mold,
                         Protozoan, and Coelenterate Mitochondrial Code and the
