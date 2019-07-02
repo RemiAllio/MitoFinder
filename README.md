@@ -19,7 +19,7 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 3. [Detailed options](#detailed-options)
 4. [INPUTS](#inputs)
 5. [OUTPUTS](#outputs)
-6. [UCE annotation](UCE-annotation)
+6. [UCE annotation](#uce-annotation)
 7. [Associated publication](#associated-publication)
 8. [How to get reference mitochondrial genomes from ncbi](#how-to-get-reference-mitochondrial-genomes-from-ncbi)
 
