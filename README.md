@@ -1,8 +1,8 @@
 # MitoFinder version 1.0.2		22/03/2019
-Author : Rémi ALLIO
+Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F.
 
 <p align="center">
-<img src="/image/logo.png" alt="Drawing" width="250"/>
+  <img src="/image/logo.png" alt="Drawing" width="250"/>
 </p>
 
 Mitofinder is a pipeline to assemble mitochondrial genomes and extract mitochondrial genes from trimmed 
@@ -85,7 +85,7 @@ mitofinder -j [jobname] -a [assembly.fasta] -r [genbank_reference.gb] -o [geneti
 ```
 
 ### Restart
-Use the same command line.
+Use the same command line.  
 WARNING: If you want to make the assembly again (for example because it failed) you have to remove the result assembly directory. If not, MitoFinder will skip the assembly step.  
 
 # Detailed options
