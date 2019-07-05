@@ -28,21 +28,23 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 
 ## Get MitoFinder
 
-Clone mitofinder from [GitLab](https://gitlab.com/RemiAllio/mitofinder)
+Clone mitofinder from [GitHub](https://github.com/RemiAllio/MitoFinder)
 
 ```shell 
-git clone https://gitlab.com/RemiAllio/mitofinder.git
-cd mitofinder
+git clone https://github.com/RemiAllio/MitoFinder.git
+cd MitoFinder
 ./install.sh
 
 PATH/TO/MITOFINDER/mitofinder -h  
 ```
 
-or download [mitofinder-master.tar.gz](https://gitlab.com/RemiAllio/mitofinder/-/archive/master/mitofinder-master.tar.gz)  
+or download [master.zip](https://github.com/RemiAllio/MitoFinder/archive/master.zip)  
 
-```shell 
-tar zxvf mitofinder-master.tar.gz
-cd mitofinder-master
+```shell
+wget https://github.com/RemiAllio/MitoFinder/archive/master.zip
+unzip master.zip
+mv MitoFinder-master MitoFinder
+cd MitoFinder
 ./install.sh
 
 PATH/TO/MITOFINDER/mitofinder -h  
