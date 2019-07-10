@@ -506,9 +506,9 @@ if __name__ == "__main__":
 					name="ND5"
 				elif name.lower() == "nd6" or name.lower() == "nad6" or name.lower() == "ndh6" or name.lower() == "nadh6" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunit6" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunitvi":
 					name="ND6"
-				elif name.lower() == "atp8" or name.lower().replace(" ","").replace("-","") == "atpsynthasef0subunit8":
+				elif name.lower() == "atp8" or name.lower().replace(" ","").replace("-","") == "atpsynthasef0subunit8" or name.lower().replace(" ","").replace("-","") == "atpase8":
 					name="ATP8"
-				elif name.lower() == "atp6" or name.lower().replace(" ","").replace("-","") == "atpsynthasef0subunit6":
+				elif name.lower() == "atp6" or name.lower().replace(" ","").replace("-","") == "atpsynthasef0subunit6" or name.lower().replace(" ","").replace("-","") == "atpase6":
 					name="ATP6"
 				elif name.lower().replace(" ","").replace("-","") == "rrnl" or name.lower().replace(" ","").replace("-","") == "16sribosomalrna" or name.lower().replace(" ","").replace("-","") == "largesubunitribosomalrna" or name.lower().replace(" ","").replace("-","") == "lrrna" or name.lower().replace(" ","").replace("-","") == "16sribosomalrna" or name.lower().replace(" ","").replace("-","") == "16srrna" or name.lower().replace(" ","").replace("-","") == "rnr2" or name.lower().replace(" ","").replace("-","") == "mtrnr2" or name.lower().replace(" ","").replace("-","") == "rrn16" or name.lower().replace(" ","").replace("-","") == "rnl" or name.lower().replace(" ","").replace("-","") == "lsu":
 					name="rrnL"			
@@ -555,9 +555,9 @@ if __name__ == "__main__":
 					name="ND5"
 				elif name.lower() == "nd6" or name.lower() == "nad6" or name.lower() == "ndh6" or name.lower() == "nadh6" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunit6" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunitvi":
 					name="ND6"
-				elif name.lower() == "atp8" or name.lower().replace(" ","").replace("-","") == "atpsynthasef0subunit8":
+				elif name.lower() == "atp8" or name.lower().replace(" ","").replace("-","") == "atpsynthasef0subunit8" or name.lower().replace(" ","").replace("-","") == "atpase8":
 					name="ATP8"
-				elif name.lower() == "atp6" or name.lower().replace(" ","").replace("-","") == "atpsynthasef0subunit6":
+				elif name.lower() == "atp6" or name.lower().replace(" ","").replace("-","") == "atpsynthasef0subunit6" or name.lower().replace(" ","").replace("-","") == "atpase6":
 					name="ATP6"
 				elif name.lower().replace(" ","").replace("-","") == "rrnl" or name.lower().replace(" ","").replace("-","") == "16sribosomalrna" or name.lower().replace(" ","").replace("-","") == "largesubunitribosomalrna" or name.lower().replace(" ","").replace("-","") == "lrrna" or name.lower().replace(" ","").replace("-","") == "16sribosomalrna" or name.lower().replace(" ","").replace("-","") == "16srrna" or name.lower().replace(" ","").replace("-","") == "rnr2" or name.lower().replace(" ","").replace("-","") == "mtrnr2" or name.lower().replace(" ","").replace("-","") == "rrn16" or name.lower().replace(" ","").replace("-","") == "rnl" or name.lower().replace(" ","").replace("-","") == "lsu":
 					name="rrnL"
