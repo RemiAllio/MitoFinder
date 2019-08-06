@@ -145,7 +145,7 @@ def runIDBA(processName = 'teste', shortestContig = 100, inputFile = 'teste.inpu
 	
 	with gzip.open(read+'.gz', 'wb') as f:
 		f.write(read)
-		os.remove(read+'.gz')
+		os.remove(read)
 	logfile.close()
 
 
