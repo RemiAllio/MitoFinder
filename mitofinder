@@ -635,6 +635,7 @@ if __name__ == "__main__":
 		if os.path.exists(pathtowork+"/"+args.processName+"_link.scafSeq"):
 			os.remove(pathtowork+"/"+args.processName+"_link.scafSeq")
 		os.symlink(args.Assembly, pathtowork+"/"+args.processName+"_link.scafSeq")
+		linkfile=args.processName+"_link.scafSeq"
 			
 	if Assembly == True:
 		logfile.close()
@@ -648,10 +649,10 @@ if __name__ == "__main__":
 				print "Delete or rename the Megahit result folder and restart MitoFinder" 
 				logfile.write("\n Megahit didn't run\n"+"Delete or rename the Megahit result folder and restart MitoFinder\n")
 				exit()
-			if os.path.exists(pathtowork+"/"+args.processName+"_link.scafSeq"):
-				os.remove(pathtowork+"/"+args.processName+"_link.scafSeq")
-			os.symlink(pathtowork+"/"+out+"/"+out+".contigs.fa", pathtowork+"/"+args.processName+"_link.scafSeq")
-		
+			if os.path.exists(pathtowork+"/"+args.processName+"_link_megahit.scafSeq"):
+				os.remove(pathtowork+"/"+args.processName+"_link_megahit.scafSeq")
+			os.symlink(pathtowork+"/"+out+"/"+out+".contigs.fa", pathtowork+"/"+args.processName+"_link_megahit.scafSeq")
+			link_file=args.processName+"_link_megahit.scafSeq"
 		
 		#let's call IDBA-UD
 		if args.idba == True :
@@ -663,10 +664,10 @@ if __name__ == "__main__":
 				print "Delete or rename the IDBA-UD result folder and restart MitoFinder" 
 				logfile.write("\n IDBA-UD didn't run\n"+"Delete or rename the IDBA-UD result folder and restart MitoFinder\n")
 				exit()
-			if os.path.exists(pathtowork+"/"+args.processName+"_link.scafSeq"):
-				os.remove(pathtowork+"/"+args.processName+"_link.scafSeq")
-			os.symlink(pathtowork+"/"+out+"/contig.fa", pathtowork+"/"+args.processName+"_link.scafSeq")
-		
+			if os.path.exists(pathtowork+"/"+args.processName+"_link_idba.scafSeq"):
+				os.remove(pathtowork+"/"+args.processName+"_link_idba.scafSeq")
+			os.symlink(pathtowork+"/"+out+"/contig.fa", pathtowork+"/"+args.processName+"_link_idba.scafSeq")
+			link_file=args.processName+"_link_idba.scafSeq"
 		
 		#let's call MetaSPAdes
 		if args.metaspades == True :
@@ -678,10 +679,10 @@ if __name__ == "__main__":
 				print "Delete or rename the MetaSPAdes result folder and restart MitoFinder" 
 				logfile.write("\n MetaSPAdes didn't run\n"+"Delete or rename the MetaSPAdes result folder and restart MitoFinder\n")
 				exit()
-			if os.path.exists(pathtowork+"/"+args.processName+"_link.scafSeq"):
-				os.remove(pathtowork+"/"+args.processName+"_link.scafSeq")
-			os.symlink(pathtowork+"/"+out+"/"+"scaffolds.fasta", pathtowork+"/"+args.processName+"_link.scafSeq")
-		
+			if os.path.exists(pathtowork+"/"+args.processName+"_link_metaspades.scafSeq"):
+				os.remove(pathtowork+"/"+args.processName+"_link_metaspades.scafSeq")
+			os.symlink(pathtowork+"/"+out+"/"+"scaffolds.fasta", pathtowork+"/"+args.processName+"_link_metaspades.scafSeq")
+			link_file=args.processName+"_link_metaspades.scafSeq"
 		
 		#identification of contigs matching on the refSeq
 		blasteVal=args.blasteVal
@@ -691,7 +692,7 @@ if __name__ == "__main__":
 		print "Formatting database for mitochondrial contigs identification..."
 		logfile.write("Formatting database for mitochondrial contigs identification...\n")
 		
-		command = blastFolder+"/makeblastdb -in " + args.processName + "_link.scafSeq" + " -dbtype nucl"
+		command = blastFolder+"/makeblastdb -in " + link_file + " -dbtype nucl"
 		
 		args1 = shlex.split(command)
 		formatDB = Popen(args1, stdout=open(os.devnull, 'wb'))
@@ -700,7 +701,7 @@ if __name__ == "__main__":
 		print "Running mitochondrial contigs identification step..."
 		logfile.write("Running mitochondrial contigs identification step...\n")
 		with open(args.processName + '_blast_out.txt','w') as BlastResult:
-			command = blastFolder+"/blastn -db " +  args.processName + "_link.scafSeq " + "-query contig_id_database.fasta -evalue " + str(blasteVal) + " -outfmt 6 -perc_identity " + str(args.blastIdentityNucl)
+			command = blastFolder+"/blastn -db " +  link_file + "-query contig_id_database.fasta -evalue " + str(blasteVal) + " -outfmt 6 -perc_identity " + str(args.blastIdentityNucl)
 			args1 = shlex.split(command)
 			blast = Popen(args1, stdout=BlastResult)
 			blast.wait()
@@ -746,7 +747,7 @@ if __name__ == "__main__":
 		elif fl == 1:
 			
 			fout=open(pathtowork+"/"+args.processName+'_contig.fasta','w')
-			for r in SeqIO.parse(pathtowork+"/"+args.processName+"_link.scafSeq","fasta"):
+			for r in SeqIO.parse(pathtowork+"/"+link_file,"fasta"):
 				if ID_dico.has_key(r.id):
 					SeqIO.write(r, fout, "fasta")
 			fout.close()
@@ -971,7 +972,7 @@ if __name__ == "__main__":
 			# Extract every contigs one by one
 			c=0
 			contg_list=open(pathtowork+"/"+'contig_list.txt','w')
-			for r in SeqIO.parse(pathtowork+"/"+args.processName+"_link.scafSeq","fasta"):
+			for r in SeqIO.parse(pathtowork+"/"+linkfile,"fasta"):
 				if ID_dico.has_key(r.id):
 					c=c+1
 					fout=open(pathtowork+"/"+args.processName+'_contig_'+str(c)+'.fasta','w')
