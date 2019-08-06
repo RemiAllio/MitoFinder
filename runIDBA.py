@@ -143,10 +143,8 @@ def runIDBA(processName = 'teste', shortestContig = 100, inputFile = 'teste.inpu
 				idba.wait()
 				#copyfile(pathToWork+"/"+out+"/contig.fa", pathToWork+"/"+processName+".scafSeq")
 	
-	with gzip.open(read1+'.gz', 'wb') as f:
-		f.write(read1)
-	with gzip.open(read2+'.gz', 'wb') as f:
-		f.write(read2)
+	with gzip.open(read+'.gz', 'wb') as f:
+		f.write(read)
 	
 	logfile.close()
 
