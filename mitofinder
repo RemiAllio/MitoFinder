@@ -635,7 +635,7 @@ if __name__ == "__main__":
 		if os.path.exists(pathtowork+"/"+args.processName+"_link.scafSeq"):
 			os.remove(pathtowork+"/"+args.processName+"_link.scafSeq")
 		os.symlink(args.Assembly, pathtowork+"/"+args.processName+"_link.scafSeq")
-		linkfile=args.processName+"_link.scafSeq"
+		link_file=args.processName+"_link.scafSeq"
 			
 	if Assembly == True:
 		logfile.close()
@@ -701,7 +701,7 @@ if __name__ == "__main__":
 		print "Running mitochondrial contigs identification step..."
 		logfile.write("Running mitochondrial contigs identification step...\n")
 		with open(args.processName + '_blast_out.txt','w') as BlastResult:
-			command = blastFolder+"/blastn -db " +  link_file + "-query contig_id_database.fasta -evalue " + str(blasteVal) + " -outfmt 6 -perc_identity " + str(args.blastIdentityNucl)
+			command = blastFolder+"/blastn -db " +  link_file + " -query contig_id_database.fasta -evalue " + str(blasteVal) + " -outfmt 6 -perc_identity " + str(args.blastIdentityNucl)
 			args1 = shlex.split(command)
 			blast = Popen(args1, stdout=BlastResult)
 			blast.wait()
@@ -972,7 +972,7 @@ if __name__ == "__main__":
 			# Extract every contigs one by one
 			c=0
 			contg_list=open(pathtowork+"/"+'contig_list.txt','w')
-			for r in SeqIO.parse(pathtowork+"/"+linkfile,"fasta"):
+			for r in SeqIO.parse(pathtowork+"/"+link_file,"fasta"):
 				if ID_dico.has_key(r.id):
 					c=c+1
 					fout=open(pathtowork+"/"+args.processName+'_contig_'+str(c)+'.fasta','w')
