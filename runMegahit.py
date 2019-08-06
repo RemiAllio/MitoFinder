@@ -101,7 +101,7 @@ def runMegahit(processName = 'teste', shortestContig = 100, inputFile = 'teste.i
 					print "Please check log file : "+ pathToWork + 'megahit.log'
 					logfile.write("\n ERROR: MegaHit didn't run well"+"\n"+"Please check log file : "+ pathToWork + 'megahit.log'+"\n")
 					exit()
-				copyfile(pathToWork+"/"+out+"/"+out+".contigs.fa", pathToWork+"/"+processName+".scafSeq")
+				#copyfile(pathToWork+"/"+out+"/"+out+".contigs.fa", pathToWork+"/"+processName+".scafSeq")
 				#check Megahit output to see if reference sequence was built	
 				
 			
@@ -117,7 +117,7 @@ def runMegahit(processName = 'teste', shortestContig = 100, inputFile = 'teste.i
 					print "Please check log file : "+ pathToWork + 'megahit.log'
 					logfile.write("\n ERROR: MegaHit didn't run well"+"\n"+"Please check log file : "+ pathToWork + 'megahit.log'+"\n")
 					exit()
-				copyfile(pathToWork+"/"+out+"/"+out+".contigs.fa", pathToWork+"/"+processName+".scafSeq")
+				#copyfile(pathToWork+"/"+out+"/"+out+".contigs.fa", pathToWork+"/"+processName+".scafSeq")
 
 	logfile.close()
 

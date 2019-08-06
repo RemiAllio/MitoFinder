@@ -101,7 +101,7 @@ def runMetaspades(processName = 'teste', shortestContig = 100, inputFile = 'test
 					print "Please check log file : "+ pathToWork + 'metaspades.log'
 					logfile.write("\n ERROR: MetaSPAdes didn't run well"+"\n"+"Please check log file : "+ pathToWork + 'metaspades.log'+"\n")
 					exit()
-				copyfile(pathToWork+"/"+out+"/"+"scaffolds.fasta", pathToWork+"/"+processName+".scafSeq")
+				#copyfile(pathToWork+"/"+out+"/"+"scaffolds.fasta", pathToWork+"/"+processName+".scafSeq")
 				#check Megahit output to see if reference sequence was built	
 				
 			
@@ -117,7 +117,7 @@ def runMetaspades(processName = 'teste', shortestContig = 100, inputFile = 'test
 					print "Please check log file : "+ pathToWork + 'metaspades.log'
 					logfile.write("\n MetaSPAdes didn't run well"+"\n"+"Please check log file : "+ pathToWork + 'metaspades.log'+"\n")
 					exit()
-				copyfile(pathToWork+"/"+out+"/"+"scaffolds.fasta", pathToWork+"/"+processName+".scafSeq")
+				#copyfile(pathToWork+"/"+out+"/"+"scaffolds.fasta", pathToWork+"/"+processName+".scafSeq")
 	
 	logfile.close()
 	

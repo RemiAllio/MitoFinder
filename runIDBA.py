@@ -120,7 +120,7 @@ def runIDBA(processName = 'teste', shortestContig = 100, inputFile = 'teste.inpu
 				print "Running assembly" 
 				idba = Popen(command, stdout=idbaLogFile, stderr=idbaLogFile, shell=True)
 				idba.wait()
-				copyfile(pathToWork+"/"+out+"/contig.fa", pathToWork+"/"+processName+".scafSeq")
+				#copyfile(pathToWork+"/"+out+"/contig.fa", pathToWork+"/"+processName+".scafSeq")
 				
 			if t == "SE":
 				print "Single-end"
@@ -141,12 +141,12 @@ def runIDBA(processName = 'teste', shortestContig = 100, inputFile = 'teste.inpu
 				logfile.write("Running assembly"+"\n") 
 				idba = Popen(command, stdout=idbaLogFile, stderr=idbaLogFile, shell=True)
 				idba.wait()
-				copyfile(pathToWork+"/"+out+"/contig.fa", pathToWork+"/"+processName+".scafSeq")
+				#copyfile(pathToWork+"/"+out+"/contig.fa", pathToWork+"/"+processName+".scafSeq")
 	
 	with gzip.open(read1+'.gz', 'wb') as f:
-		f.write(content)
+		f.write(read1)
 	with gzip.open(read2+'.gz', 'wb') as f:
-		f.write(content)
+		f.write(read2)
 	
 	logfile.close()
 
