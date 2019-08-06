@@ -2,9 +2,6 @@ chmod 764 */*/*/*
 chmod 764 */*/*
 chmod 764 */*
 chmod 764 *
-cd megahit
-make
-cd ..
 cd  idba
 ./build.sh
 cd ..
