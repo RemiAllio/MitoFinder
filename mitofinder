@@ -1273,6 +1273,14 @@ if __name__ == "__main__":
 			
 	print ""
 	logfile.write("\n")
+	
+	#sort gff
+	for f in glob.glob(pathOfFinalResults+"/*_raw.gff"):
+		command = module_dir+"/sort_gff.py " + f
+		args1 = shlex.split(command)
+		sort_gff = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+		sort_gff.wait()	
+	
 	#check genes (doublon ?)
 	
 	dico_genes={}
