@@ -10,7 +10,7 @@ sequencing read data.
 
 # Requirements
 
-This software is suitable for all linux-like systems with gcc installed (Unfortunately, not MAC and Windows).
+This software is suitable for all linux-like systems with gcc installed (Unfortunately, not MAC and Windows < v.10).
 
 # Table of content
 
