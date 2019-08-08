@@ -1295,12 +1295,13 @@ if __name__ == "__main__":
 			else:
 				dico_genes[gene]=seq
 				dico_gcount[gene]=1
-		
+	double_gene=0	
 	for key, value in dico_gcount.items():
 		if value >> 1:
 			print "WARNING: " + key + " has been found more than once ("+ str(value) + ") in the different mitochondrial contigs."
 			print "MitoFinder selected the longest sequence as the final sequence.\n"
 			logfile.write("WARNING : " + key + " has been found more than once ("+ str(value) + ") in the different mitochondrial contigs."+"\n"+"Mitofinder selected the longest sequence as the final sequence.\n"+"\n")
+			double_gene+=1
 	final_fasta=open(pathOfFinalResults+"/"+args.processName+"_final_genes.fasta","w")
 	
 	for key, value in dico_genes.items():
@@ -1310,6 +1311,14 @@ if __name__ == "__main__":
 	print "## Final sequence saved to "+pathOfFinalResults
 	print "Mitochondrial genes found by MitoFinder are in "+pathOfFinalResults+args.processName+"_final_genes.fasta"+"\n"
 	logfile.write("## Final sequence saved to "+pathOfFinalResults+"\n"+"Mitochondrial genes found by MitoFinder are in "+pathOfFinalResults+args.processName+"_final_genes.fasta"+"\n"+"\n")
+	
+	if double_gene == 1:
+		print "\n/!\\ WARNING /!\\ "+str(double_gene)+" gene was found more than once suggesting potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes.fasta\""+" could be erroneous.\nWe recommend to check contigs and associated genes separately.\n"
+		logfile.write("\n/!\\ WARNING /!\\ "+str(double_gene)+" gene was found more than once suggesting potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes.fasta\""+" could be erroneous.\nWe recommend to check contigs and associated genes separately."+"\n\n")
+	elif double_gene > 1:
+		print "\n/!\\ WARNING /!\\ "+str(double_gene)+" genes were found more than once suggesting potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes.fasta\""+" could be erroneous.\nWe recommend to check contigs and associated genes separately.\n"
+		logfile.write("\n/!\\ WARNING /!\\ "+str(double_gene)+" genes were found more than once suggesting potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes.fasta\""+" could be erroneous.\nWe recommend to check contigs and associated genes separately."+"\n\n")
+	
 	# Cleaning 
 	tmpfiles=(pathtowork+"/"+args.processName+"_tmp")
 	if os.path.exists(tmpfiles): 
