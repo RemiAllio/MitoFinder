@@ -10,7 +10,7 @@ sequencing read data.
 
 # Requirements
 
-This software is suitable for all linux-like systems with gcc installed (Unfortunately, not MAC and Windows).
+This software is suitable for all linux-like systems with gcc installed (Unfortunately, not MAC and Windows < v.10).
 
 # Table of content
 
@@ -28,21 +28,23 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 
 ## Get MitoFinder
 
-Clone mitofinder from [GitLab](https://gitlab.com/RemiAllio/mitofinder)
+Clone mitofinder from [GitHub](https://github.com/RemiAllio/MitoFinder)
 
 ```shell 
-git clone https://gitlab.com/RemiAllio/mitofinder.git
-cd mitofinder
+git clone https://github.com/RemiAllio/MitoFinder.git
+cd MitoFinder
 ./install.sh
 
 PATH/TO/MITOFINDER/mitofinder -h  
 ```
 
-or download [mitofinder-master.tar.gz](https://gitlab.com/RemiAllio/mitofinder/-/archive/master/mitofinder-master.tar.gz)  
+or download [master.zip](https://github.com/RemiAllio/MitoFinder/archive/master.zip)  
 
-```shell 
-tar zxvf mitofinder-master.tar.gz
-cd mitofinder-master
+```shell
+wget https://github.com/RemiAllio/MitoFinder/archive/master.zip
+unzip master.zip
+mv MitoFinder-master MitoFinder
+cd MitoFinder
 ./install.sh
 
 PATH/TO/MITOFINDER/mitofinder -h  
@@ -188,7 +190,7 @@ Mitofinder returns several files for each mitochondrial contig found:
 - [x] **[job_name]_partial_mito_1.fasta**				containing a mitochondrial contig  
 - [x] **[job_name]_partial_mito_1_genes.fasta** 				containing the annoted genes for a given contig    
 - [x] **[job_name]_partial_mito_1.gff**				containing the final annotation for a given contig  
-- [x] **[job_name]_partial_mito_1.arwen**				containing the result of the tRNA annotation returned by the Arwen software.  
+- [x] **[job_name]_partial_mito_1.arwen**				containing the result of the tRNA annotation returned by the Arwen software  
 - [x] **[job_name]_partial_mito_1.gb** 				containing the final annotation for a given contig (option --out_gb)  
 - [x] **[job_name]_final_genes.fasta**				containing the final genes selected from all contigs by MitoFinder   
 

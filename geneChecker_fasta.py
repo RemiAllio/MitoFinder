@@ -496,7 +496,7 @@ if __name__ == "__main__":
 			count = SeqIO.write(finalResults, outputResult, "genbank")
 			createImageOfAnnotation(finalResults, outputFile.split(".gb")[0]+'.png')
 
-		outputFile=outputFile.split(".gb")[0]+'.gff'
+		outputFile=outputFile.split(".gb")[0]+'_raw.gff'
 		outputFile=open(outputFile,"w")
 		seq = SeqIO.read(open(resultFile, 'rU'), "fasta", generic_dna)
 		seq_name = seq.name
