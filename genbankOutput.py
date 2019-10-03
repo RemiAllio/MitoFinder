@@ -150,7 +150,7 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 						endBase = thisFeatureAlignment.endBase
 						n = 0
 						while not coding_dna_TranslationForward.startswith(startCodons) \
-						and not coding_dna_TranslationBackward.startswith(startCodons) and n < nWalkStart and startBase - (3*n) >= 0:
+						and not coding_dna_TranslationBackward.startswith(startCodons) and n < nWalkStart and startBase - (3*(n+1)) >= 0:
 							try:
 								n += 1
 								coding_dna_Backward = Seq(str(finalResults.seq[startBase - (3*n):endBase]), IUPAC.unambiguous_dna)
@@ -196,7 +196,7 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 						endBase = thisFeatureAlignment.endBase
 						n = 0
 						while not coding_dna_TranslationForward.endswith(stopCodons) \
-						and not coding_dna_TranslationBackward.endswith(stopCodons) and n < nWalkStop and endBase + (3*n) <= len(finalResults):
+						and not coding_dna_TranslationBackward.endswith(stopCodons) and n < nWalkStop and endBase + (3*(n+1)) <= len(finalResults):
 							try:
 								n += 1
 								coding_dna_Backward = Seq(str(finalResults.seq[startBase:endBase - (3*n)]), IUPAC.unambiguous_dna)
