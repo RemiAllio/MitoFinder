@@ -77,7 +77,7 @@ if __name__ == "__main__":
 						default=100, dest='shortestContig')
 	parser.add_argument('-p', '--processors', help='Number of threads Mitofinder will use at most.', type=int,
 						default=4, dest='processorsToUse')
-	parser.add_argument('-r', '--refseq', help='Reference mitochondrial genome in GenBank format (.gb).',
+	parser.add_argument('-r', '--refseq', help='Reference mitochondrial genome.s in GenBank format (.gb). You can put several reference mitgenomes together.',
 						default="", dest='refSeqFile')
 	parser.add_argument('-e', '--blaste', help='e-value of blast program used for contig identification and annotation. Default = 0.000001', type=float,
 						default=0.000001, dest='blasteVal')
