@@ -1,4 +1,4 @@
-# MitoFinder version 1.0.2		06/01/2019
+# MitoFinder version 1.1		
 Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F.
 
 <p align="center">
@@ -16,14 +16,12 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 
 1. [Installation guide for MitoFinder](#installation-guide-for-mitofinder)
 2. [How to use MitoFinder](#how-to-use-mitofinder)
-3. [INPUTS](#inputs)
-4. [OUTPUTS](#outputs)
-5. [Test case](#test-case)
-6. [Restart](#restart)
-7. [UCE annotation](#uce-annotation)
-8. [Associated publication](#associated-publication)
-9. [How to get reference mitochondrial genomes from ncbi](#how-to-get-reference-mitochondrial-genomes-from-ncbi)
-10. [Detailed options](#detailed-options)
+3. [Detailed options](#detailed-options)
+4. [INPUTS](#inputs)
+5. [OUTPUTS](#outputs)
+6. [UCE annotation](#uce-annotation)
+7. [Associated publication](#associated-publication)
+8. [How to get reference mitochondrial genomes from ncbi](#how-to-get-reference-mitochondrial-genomes-from-ncbi)
 
 
 # Installation guide for MitoFinder
@@ -71,7 +69,7 @@ First, you can choose the assembler using the following options:
 
 ## Mitochondrial genome assembly  
 
-**TIP**: use mitofinder --example to print usual examples of use  
+TIP: use mitofinder --example to print usual examples of use  
 
 ### Trimmed paired-end reads
 ```shell
@@ -88,66 +86,9 @@ mitofinder -j [jobname] -s [SE_reads.fastq.gz] -r [genbank_reference.gb] -o [gen
 mitofinder -j [jobname] -a [assembly.fasta] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]
 ```
 
-# INPUTS
-
-Mitofinder needs several files to run depending on the method you have choosen (see above):  
-- [x] **Reference_file.gb**				containing at least one mitochondrial genome of reference extracted from [NCBI](https://www.ncbi.nlm.nih.gov/)
-- [ ] **left_reads.fastq.gz**				containing the left reads of paired-end sequencing  
-- [ ] **right_reads.fastq.gz**				containing the right reads of paired-end sequencing  
-- [ ] **SE_reads.fastq.gz** 				containing the reads of single-end sequencing  
-- [ ] **assembly.fasta**				containing the assembly on which MitoFinder have to find and annotate mitochondrial contig.s   
-
-**TIP 1**: If you hesitate between two or more mitogenomes to use as references, you can put them together in the same reference file. MitoFinder will use all of them to find mitochondrial signal and will choose the best matching one for each gene during the annotation step.  
-**TIP 2**: If you want to assemble several mitogenomes for which you have different references, you can group them together in the same reference file. This allows to use MitoFinder in a loop and does not affect the result because MitoFinder will select the best matching reference for the annotation step.  
-**TIP 3**: If you have a large number of reads, from a whole genome sequencing for example, you can pre-filter mitochondrial reads using [mirabait](http://manpages.ubuntu.com/manpages/xenial/man1/mirabait.1.html). This will considerably reduce the computation time. However, this can be done only if you have a reference mitogenome for a closely related species because MIRA uses mapping to select reads and this method is rather stringent. If you don't have the mitogenome of a closely related species you can just use a random subset of your read data (~ 15/20 Millions of reads) to reduce computation time and assemble the mitogenome. Of course, in doing so, you could lose some of the information if the mitogenome coverage is unsufficient.  
-
-# OUTPUTS 
-### Result folder  
-
-Mitofinder returns several files for each mitochondrial contig found:  
-- [x] **[job_name]_partial_mito_1.fasta**				containing a mitochondrial contig  
-- [x] **[job_name]_partial_mito_1_genes.fasta** 				containing the annoted genes for a given contig    
-- [x] **[job_name]_partial_mito_1.gff**				containing the final annotation for a given contig  
-- [x] **[job_name]_partial_mito_1.arwen**				containing the result of the tRNA annotation returned by the Arwen software  
-- [x] **[job_name]_partial_mito_1.gb** 				containing the final annotation for a given contig (option --out_gb)  
-- [x] **[job_name]_final_genes.fasta**				containing the final genes selected from all contigs by MitoFinder   
-
-# Test case
-A test case is available in the testcase directory.
-
-To run it:
-```shell
-cd /PATH/TO/MITOFINDER/testcase/
-
-mitofinder -j test -s test.fastq -r test_reference.gb -o 5 -p 5 -m 5
-```
-
-# Restart
+### Restart
 Use the same command line.  
 WARNING: If you want to make the assembly again (for example because it failed) you have to remove the result assembly directory. If not, MitoFinder will skip the assembly step.  
-
-# UCE annotation
-MitoFinder starts by assembling both mitochondrial and nuclear reads. It is only in a second step that mitochondrial contigs are identified and extracted.
-MitoFinder thus provides UCE contigs already assembled and the annotation can be done from the following file:  
-- **[job_name]link.scafSeq** 	containing all assembled contigs from raw reads. 
-
-To do so, we recommend the PHYLUCE pipeline, which is specifically designed to annotate ultraconserved elements (Faircloth  2015; Tutorial: https://phyluce.readthedocs.io/en/latest/tutorial-one.html#finding-uce-loci).  
-You can thus use the file **[job_name]link.scafSeq** and start the pipeline at the **"Finding UCE"** step.  
-  
-# Associated publication
-
-Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2019). MitoFinder: efficient automated large-scale extraction of mitogenomic data in target enrichment phylogenomics. BioRxiv, 685412. https://doi.org/10.1101/685412
-
-# HOW TO GET REFERENCE MITOCHONDRIAL GENOMES FROM NCBI
-
-1. Go to [NCBI](https://www.ncbi.nlm.nih.gov/)  
-2. Select "Nucleotide" in the search bar  
-3. Search for mitochondrion genomes:  
-- [x] RefSeq (if available)  
-- [x] Sequence length from 12000 to 20000  
-4. Download complete record in GenBank format  
-
-![](/image/NCBI.png)
 
 # Detailed options
 
@@ -155,7 +96,7 @@ Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & D
 usage: mitofinder [-h] [--megahit] [--idba] [--metaspades] [-j PROCESSNAME]
                   [-1 PE1] [-2 PE2] [-s SE] [-a ASSEMBLY] [-m MEM]
                   [-l SHORTESTCONTIG] [-p PROCESSORSTOUSE] [-r REFSEQFILE]
-                  [-e BLASTEVAL] [--out_gb]
+                  [-e BLASTEVAL] [-n NWALK] [--out_gb]
                   [--blastidentitynucl BLASTIDENTITYNUCL]
                   [--blastidentityprot BLASTIDENTITYPROT]
                   [--blastsize ALIGNCUTOFF] [--circularsize CIRCULARSIZE]
@@ -163,7 +104,7 @@ usage: mitofinder [-h] [--megahit] [--idba] [--metaspades] [-j PROCESSNAME]
                   [-o ORGANISMTYPE] [-v] [--example]
 
 Mitofinder is a pipeline to assemble and annotate mitochondrial DNA from
-cleaned sequencing datas.
+trimmed sequencing reads.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -171,7 +112,7 @@ optional arguments:
   --idba                Use IDBA-UD for assembly.
   --metaspades          Use MetaSPAdes for assembly.
   -j PROCESSNAME, --jobname PROCESSNAME
-                        Job name to be used throughout the project
+                        Sequence ID to be used throughout the process
   -1 PE1, --Paired-end1 PE1
                         File with forward paired-end reads
   -2 PE2, --Paired-end2 PE2
@@ -181,29 +122,33 @@ optional arguments:
   -a ASSEMBLY, --assembly ASSEMBLY
                         File with your own assembly
   -m MEM, --max-memory MEM
-                        max memory to use in Go (megahit or metaspades)
+                        max memory to use in Go (Megahit or MetaSPAdes)
   -l SHORTESTCONTIG, --length SHORTESTCONTIG
                         Shortest contig length to be used in scaffolding.
                         Default = 100
   -p PROCESSORSTOUSE, --processors PROCESSORSTOUSE
                         Number of threads Mitofinder will use at most.
   -r REFSEQFILE, --refseq REFSEQFILE
-                        Reference mitochondrial genome.s in GenBank format
-                        (.gb). You can put several reference mitgenomes
-                        together.
+                        Reference mitochondrial genome in GenBank format
+                        (.gb).
   -e BLASTEVAL, --blaste BLASTEVAL
-                        e-Value for blast program for contig identification
-                        and annotation. Default = 0.000001
-  --out_gb              Create annotation output with genbank format.
+                        e-value of blast program used for contig
+                        identification and annotation. Default = 0.000001
+  -n NWALK, --nwalk NWALK
+                        Maximum number of codon steps to be tested on each
+                        size of the gene to find the start and stop codon
+                        during the annotation step. Default = 20 (60 bases)
+  --out_gb              Do not create annotation output file in GenBank
+                        format.
   --blastidentitynucl BLASTIDENTITYNUCL
-                        Nucleotide percentage of identity or a hit to be
-                        considered good. Default = 50
+                        Nucleotide identity percentage for a hit to be
+                        retained. Default = 50
   --blastidentityprot BLASTIDENTITYPROT
-                        Amino acid percentage of identity or a hit to be
-                        considered good. Default = 40
+                        Amino acid identity percentage for a hit to be
+                        retained. Default = 40
   --blastsize ALIGNCUTOFF
-                        Percentage of covered span in blast best hit to be
-                        considered good. Default = 30
+                        Percentage of overlap in blast best hit to be
+                        retained. Default = 30
   --circularsize CIRCULARSIZE
                         Size to consider when checking for circularization.
                         Default = 45
@@ -213,8 +158,7 @@ optional arguments:
   -cove COVECUTOFF, --covecutoff COVECUTOFF
                         Cove cutoff for tRNAscan-SE. Default = 7
   -o ORGANISMTYPE, --organism ORGANISMTYPE
-                        What should the genome checking and annotation
-                        consider as genetic code type. NCBI table (integer):
+                        Organism genetic code following NCBI table (integer):
                         1. The Standard Code 2. The Vertebrate Mitochondrial
                         Code 3. The Yeast Mitochondrial Code 4. The Mold,
                         Protozoan, and Coelenterate Mitochondrial Code and the
@@ -231,9 +175,57 @@ optional arguments:
                         Mitochondrial Code 24. Pterobranchia Mitochondrial
                         Code 25. Candidate Division SR1 and Gracilibacteria
                         Code
-  -v, --version         Version 1.0.2
-  --example             Print usual examples of use
+  -v, --version         Version 1.1
+  --example             Print getting started examples
 ```
+
+# INPUTS
+
+Mitofinder needs several files to run depending on the method you have choosen (see above):  
+- [x] **Reference_file.gb**				containing at least one mitochondrial genome of reference extracted from [NCBI](https://www.ncbi.nlm.nih.gov/)
+- [ ] **left_reads.fastq.gz**				containing the left reads of paired-end sequencing  
+- [ ] **right_reads.fastq.gz**				containing the right reads of paired-end sequencing  
+- [ ] **SE_reads.fastq.gz** 				containing the reads of single-end sequencing  
+- [ ] **assembly.fasta**				containing the assembly on which MitoFinder have to find and annotate mitochondrial contig.s   
+
+# OUTPUTS 
+### Result folder  
+
+Mitofinder returns several files for each mitochondrial contig found:  
+- [x] **[job_name]_final_genes.fasta**				containing the final genes selected from all contigs by MitoFinder   
+- [x] **[job_name]_mtDNA_contig.fasta**				containing a mitochondrial contig  
+- [x] **[job_name]_mtDNA_contig_final.gff**				containing the final annotation for a given contig  
+- [x] **[job_name]_mtDNA_contig_final.tbl**				containing the final annotation for a given contig (Genbank submission format)
+- [x] **[job_name]_mtDNA_contig.gb** 				containing the final annotation for a given contig 
+- [x] **[job_name]_mtDNA_contig_genes.fasta** 				containing the annoted genes for a given contig    
+- [x] **[job_name]_mtDNA_contig.png** 				schematic representation of the annotation of the mtDNA contig    
+
+
+# UCE annotation
+MitoFinder starts by assembling both mitochondrial and nuclear reads. It is only in a second step that mitochondrial contigs are identified and extracted.
+MitoFinder thus provides UCE contigs already assembled and the annotation can be done from the following file:  
+- **[job_name]link.scafSeq** 	containing all assembled contigs from raw reads. 
+
+To do so, we recommend the PHYLUCE pipeline, which is specifically designed to annotate ultraconserved elements (Faircloth  2015; Tutorial: https://phyluce.readthedocs.io/en/latest/tutorial-one.html#finding-uce-loci).  
+You can thus use the file **[job_name]link.scafSeq** and start the pipeline at the **"Finding UCE"** step.  
+  
+# Associated publication
+
+Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2019). MitoFinder: efficient automated large-scale extraction of mitogenomic data in target enrichment phylogenomics. BioRxiv, 685412. https://doi.org/10.1101/685412
+
+
+# HOW TO GET REFERENCE MITOCHONDRIAL GENOMES FROM NCBI
+
+1. Go to [NCBI](https://www.ncbi.nlm.nih.gov/)  
+2. Select "Nucleotide" in the search bar  
+3. Search for mitochondrion genomes:  
+- [x] RefSeq (if available)  
+- [x] Sequence length from 12000 to 20000  
+4. Download complete record in GenBank format  
+
+![](/image/NCBI.png)
+
+
 
 
 

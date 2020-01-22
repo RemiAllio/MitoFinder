@@ -31,7 +31,7 @@ from Bio.Seq import Seq
 from Bio.Data import CodonTable
 from decimal import Decimal
 
-def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloroplast = False, dLoopSize = 800):
+def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloroplast = False, dLoopSize = 800, nWalk = 20):
 	'''
 	Creates a genbank file based on a fasta file given (resultfile) and a list of features that the genbank
 	file should present (listoffeaturestooutput)
@@ -68,21 +68,24 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 				
 			main_start_pos = SeqFeature.ExactPosition(thisFeatureAlignment.startBase)
 			main_end_pos = SeqFeature.ExactPosition(thisFeatureAlignment.endBase)
-			
+
 			if main_feature_type == "gene":
-				codonDiff = ((main_end_pos - (main_start_pos + 1)) % 3)
+				codonDiff = ((main_end_pos - main_start_pos+1) % 3)
 				if codonDiff == 2:
 					main_end_pos += 1
 				elif codonDiff == 1:
 					main_end_pos -= 1
+			#print main_start_pos 
+			#print main_end_pos
+			#print thisFeatureAlignment.frame
+			
 
 			# 2. Use the locations do define a FeatureLocation
 			if thisFeatureAlignment.frame < 0:
 				strandToOutput = -1
 			else:
 				strandToOutput = 1
-			main_feature_location = SeqFeature.FeatureLocation(main_start_pos,main_end_pos,strand=strandToOutput)
-
+			main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
 			# 3. Create a SeqFeature
 			main_feature = SeqFeature.SeqFeature(main_feature_location,type=main_feature_type, qualifiers=main_feature_qualifiers)
 			'''
@@ -103,11 +106,10 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 
 			lastFeatureAlignment = thisFeatureAlignment
 			'''
-
 			# 4. Append your newly created SeqFeature to your SeqRecord
 			if main_feature_type == "gene":				
 				cds_qualifiers = dict(main_feature_qualifiers)
-				coding_dna = Seq(str(finalResults.seq[thisFeatureAlignment.startBase:thisFeatureAlignment.endBase]), IUPAC.unambiguous_dna)
+				coding_dna = Seq(str(finalResults.seq[thisFeatureAlignment.startBase-1:thisFeatureAlignment.endBase]), IUPAC.unambiguous_dna)
 				if strandToOutput == -1:
 					coding_dna = coding_dna.reverse_complement()
 				translationTable = thisFeatureAlignment.translationTable
@@ -120,8 +122,8 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 						listOfStartCodons.append(startCodonTranslation)
 					startCodons = tuple(listOfStartCodons) #need to make it a tuple so that startswith works with it
 				stopCodons = ('*','$','#','+')
-				nWalkStart = 20
-				nWalkStop = 20
+				nWalkStart = nWalk
+				nWalkStop = nWalk
 				'''
 				For genes in the -1 strand, we look for the stop codons at the start and the start codons at the end!
 				'''
@@ -130,8 +132,8 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 					tempStopCodons = stopCodons
 					startCodons = tempStopCodons
 					stopCodons = tempStartCodons
-					nWalkStart = 20
-					nWalkStop = 20			
+					nWalkStart = nWalk
+					nWalkStop = nWalk			
 
 				try:
 					'''
@@ -153,33 +155,45 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 						and not coding_dna_TranslationBackward.startswith(startCodons) and n < nWalkStart and startBase - (3*(n+1)) >= 0:
 							try:
 								n += 1
-								coding_dna_Backward = Seq(str(finalResults.seq[startBase - (3*n):endBase]), IUPAC.unambiguous_dna)
+								coding_dna_Backward = Seq(str(finalResults.seq[startBase - (3*n) - 1:endBase]), IUPAC.unambiguous_dna)
 								if strandToOutput == -1:
 									coding_dna_Backward = coding_dna_Backward.reverse_complement()
 								coding_dna_TranslationBackward = coding_dna_Backward.translate(table=translationTable)
-								coding_dna_Forward = Seq(str(finalResults.seq[startBase + (3*n):endBase]), IUPAC.unambiguous_dna)
+								coding_dna_Forward = Seq(str(finalResults.seq[startBase -1 - (3*n):endBase]), IUPAC.unambiguous_dna)
 								if strandToOutput == -1:
+									coding_dna_Forward = Seq(str(finalResults.seq[startBase -1 + (3*n):endBase]), IUPAC.unambiguous_dna)
 									coding_dna_Forward = coding_dna_Forward.reverse_complement()
 								coding_dna_TranslationForward = coding_dna_Forward.translate(table=translationTable)
 								if strandToOutput == -1:
 									coding_dna_TranslationBackward = coding_dna_TranslationBackward[::-1]
 									coding_dna_TranslationForward = coding_dna_TranslationForward[::-1]
+								
 							except:
 								pass
 						else:
-							if coding_dna_TranslationBackward.startswith(startCodons):
+							if coding_dna_TranslationForward.startswith(startCodons):
 								main_start_pos = SeqFeature.ExactPosition(startBase - (3*n))
-								startBase += (3*n)
-								thisFeatureAlignment.startBase = startBase
-								main_feature_location = SeqFeature.FeatureLocation(main_start_pos,main_end_pos,strand=strandToOutput)
-							elif coding_dna_TranslationForward.startswith(startCodons):
-								main_start_pos = SeqFeature.ExactPosition(startBase + (3*n))
-								startBase += (3*n)
-								thisFeatureAlignment.startBase = startBase
-								main_feature_location = SeqFeature.FeatureLocation(main_start_pos,main_end_pos,strand=strandToOutput)
+								if strandToOutput == -1:
+									SeqFeature.ExactPosition(startBase + (3*n))
+								#startBase += (3*n) #backup
+								#thisFeatureAlignment.startBase = startBase #backup
+								thisFeatureAlignment.startBase = main_start_pos  #update
+								main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
+							elif coding_dna_TranslationBackward.startswith(startCodons):
+								main_start_pos = SeqFeature.ExactPosition(startBase - (3*n))
+								#startBase += (3*n) #backup
+								#thisFeatureAlignment.startBase = startBase #backup
+								thisFeatureAlignment.startBase = main_start_pos  #update
+								main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
 					except:
 						pass
-
+					
+					'''
+					Updating coding_dna with (new) coordinates
+					'''
+					coding_dna = Seq(str(finalResults.seq[thisFeatureAlignment.startBase-1:thisFeatureAlignment.endBase]), IUPAC.unambiguous_dna)
+					if strandToOutput == -1:
+						coding_dna = coding_dna.reverse_complement()
 					'''
 					Making sure it ends with * (stop codon)
 					'''
@@ -199,16 +213,15 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 						and not coding_dna_TranslationBackward.endswith(stopCodons) and n < nWalkStop and endBase + (3*(n+1)) <= len(finalResults):
 							try:
 								n += 1
-								coding_dna_Backward = Seq(str(finalResults.seq[startBase:endBase - (3*n)]), IUPAC.unambiguous_dna)
+								coding_dna_Backward = Seq(str(finalResults.seq[startBase -1 :endBase - (3*n)]), IUPAC.unambiguous_dna)
 								if strandToOutput == -1:
+									coding_dna_Backward = Seq(str(finalResults.seq[startBase -1 :endBase + (3*n)]), IUPAC.unambiguous_dna)
 									coding_dna_Backward = coding_dna_Backward.reverse_complement()
 								coding_dna_TranslationBackward = coding_dna_Backward.translate(table=translationTable)
-								
-								coding_dna_Forward = Seq(str(finalResults.seq[startBase:endBase + (3*n)]), IUPAC.unambiguous_dna)
+								coding_dna_Forward = Seq(str(finalResults.seq[startBase - 1:endBase + (3*n)]), IUPAC.unambiguous_dna)
 								if strandToOutput == -1:
 									coding_dna_Forward = coding_dna_Forward.reverse_complement()
 								coding_dna_TranslationForward = coding_dna_Forward.translate(table=translationTable)
-
 								if strandToOutput == -1:
 									coding_dna_TranslationBackward = coding_dna_TranslationBackward[::-1]
 									coding_dna_TranslationForward = coding_dna_TranslationForward[::-1]
@@ -217,18 +230,23 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 						else:
 							if coding_dna_TranslationBackward.endswith(stopCodons):
 								main_end_pos = SeqFeature.ExactPosition(endBase - (3 * n))
-								endBase -= (3 * (n-1))
-								thisFeatureAlignment.endBase = endBase
-								main_feature_location = SeqFeature.FeatureLocation(main_start_pos,main_end_pos,strand=strandToOutput)
+								if strandToOutput == -1:
+									main_end_pos = SeqFeature.ExactPosition(endBase + (3 * n))
+								#endBase -= (3 * (n-1)) #backup
+								#thisFeatureAlignment.endBase = endBase #backup
+								thisFeatureAlignment.endBase = main_end_pos #update
+								main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
 							elif coding_dna_TranslationForward.endswith(stopCodons):
 								main_end_pos = SeqFeature.ExactPosition(endBase + (3 * n))
-								endBase += (3 * (n-1))
-								thisFeatureAlignment.endBase = endBase
-								main_feature_location = SeqFeature.FeatureLocation(main_start_pos,main_end_pos,strand=strandToOutput)
+								#endBase += (3 * (n-1)) #backup
+								#thisFeatureAlignment.endBase = endBase #backup
+								thisFeatureAlignment.endBase = main_end_pos #update
+								main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
 					except:
 						pass
+						 
+					coding_dna = Seq(str(finalResults.seq[thisFeatureAlignment.startBase -1 :thisFeatureAlignment.endBase]),IUPAC.unambiguous_dna)
 					
-					coding_dna = Seq(str(finalResults.seq[thisFeatureAlignment.startBase:thisFeatureAlignment.endBase]),IUPAC.unambiguous_dna)
 					if strandToOutput == 1:
 						coding_dna_Translation = coding_dna.translate(table=translationTable)
 					else:

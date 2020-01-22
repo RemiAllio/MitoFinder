@@ -145,12 +145,12 @@ def geneCheck(fastaReference, resultFile, cutoffEquality_prot, cutoffEquality_nu
 				for hsp in qhit.hsps: #hsp object checking, this contains the alignment info 
 					featureName = qhit.id
 					if float(str(hsp.ident_num)+".00")/float(str(hsp.aln_span)+".00")*100 >= float(cutoffEquality_prot):
-						if hsp.aln_span*3+3 >= alignCutOff:
+						if hsp.aln_span*3 >= alignCutOff:
 							if featureName in listOfImportantFeatures:
 								targetFeature = listOfImportantFeatures[featureName]
-								startBase = min(hsp.query_range[0],hsp.query_range[1])
+								startBase = min(hsp.query_range[0],hsp.query_range[1])+1
 								endBase = max(hsp.query_range[0],hsp.query_range[1])
-								alignLen = endBase - startBase
+								alignLen = (endBase-startBase)+1
 								if featureName in listOfPresentFeatures:
 									mainFeatureName = featureName
 									mainFeatureFound = listOfPresentFeatures[mainFeatureName]
@@ -171,7 +171,7 @@ def geneCheck(fastaReference, resultFile, cutoffEquality_prot, cutoffEquality_nu
 											alignment.frame = featureFrame
 											alignment.startBase = startBase
 											alignment.endBase = endBase
-											alignment.seqFound = refSeq.seq[startBase:endBase]
+											alignment.seqFound = refSeq.seq[startBase-1:endBase]
 											listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment,
 																											featureFrame <= -1)
 								else:
@@ -184,13 +184,14 @@ def geneCheck(fastaReference, resultFile, cutoffEquality_prot, cutoffEquality_nu
 										alignment.frame = featureFrame
 										alignment.startBase = startBase
 										alignment.endBase = endBase
-										alignment.seqFound = refSeq.seq[startBase:endBase]
+										alignment.seqFound = refSeq.seq[(startBase-1):endBase]
 										listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment, featureFrame <= -1)
 										if alignLen >= (len(targetFeature*3)+3) * 0.99:
 										#if we've already built a lot, dont even bother with finding splits
 											listOfCompleteGenes.append(featureName)
 										break
 
+		#exit()
 		#copying the blast result in order for this info to be assessed later if the user desires
 		shutil.copyfile("important_features.blast.xml", out_blast+"_ref.cds.blast.xml")
 		os.remove("important_features.blast.xml")
@@ -275,12 +276,13 @@ def geneCheck(fastaReference, resultFile, cutoffEquality_prot, cutoffEquality_nu
 					alignment.seqFound = refSeq.seq[startBase:endBase]
 					listOfPresentFeatures[featureName] = (listOfImportantFeatures[featureName], alignment, featureFrame == -1)
 					break
+				
 		shutil.copyfile("important_features.blast.xml", out_blast+"_ref.blast.xml")
 		shutil.copyfile("important_features.fasta", out_blast+"_ref.fasta")
 		os.remove("important_features.blast.xml")
 
 	os.remove("important_features.fasta")
-
+	
 	return (listOfPresentFeatures, listOfImportantFeatures, listOfSplits, listOfCompleteGenes)
 
 def createImageOfAnnotation(sequenceObject, outputFile):
@@ -308,7 +310,7 @@ def createImageOfAnnotation(sequenceObject, outputFile):
 
 	for gbkFeature in sequenceObject.features:
 		if gbkFeature.type == 'tRNA' or gbkFeature.type == 'CDS' or gbkFeature.type == 'rRNA' or gbkFeature.type == 'D-loop':
-			featureLen = gbkFeature.location.end - gbkFeature.location.start
+			featureLen = (gbkFeature.location.end - gbkFeature.location.start) + 1
 			featureRelativeSize = horizontalSize * featureLen / len(sequenceObject.seq)
 			featureRelativeStart = (horizontalSize * gbkFeature.location.start / len(sequenceObject.seq)) + 1
 		
@@ -388,6 +390,7 @@ if __name__ == "__main__":
 	percent_equality_prot=sys.argv[8]
 	percent_equality_nucl=sys.argv[9]
 	genbank=sys.argv[10]
+	nWalk=sys.argv[11]
 	if sys.argv[1] == '-h' or sys.argv[1] == '--help':
 		print 'Usage: genbank_reference fasta_file output_file organism_type(integer, default=2) alignCutOff(float, default=45) coveCutOff(7)'
 		print 'Only the first, second, and third arguments are required.'
@@ -490,7 +493,7 @@ if __name__ == "__main__":
 		listOfFeaturesToOutput.sort()
 		print 'Total features found after Arwen: ',len(listOfFeaturesToOutput)
 
-		finalResults = genbankOutput.genbankOutput(outputFile, resultFile, listOfFeaturesToOutput, False, 900)
+		finalResults = genbankOutput.genbankOutput(outputFile, resultFile, listOfFeaturesToOutput, False, 900, nWalk)
 
 		with open(outputFile, "w") as outputResult:
 			count = SeqIO.write(finalResults, outputResult, "genbank")
