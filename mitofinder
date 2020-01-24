@@ -115,7 +115,7 @@ if __name__ == "__main__":
 					23. Thraustochytrium Mitochondrial Code\
 					24. Pterobranchia Mitochondrial Code\
 					25. Candidate Division SR1 and Gracilibacteria Code",
-						type=int, default=1, dest='organismType')
+						type=int, default=2, dest='organismType')
 	parser.add_argument('-v', '--version', help="Version 1.1", default=False, dest='versionCheck', action='store_true')
 	parser.add_argument('--example', help="Print getting started examples", default=False, dest='example', action='store_true')
 	
@@ -1310,14 +1310,14 @@ if __name__ == "__main__":
 			gene=name.split("@")[1]
 			if dico_genes.has_key(gene):
 				dico_gcount[gene]=dico_gcount.get(gene)+1
-				if len(dico_genes.get(gene)) << len(seq):
+				if len(dico_genes.get(gene)) < len(seq):
 					dico_genes[gene]=seq
 			else:
 				dico_genes[gene]=seq
 				dico_gcount[gene]=1
 	double_gene=0	
 	for key, value in dico_gcount.items():
-		if value >> 1:
+		if value > 1:
 			print "WARNING: " + key + " has been found more than once ("+ str(value) + ") in the different mitochondrial contigs."
 			print "MitoFinder selected the longest sequence as the final sequence.\n"
 			logfile.write("WARNING : " + key + " has been found more than once ("+ str(value) + ") in the different mitochondrial contigs."+"\n"+"Mitofinder selected the longest sequence as the final sequence.\n"+"\n")
