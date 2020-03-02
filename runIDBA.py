@@ -71,36 +71,35 @@ def runIDBA(processName = 'teste', shortestContig = 100, inputFile = 'teste.inpu
 		logfile.write("\n####################################"+"\n"+"\n WARNING : "+pathToWork+out+" already exists." +"\n"+"Mitofinder will skip idba step"+"\n"+"\nIf you want to run idba again, kill the mitofinder process, remove or rename the idba result folder, and restart mitofinder\n"+"\n"+"#####################################\n"+"\n")
 		time.sleep(2)
 		idba="no"
-		exit()
 	#create IDBA logfile:
-	
-	with open(inputFile,'r') as InputFile:
-		with open(pathToWork + 'idba.log','w') as idbaLogFile:
-			for line in InputFile:
-					if '#' != line[0] and line != '\n':
-						configPart = line.lower().replace('\n','').replace(' ','').split('=')[0]
-						if configPart == 'type':
-							t=line.replace('\n','').replace(' ','').split('=')[-1]
-						if configPart == 'q1':
-							read1=line.replace('\n','').replace(' ','').split('=')[-1]
-							if not "/" in read1:
-								read1="../"+read1
-							if read1[-3:] == ".gz":
-								with gzip.open(read1, 'rb') as f_in:
-									with open(read1[0:-3], 'wb') as f_out:
-										shutil.copyfileobj(f_in, f_out)
-								read1=read1[0:-3]
-						if configPart == 'q2':
-							read2=line.replace('\n','').replace(' ','').split('=')[-1]
-							if not "/" in read2:
-								read2="../"+read2
-							if read2[-3:] == ".gz":
-								with gzip.open(read2, 'rb') as f_in:
-									with open(read2[0:-3], 'wb') as f_out:
-										shutil.copyfileobj(f_in, f_out)
-								read2=read2[0:-3]
-
 	if idba == "yes":
+		with open(inputFile,'r') as InputFile:
+			with open(pathToWork + 'idba.log','w') as idbaLogFile:
+				for line in InputFile:
+						if '#' != line[0] and line != '\n':
+							configPart = line.lower().replace('\n','').replace(' ','').split('=')[0]
+							if configPart == 'type':
+								t=line.replace('\n','').replace(' ','').split('=')[-1]
+							if configPart == 'q1':
+								read1=line.replace('\n','').replace(' ','').split('=')[-1]
+								if not "/" in read1:
+									read1="../"+read1
+								if read1[-3:] == ".gz":
+									with gzip.open(read1, 'rb') as f_in:
+										with open(read1[0:-3], 'wb') as f_out:
+											shutil.copyfileobj(f_in, f_out)
+									read1=read1[0:-3]
+							if configPart == 'q2':
+								read2=line.replace('\n','').replace(' ','').split('=')[-1]
+								if not "/" in read2:
+									read2="../"+read2
+								if read2[-3:] == ".gz":
+									with gzip.open(read2, 'rb') as f_in:
+										with open(read2[0:-3], 'wb') as f_out:
+											shutil.copyfileobj(f_in, f_out)
+									read2=read2[0:-3]
+	
+
 		with open(pathToWork + 'idba.log','a') as idbaLogFile:
 			if t == "PE":
 				print "Paired-end"
@@ -143,9 +142,9 @@ def runIDBA(processName = 'teste', shortestContig = 100, inputFile = 'teste.inpu
 				idba.wait()
 				#copyfile(pathToWork+"/"+out+"/contig.fa", pathToWork+"/"+processName+".scafSeq")
 	
-	with gzip.open(read+'.gz', 'wb') as f:
-		f.write(read)
-		os.remove(read)
+		with gzip.open(read+'.gz', 'wb') as f:
+			f.write(read)
+			os.remove(read)
 	logfile.close()
 
 
