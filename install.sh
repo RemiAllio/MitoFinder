@@ -5,7 +5,7 @@ chmod 764 *
 cd  idba
 ./build.sh
 cd ..
-cd metaSpades/bin/
+cd metaspades/bin/
 p=$(pwd)
 ln -s "$p"/spades.py "$p"/metaspades.py
 cd ../../

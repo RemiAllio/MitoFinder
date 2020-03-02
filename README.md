@@ -22,8 +22,7 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 6. [UCE annotation](#uce-annotation)
 7. [Associated publication](#associated-publication)
 8. [How to get reference mitochondrial genomes from ncbi](#how-to-get-reference-mitochondrial-genomes-from-ncbi)
-9. [How to submit your mitochondrial genome(s) to GenBank NCBI](#how-to-submit-your-mitochondrial-genome\(s\)-to-genbank-ncbi)
-
+9. [How to submit your mitochondrial genome(s) to GenBank NCBI](#how-to-submit-your-mitochondrial-genome(s\)-to-genbank-ncbi)
 
 # Installation guide for MitoFinder
 
@@ -60,11 +59,9 @@ echo -e "\n#Path to mitofinder \nexport PATH=$PATH:$p" >> ~/.bashrc
 source ~/.bashrc  
 ```
   
-WARNING: If you are installing a new version of MitoFinder, you must replace the old MitoFinder PATH by the new one in your ~/.bashrc file.
-To do this, you should edit your ~/.bashrc file, remove the lines which add MitoFinder in the PATH and close your terminal.
-After that, you can reopen your terminal and redo the command lines from above.  
+WARNING: If you previously installed MitoFinder on your system and want to install a new version, you must replace the old MitoFinder PATH by the updated one in your ~/.bashrc file. To do so, you should edit your ~/.bashrc file, remove the lines that add MitoFinder to the PATH, and close your terminal. Then, you should open a new terminal and re-execute the command lines from above.
 
-to check if the good version is in your PATH:  
+To check if the right version of MitoFinder is actually in your PATH:  
 ```shell
 mitofinder -v
 ```
@@ -113,12 +110,12 @@ mitofinder -j Aphaenogaster_megommata_SRR1303315 -1 Aphaenogaster_megommata_SRR1
 usage: mitofinder [-h] [--megahit] [--idba] [--metaspades] [-j PROCESSNAME]
                   [-1 PE1] [-2 PE2] [-s SE] [-a ASSEMBLY] [-m MEM]
                   [-l SHORTESTCONTIG] [-p PROCESSORSTOUSE] [-r REFSEQFILE]
-                  [-e BLASTEVAL] [-n NWALK] [--out_gb]
+                  [-e BLASTEVAL] [-n NWALK] [--ignore] [--out_gb]
                   [--blastidentitynucl BLASTIDENTITYNUCL]
                   [--blastidentityprot BLASTIDENTITYPROT]
                   [--blastsize ALIGNCUTOFF] [--circularsize CIRCULARSIZE]
-                  [--circularoffset CIRCULAROFFSET] [-cove COVECUTOFF]
-                  [-o ORGANISMTYPE] [-v] [--example]
+                  [--circularoffset CIRCULAROFFSET] [-o ORGANISMTYPE] [-v]
+                  [--example]
 
 Mitofinder is a pipeline to assemble and annotate mitochondrial DNA from
 trimmed sequencing reads.
@@ -139,10 +136,10 @@ optional arguments:
   -a ASSEMBLY, --assembly ASSEMBLY
                         File with your own assembly
   -m MEM, --max-memory MEM
-                        max memory to use in Go (Megahit or MetaSPAdes)
+                        max memory to use in Go (MEGAHIT or MetaSPAdes)
   -l SHORTESTCONTIG, --length SHORTESTCONTIG
-                        Shortest contig length to be used in scaffolding.
-                        Default = 100
+                        Shortest contig length to be used (MEGAHIT). Default =
+                        100
   -p PROCESSORSTOUSE, --processors PROCESSORSTOUSE
                         Number of threads Mitofinder will use at most.
   -r REFSEQFILE, --refseq REFSEQFILE
@@ -154,7 +151,9 @@ optional arguments:
   -n NWALK, --nwalk NWALK
                         Maximum number of codon steps to be tested on each
                         size of the gene to find the start and stop codon
-                        during the annotation step. Default = 20 (60 bases)
+                        during the annotation step. Default = 200 (600 bases)
+  --ignore              This option tells MitoFinder to ignore the non-
+                        standart mitochondrial genes.
   --out_gb              Do not create annotation output file in GenBank
                         format.
   --blastidentitynucl BLASTIDENTITYNUCL
@@ -172,8 +171,6 @@ optional arguments:
   --circularoffset CIRCULAROFFSET
                         Offset from start and finish to consider when looking
                         for circularization. Default = 200
-  -cove COVECUTOFF, --covecutoff COVECUTOFF
-                        Cove cutoff for tRNAscan-SE. Default = 7
   -o ORGANISMTYPE, --organism ORGANISMTYPE
                         Organism genetic code following NCBI table (integer):
                         1. The Standard Code 2. The Vertebrate Mitochondrial
