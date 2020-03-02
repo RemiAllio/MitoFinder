@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.0.2
+#Version: 1.2
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
@@ -39,9 +39,9 @@ def runMegahit(processName = 'teste', shortestContig = 100, inputFile = 'teste.i
 	pathToMegahit = megahitFolder
 	bestBuild = None
 
-	print 'Starting Assembly step with MegaHit '
+	print 'Starting Assembly step with MEGAHIT '
 	logfile=open(logfile,"a")
-	logfile.write('Starting Assembly step with MegaHit '+"\n")
+	logfile.write('Starting Assembly step with MEGAHIT '+"\n")
 
 	pathToWork = os.getcwd()+"/"
 	print 'Result files will be saved here: '
@@ -81,10 +81,10 @@ def runMegahit(processName = 'teste', shortestContig = 100, inputFile = 'teste.i
 	if os.path.isdir(out):
 		print "\n####################################"
 		print "\n WARNING : "+pathToWork+out+" already exists." 
-		print "Mitofinder will skip megahit step"
-		print "\nIf you want to run megahit again, kill the mitofinder process, remove or rename the megahit result folder, and restart mitofinder\n"
+		print "Mitofinder will skip MEGAHIT step"
+		print "\nIf you want to run MEGAHIT again, kill the mitofinder process, remove or rename the MEGAHIT result folder, and restart mitofinder\n"
 		print "#####################################\n"
-		logfile.write("\n####################################"+"\n"+"\n WARNING : "+pathToWork+out+" already exists." +"\n"+"Mitofinder will skip megahit step"+"\n"+"\nIf you want to run megahit again, kill the mitofinder process, remove or rename the megahit result folder, and restart mitofinder\n"+"\n"+"#####################################\n"+"\n")
+		logfile.write("\n####################################"+"\n"+"\n WARNING : "+pathToWork+out+" already exists." +"\n"+"Mitofinder will skip MEGAHIT step"+"\n"+"\nIf you want to run MEGAHIT again, kill the mitofinder process, remove or rename the MEGAHIT result folder, and restart mitofinder\n"+"\n"+"#####################################\n"+"\n")
 		time.sleep(2)
 		megahit="no"
 	if megahit == "yes":
@@ -97,9 +97,9 @@ def runMegahit(processName = 'teste', shortestContig = 100, inputFile = 'teste.i
 				megahit = Popen(command, stdout=megahitLogFile, stderr=megahitLogFile, shell=True)
 				megahit.wait()
 				if not os.path.isfile(pathToWork+"/"+out+"/"+out+".contigs.fa") == True:
-					print "\n ERROR: MegaHit didn't run well"
+					print "\n ERROR: MEGAHIT didn't run well"
 					print "Please check log file : "+ pathToWork + 'megahit.log'
-					logfile.write("\n ERROR: MegaHit didn't run well"+"\n"+"Please check log file : "+ pathToWork + 'megahit.log'+"\n")
+					logfile.write("\n ERROR: MEGAHIT didn't run well"+"\n"+"Please check log file : "+ pathToWork + 'megahit.log'+"\n")
 					exit()
 				#copyfile(pathToWork+"/"+out+"/"+out+".contigs.fa", pathToWork+"/"+processName+".scafSeq")
 				#check Megahit output to see if reference sequence was built	
@@ -113,9 +113,9 @@ def runMegahit(processName = 'teste', shortestContig = 100, inputFile = 'teste.i
 				megahit = Popen(command, stdout=megahitLogFile, stderr=megahitLogFile, shell=True)
 				megahit.wait()
 				if not os.path.isfile(pathToWork+"/"+out+"/"+out+".contigs.fa") == True:
-					print "\n MegaHit didn't run well"
+					print "\n MEGAHIT didn't run well"
 					print "Please check log file : "+ pathToWork + 'megahit.log'
-					logfile.write("\n ERROR: MegaHit didn't run well"+"\n"+"Please check log file : "+ pathToWork + 'megahit.log'+"\n")
+					logfile.write("\n ERROR: MEGAHIT didn't run well"+"\n"+"Please check log file : "+ pathToWork + 'megahit.log'+"\n")
 					exit()
 				#copyfile(pathToWork+"/"+out+"/"+out+".contigs.fa", pathToWork+"/"+processName+".scafSeq")
 

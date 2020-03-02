@@ -1,0 +1,3 @@
+Directory path,Seq ID,organism,location,keywords,SRA Run1,SRA Run2,mgcode
+/home/allio/bin/MITOFINDER/MitoFinder1.2/NCBI_submission/examples,Zatania_albimaculata_SRR2184196,Zatania albimaculata,mitochondrion,TPA; THIRD PARTY ANNOTATION,SRR21841961,SRR21841962,5
+/home/allio/bin/MITOFINDER/MitoFinder1.2/NCBI_submission/examples,Aphaenogaster_megommata_SRR1303315,Aphaenogaster megommata,mitochondrion,TPA; THIRD PARTY ANNOTATION,SRR13033151,SRR13033152,5

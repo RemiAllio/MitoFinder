@@ -1,0 +1,67 @@
+>Feature Zatania_albimaculata_SRR2184196.2
+1019	1090	gene
+			gene	tRNA-Ile
+1019	1090	tRNA
+			product	tRNA-Ile
+1224	1298	gene
+			gene	tRNA-Met
+1224	1298	tRNA
+			product	tRNA-Met
+1402	1332	gene
+			gene	tRNA-Gln
+1402	1332	tRNA
+			product	tRNA-Gln
+1516	2511	gene
+			gene	ND2
+1516	2511	CDS
+			product	NADH dehydrogenase subunit 2
+			transl_table	5
+2529	2596	gene
+			gene	tRNA-Trp
+2529	2596	tRNA
+			product	tRNA-Trp
+2695	2626	gene
+			gene	tRNA-Cys
+2695	2626	tRNA
+			product	tRNA-Cys
+2798	2732	gene
+			gene	tRNA-Tyr
+2798	2732	tRNA
+			product	tRNA-Tyr
+2804	4333	gene
+			gene	COX1
+2804	4333	CDS
+			product	cytochrome c oxidase subunit I
+			transl_table	5
+4370	4434	gene
+			gene	tRNA-Leu
+4370	4434	tRNA
+			product	tRNA-Leu
+4435	5115	gene
+			gene	COX2
+4435	5115	CDS
+			product	cytochrome c oxidase subunit II
+			transl_table	5
+5194	5263	gene
+			gene	tRNA-Lys
+5194	5263	tRNA
+			product	tRNA-Lys
+5272	5348	gene
+			gene	tRNA-Asp
+5272	5348	tRNA
+			product	tRNA-Asp
+5348	5509	gene
+			gene	ATP8
+5348	5509	CDS
+			product	ATP synthase F0 subunit 8
+			transl_table	5
+5503	6171	gene
+			gene	ATP6
+5503	6171	CDS
+			product	ATP synthase F0 subunit 6
+			transl_table	5
+6186	6974	gene
+			gene	COX3
+6186	6974	CDS
+			product	cytochrome c oxidase subunit III
+			transl_table	5

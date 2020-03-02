@@ -1,4 +1,7 @@
-#! /usr/bin/env python
+#!/usr/bin/python
+#Version: 1.2
+#Authors: Allio Remi & Schomaker-Bastos Alex
+#ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
 import sys
 import os.path

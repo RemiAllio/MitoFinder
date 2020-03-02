@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.1
+#Version: 1.2
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
@@ -24,8 +24,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
-
 import argparse, os, shlex, shutil, sys
+import os.path
 from argparse import RawTextHelpFormatter
 import geneChecker, genbankOutput, runMegahit, circularizationCheck, runIDBA, runMetaspades
 import subprocess
@@ -65,15 +65,15 @@ if __name__ == "__main__":
 	parser.add_argument('--metaspades', help='Use MetaSPAdes for assembly. ',
 						default=False, dest='metaspades', action='store_true')
 #	parser.add_argument('--annotate', help='Use Mitofinder to annotate a given mitochondrial (-c) ', dest='Annotate', action='store_true')	
-	parser.add_argument('-j', '--jobname', help = 'Sequence ID to be used throughout the process', default="", dest='processName')
+	parser.add_argument('-j', '--seqid', help = 'Sequence ID to be used throughout the process', default="", dest='processName')
 	parser.add_argument('-1', '--Paired-end1', help='File with forward paired-end reads', default="", dest='PE1')	
 	parser.add_argument('-2', '--Paired-end2', help='File with reverse paired-end reads', default="", dest='PE2')	
 	parser.add_argument('-s', '--Single-end', help='File with single-end reads', default="", dest='SE')	
 #	parser.add_argument('-c', '--contig', help='File with mitochondrial contig (only one)', default="", dest='CONTIG')	
 	parser.add_argument('-a', '--assembly', help='File with your own assembly', default="", dest='Assembly')	
-	parser.add_argument('-m', '--max-memory', help='max memory to use in Go (Megahit or MetaSPAdes)', 
+	parser.add_argument('-m', '--max-memory', help='max memory to use in Go (MEGAHIT or MetaSPAdes)', 
 						default="", dest='mem')
-	parser.add_argument('-l', '--length', help='Shortest contig length to be used in scaffolding. Default = 100', type=int,
+	parser.add_argument('-l', '--length', help='Shortest contig length to be used (MEGAHIT). Default = 100', type=int,
 						default=100, dest='shortestContig')
 	parser.add_argument('-p', '--processors', help='Number of threads Mitofinder will use at most.', type=int,
 						default=4, dest='processorsToUse')
@@ -81,8 +81,9 @@ if __name__ == "__main__":
 						default="", dest='refSeqFile')
 	parser.add_argument('-e', '--blaste', help='e-value of blast program used for contig identification and annotation. Default = 0.000001', type=float,
 						default=0.000001, dest='blasteVal')
-	parser.add_argument('-n', '--nwalk', help='Maximum number of codon steps to be tested on each size of the gene to find the start and stop codon during the annotation step. Default = 20 (60 bases)', type=int,
-						default=20, dest='nWalk')
+	parser.add_argument('-n', '--nwalk', help='Maximum number of codon steps to be tested on each size of the gene to find the start and stop codon during the annotation step. Default = 200 (600 bases)', type=int,
+						default=200, dest='nWalk')
+	parser.add_argument('--ignore', help='This option tells MitoFinder to ignore the non-standart mitochondrial genes.', default=False, dest='ignore', action='store_true')
 	parser.add_argument('--out_gb', help='Do not create annotation output file in GenBank format.', default=True, dest='genbk', action='store_false') 
 	parser.add_argument('--blastidentitynucl', help='Nucleotide identity percentage for a hit to be retained. Default = 50',
 					default=50, type=float, dest='blastIdentityNucl')
@@ -94,8 +95,7 @@ if __name__ == "__main__":
 						default=45, type=int, dest='circularSize')
 	parser.add_argument('--circularoffset', help='Offset from start and finish to consider when looking for circularization. Default = 200',
 						default=200, type=int, dest='circularOffSet')
-	parser.add_argument('-cove', '--covecutoff', help='Cove cutoff for tRNAscan-SE. Default = 7', type=int,
-						default=7, dest='coveCutOff')
+#	parser.add_argument('-cove', '--covecutoff', help='Cove cutoff for tRNAscan-SE. Default = 7', type=int, default=7, dest='coveCutOff')
 	parser.add_argument('-o', '--organism', help="Organism genetic code following NCBI table (integer):\n\
 					1. The Standard Code \
 					2. The Vertebrate Mitochondrial Code\
@@ -114,9 +114,8 @@ if __name__ == "__main__":
 					22. Scenedesmus obliquus Mitochondrial Code\
 					23. Thraustochytrium Mitochondrial Code\
 					24. Pterobranchia Mitochondrial Code\
-					25. Candidate Division SR1 and Gracilibacteria Code",
-						type=int, default=2, dest='organismType')
-	parser.add_argument('-v', '--version', help="Version 1.1", default=False, dest='versionCheck', action='store_true')
+					25. Candidate Division SR1 and Gracilibacteria Code", default="", dest='organismType')
+	parser.add_argument('-v', '--version', help="Version 1.2", default=False, dest='versionCheck', action='store_true')
 	parser.add_argument('--example', help="Print getting started examples", default=False, dest='example', action='store_true')
 	
 	args = parser.parse_args()
@@ -126,19 +125,44 @@ if __name__ == "__main__":
 	initial_path = os.getcwd()+"/"
 
 	if args.example == True:
-		print "\n # For trimmed paired-end reads:\nmitofinder --megahit -j [jobname] \\\n\t-1 [left_reads.fastq.gz] \\\n\t-2 [right_reads.fastq.gz] \\\n\t-r [genbank_reference.gb] \\\n\t-o [genetic_code] \\\n\t-p [threads] \\\n\t-m [memory]\n\n # For trimmed single-end reads:\nmitofinder --megahit -j [jobname] \\\n\t-s [SE_reads.fastq.gz] \\\n\t-r [genbank_reference.gb] \\\n\t-o [genetic_code] \\\n\t-p [threads] \\\n\t-m [memory]\n\n # For one assembly (one or more contig(s))\nmitofinder -j [jobname] \\\n\t-a [assembly.fasta] \\\n\t-r [genbank_reference.gb] \\\n\t-o [genetic_code] \\\n\t-p [threads] \\\n\t-m [memory]\n"
+		print "\n # For trimmed paired-end reads:\nmitofinder --megahit -j [seqid] \\\n\t-1 [left_reads.fastq.gz] \\\n\t-2 [right_reads.fastq.gz] \\\n\t-r [genbank_reference.gb] \\\n\t-o [genetic_code] \\\n\t-p [threads] \\\n\t-m [memory]\n\n # For trimmed single-end reads:\nmitofinder --megahit -j [seqid] \\\n\t-s [SE_reads.fastq.gz] \\\n\t-r [genbank_reference.gb] \\\n\t-o [genetic_code] \\\n\t-p [threads] \\\n\t-m [memory]\n\n # For one assembly (one or more contig(s))\nmitofinder -j [seqid] \\\n\t-a [assembly.fasta] \\\n\t-r [genbank_reference.gb] \\\n\t-o [genetic_code] \\\n\t-p [threads] \\\n\t-m [memory]\n"
 		exit()
 	
 	if args.versionCheck == True:
-		print "MitoFinder version 1.1"
+		print "MitoFinder version 1.2"
 		exit()
 
 	if args.PE1 == "" and args.PE2 == "" and args.SE == "" and args.Assembly == "" :
 		print "\nERROR: Read or assembly files are not specified.\n Please, use -1 -2 -s or -a option to specify input data."
 		exit()
+
 	if args.refSeqFile == "":
 		print "\nERROR: Reference file is required (-r option)"
 		exit()
+	if args.organismType == "":
+		print "\nERROR: Genetic code is required (-o option) \n\
+		1. The Standard Code \n\
+		2. The Vertebrate Mitochondrial Code\n\
+		3. The Yeast Mitochondrial Code\n\
+		4. The Mold, Protozoan, and Coelenterate Mitochondrial Code \n\
+		   and the Mycoplasma/Spiroplasma Code\n\
+		5. The Invertebrate Mitochondrial Code\n\
+		6. The Ciliate, Dasycladacean and Hexamita Nuclear Code\n\
+		9. The Echinoderm and Flatworm Mitochondrial Code\n\
+		10. The Euplotid Nuclear Code\n\
+		11. The Bacterial, Archaeal and Plant Plastid Code\n\
+		12. The Alternative Yeast Nuclear Code\n\
+		13. The Ascidian Mitochondrial Code\n\
+		14. The Alternative Flatworm Mitochondrial Code\n\
+		16. Chlorophycean Mitochondrial Code\n\
+		21. Trematode Mitochondrial Code\n\
+		22. Scenedesmus obliquus Mitochondrial Code\n\
+		23. Thraustochytrium Mitochondrial Code\n\
+		24. Pterobranchia Mitochondrial Code\n\
+		25. Candidate Division SR1 and Gracilibacteria Code\n"
+		exit()
+	if args.organismType != "":
+		args.organismType=int(args.organismType)
 	if args.processName == "":
 		print "\nERROR: SeqID is required (-j option)"
 		exit()
@@ -147,7 +171,7 @@ if __name__ == "__main__":
 	Logfile=os.path.join(initial_path,Logfile)
 	logfile=open(Logfile,"w")
 	logfile.write('Command line: %s' % ' '.join(sys.argv)+"\n")
-	logfile.write("\n Start time : "+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"\n")
+	logfile.write("\nStart time : "+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"\n")
 	logfile.write("\nJob name = "+args.processName+"\n")
 	
 	start=datetime.now()
@@ -161,7 +185,7 @@ if __name__ == "__main__":
 	print "Job name = "+args.processName
 	
 	args.refSeqFile=os.path.join(initial_path,args.refSeqFile)
-		
+
 	if args.PE1 != "":
 		args.PE1=os.path.join(initial_path,args.PE1)
 		q1="q1="+args.PE1	
@@ -192,6 +216,33 @@ if __name__ == "__main__":
 			print "\nERROR: MetaSPAdes cannot be used for assembly from single-end reads. \nUse Megahit or IDBA-UD.\n"
 			logfile.write("\nERROR: MetaSPAdes cannot for assembly from single-end reads. \nUse Megahit or IDBA-UD.\n")
 			exit()
+
+	if args.PE1 != "" and not os.path.isfile(args.PE1):
+		print "\nERROR: "+args.PE1+" does not exist"
+		logfile.write("\nERROR: "+args.PE1+" does not exist")
+		exit()
+
+	if args.PE2 != "" and not os.path.isfile(args.PE2):
+		print "\nERROR: "+args.PE2+" does not exist"
+		logfile.write("\nERROR: "+args.PE2+" does not exist")
+		exit()
+
+	if args.SE != "" and not os.path.isfile(args.SE):
+		print "\nERROR: "+args.SE+" does not exist"
+		logfile.write("\nERROR: "+args.SE+" does not exist")
+		exit()
+
+	if args.refSeqFile != "" and not os.path.isfile(args.refSeqFile):
+		print "\nERROR: "+args.refSeqFile+" does not exist"
+		logfile.write("\nERROR: "+args.refSeqFile+" does not exist")
+		exit()
+	
+	if args.Assembly != "":
+		args.Assembly=os.path.join(initial_path,args.Assembly)
+		if not os.path.isfile(args.Assembly):
+			print "\nERROR: "+args.Assembly+" does not exist"
+			logfile.write("\nERROR: "+args.Assembly+"does not exist")
+			exit()			
 	
 	if args.PE1 != "" and args.PE2 != "":
 		inputfile=open(args.processName+".input","w")
@@ -205,6 +256,7 @@ if __name__ == "__main__":
 		inputfile.close()
 		args.inputFile=	initial_path+args.processName+".input"
 	
+	args.coveCutOff=7
 
 	
 	'''
@@ -241,41 +293,39 @@ if __name__ == "__main__":
 				
 					
 	#if config file has 'default' in the folder field, use the default program folders given with the script
-	logfile.write("\n")
-	if pathToMegahitFolder.lower() == 'default' and args.idba == False and args.metaspades == False:
+	if pathToMegahitFolder.lower() == 'default':
 		pathToMegahitFolder = os.path.join(module_dir, 'megahit/')
-		logfile.write('WARNING: Megahit is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
+	'''	logfile.write('WARNING: MEGAHIT is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
 		print 'WARNING: Megahit is still set in its default folder. Change it in the config file if you encounter problems running this script.'
-	
+	'''
 	if blastFolder.lower() == 'default':
 		blastFolder = os.path.join(module_dir, 'blast/bin/')
-		logfile.write('WARNING: Blast is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
+	'''	logfile.write('WARNING: Blast is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
 		print 'WARNING: Blast is still set in its default folder. Change it in the config file if you encounter problems running this script.'
-
+	'''
 	if pathToIdbaFolder.lower() == 'default':
 		pathToIdbaFolder = os.path.join(module_dir, 'idba/bin/')
-		logfile.write('WARNING: IDBA-UD is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
+	'''	logfile.write('WARNING: IDBA-UD is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
 		print 'WARNING: IDBA-UD is still set in its default folder. Change it in the config file if you encounter problems running this script.'
-	
+	'''
 	if pathToMetaspadesFolder.lower() == 'default':
-		pathToMetaspadesFolder = os.path.join(module_dir, 'metaSpades/bin/')
-		logfile.write('WARNING: MetaSPAdes is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
+		pathToMetaspadesFolder = os.path.join(module_dir, 'metaspades/bin/')
+	'''	logfile.write('WARNING: MetaSPAdes is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
 		print 'WARNING: MetaSPAdes is still set in its default folder. Change it in the config file if you encounter problems running this script.'
-	
+	'''
 	if pathToArwenFolder.lower() == 'default':
-		pathToArwenFolder = os.path.join(module_dir, 'tRNAscan/')
-		logfile.write('WARNING: Arwen is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
+		pathToArwenFolder = os.path.join(module_dir, 'arwen/')
+	'''	logfile.write('WARNING: Arwen is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
 		print 'WARNING: Arwen is still set in its default folder. Change it in the config file if you encounter problems running this script.'
-	
-	print " "
+	'''
 	print 'Program folders:'
-	print 'Megahit = %s' % pathToMegahitFolder
-	print 'Blast folder = %s' % blastFolder
-	print 'IDBA-UD folder = %s' % pathToIdbaFolder
+	print 'MEGAHIT = %s' % pathToMegahitFolder
 	print 'MetaSPAdes folder = %s' % pathToMetaspadesFolder
+	print 'IDBA-UD folder = %s' % pathToIdbaFolder
+	print 'Blast folder = %s' % blastFolder
 	print 'Arwen folder = %s' % pathToArwenFolder
 	print ''
-	logfile.write("\nProgram folders:\n"+'Megahit = %s' % pathToMegahitFolder+"\n"+'Blast folder = %s' % blastFolder+"\n"+'IDBA-UD folder = %s' % pathToIdbaFolder+"\n"+'MetaSPAdes folder = %s' % pathToMetaspadesFolder+"\n"+'Arwen folder = %s' % pathToArwenFolder+"\n\n")
+	logfile.write("Program folders:\n"+'MEGAHIT = %s' % pathToMegahitFolder+"\n"+'Blast folder = %s' % blastFolder+"\n"+'IDBA-UD folder = %s' % pathToIdbaFolder+"\n"+'MetaSPAdes folder = %s' % pathToMetaspadesFolder+"\n"+'Arwen folder = %s' % pathToArwenFolder+"\n\n")
 	
 	try :
 		command =  blastFolder + "makeblastdb -h "
@@ -284,9 +334,9 @@ if __name__ == "__main__":
 		formatDB.wait()
 	except:
 		print blastFolder + "makeblastdb is not executable"
-		print "Please check the installation and the path indicated above and restart MitoFinder"
+		print "Please check the installation and the path indicated above and restart MitoFinder."
 		print "Aborting"
-		logfile.write(blastFolder + "makeblastdb is not executable\n"+"Please check the installation and the path indicated above and restart MitoFinder\n"+"Aborting\n")
+		logfile.write(blastFolder + "makeblastdb is not executable\n"+"Please check the installation and the path indicated above and restart MitoFinder.\n"+"Aborting\n")
 		exit()
 			
 	try :
@@ -296,9 +346,9 @@ if __name__ == "__main__":
 		formatDB.wait()
 	except:
 		print blastFolder + "blastn is not executable"
-		print "Please check the installation and the path indicated above and restart Mitofinder"
+		print "Please check the installation and the path indicated above and restart Mitofinder."
 		print "Aborting"
-		logfile.write(blastFolder + "blastn is not executable\n"+"Please check the installation and the path indicated above and restart Mitofinder\n"+"Aborting\n")
+		logfile.write(blastFolder + "blastn is not executable\n"+"Please check the installation and the path indicated above and restart Mitofinder.\n"+"Aborting\n")
 		exit()
 
 	try :
@@ -308,17 +358,17 @@ if __name__ == "__main__":
 		formatDB.wait()
 	except:
 		print blastFolder + "blastx is not executable"
-		print "Please check the installation and the path indicated above and restart Mitofinder"
+		print "Please check the installation and the path indicated above and restart Mitofinder."
 		print "Aborting"
-		logfile.write(blastFolder + "blastx is not executable\n"+"Please check the installation and the path indicated above and restart Mitofinder\n"+"Aborting\n")
+		logfile.write(blastFolder + "blastx is not executable\n"+"Please check the installation and the path indicated above and restart Mitofinder.\n"+"Aborting\n")
 		exit()
 	
 
 
 	if args.refSeqFile == None:
-		print "Reference file is not specified"
+		print "Reference file is not specified."
 		print "Aborting"
-		logfile.write("Reference file is not specified\n"+"Aborting\n")
+		logfile.write("Reference file is not specified.\n"+"Aborting\n")
 		
 		
 	#just start the variables for future checking
@@ -516,16 +566,22 @@ if __name__ == "__main__":
 					name="rrnS"
 					
 				else:
-					print "ERROR: Gene named "+name+" in the reference file is not recognized by MitoFinder"
-					print "Please change it to one of the following gene names:"
-					print "COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS"
-					print " "
-					print "Aborting"
-					print " "
-					logfile.write("ERROR: Gene named "+name+" in the reference file is not recognized by MitoFinder\n"+"Please change it to one of the following gene names:\n"+"COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS\n\n"+"Aborting\n\n")
-					exit()
-				
-				if name != "rrnL" and name != "rrnS":
+					if args.ignore == False:
+						print "ERROR: Gene named \""+name+"\" in the reference file is not recognized by MitoFinder."
+						print "This gene is not a standard mitochondrial gene (use --ignore) or please change it to one of the following gene names:"
+						print "COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS"
+						print " "
+						print "Aborting"
+						print " "
+						logfile.write("ERROR: Gene named \""+name+"\" in the reference file is not recognized by MitoFinder.\n"+"This gene is not a standard mitochondrial gene or please change it to one of the following gene names:\n"+"COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS\n\n"+"Aborting\n\n")
+						exit()
+					else:
+						print "WARNING: Gene named \""+name+"\" in the reference file is not recognized by MitoFinder."
+						print "This gene will not be annotated by MitoFinder"
+						logfile.write("WARNING: Gene named \""+name+"\" in the reference file is not recognized by MitoFinder.\n"+"This gene will not be annotated by MitoFinder\n\n")
+						name="no"
+						
+				if name != "rrnL" and name != "rrnS" and name != "no":
 					geneOut=open("ref_"+name+"_database.fasta",'a')
 					geneOut.write(namesp.split("@")[0]+"@"+name+"\n"+seq+"\n")
 					dico_genes[name]=name
@@ -561,18 +617,21 @@ if __name__ == "__main__":
 					name="ATP6"
 				elif name.lower().replace(" ","").replace("-","") == "rrnl" or name.lower().replace(" ","").replace("-","") == "16sribosomalrna" or name.lower().replace(" ","").replace("-","") == "largesubunitribosomalrna" or name.lower().replace(" ","").replace("-","") == "lrrna" or name.lower().replace(" ","").replace("-","") == "16sribosomalrna" or name.lower().replace(" ","").replace("-","") == "16srrna" or name.lower().replace(" ","").replace("-","") == "rnr2" or name.lower().replace(" ","").replace("-","") == "mtrnr2" or name.lower().replace(" ","").replace("-","") == "rrn16" or name.lower().replace(" ","").replace("-","") == "rnl" or name.lower().replace(" ","").replace("-","") == "lsu":
 					name="rrnL"
-					
 				elif name.lower().replace(" ","").replace("-","") == "rrns" or name.lower().replace(" ","").replace("-","") == "12sribosomalrna" or name.lower().replace(" ","").replace("-","") == "smallsubunitribosomalrna" or name.lower().replace(" ","").replace("-","") == "srrna" or name.lower().replace(" ","").replace("-","") == "12sribosomalrna" or name.lower().replace(" ","").replace("-","") == "12srrna" or name.lower().replace(" ","").replace("-","") == "rnr1" or name.lower().replace(" ","").replace("-","") == "mtrnr1" or name.lower().replace(" ","").replace("-","") == "rrn12" or name.lower().replace(" ","").replace("-","") == "rns" or name.lower().replace(" ","").replace("-","") == "ssu":
 					name="rrnS"
+
 				else:
-					print "ERROR: Gene named "+name+" in the reference file is not recognized by MitoFinder"
-					print "Please change it to one of the following gene names:"
-					print "COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS"
-					print " "
-					print "Aborting"
-					print " "
-					logfile.write("ERROR: Gene named "+name+" in the reference file is not recognized by MitoFinder\n"+"Please change it to one of the following gene names:\n"+"COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS\n\n"+"Aborting\n\n")
-					exit()						
+					if args.ignore == False:
+						print "ERROR: Gene named \""+name+"\" in the reference file is not recognized by MitoFinder."
+						print "This gene is not a standard mitochondrial gene or please change it to one of the following gene names:"
+						print "COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS"
+						print " "
+						print "Aborting"
+						print " "
+						logfile.write("ERROR: Gene named \""+name+"\" in the reference file is not recognized by MitoFinder\n"+"This gene is not a standard mitochondrial gene or please change it to one of the following gene names:\n"+"COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS\n\n"+"Aborting\n\n")
+						exit()
+					else:
+						name="no"						
 				
 				if name == "rrnL" or name == "rrnS":
 					geneOut=open("ref_"+name+"_database.fasta",'a')
@@ -583,7 +642,9 @@ if __name__ == "__main__":
 				geneOut.write(namesp.split("@")[0]+"@"+name+"\n"+seq+"\n")
 				geneOut.close()
 				
-	
+			print ""
+			logfile.write("\n")
+			
 			command = blastFolder + "makeblastdb -in " + str(faa_filename) + " -dbtype nucl" #need to formatdb refseq first
 			args1 = shlex.split(command)
 			formatDB = Popen(args1, stdout=open(os.devnull, 'wb'))
@@ -1261,21 +1322,33 @@ if __name__ == "__main__":
 	logfile.write("\nCreating GFF and fasta files.\n\n"+"Note: "+"\n")
 	for f in glob.glob(pathOfFinalResults+"/*.gb"):
 		gnb=0
-		out_fasta=f.split(".gb")[0]+"_genes.fasta"
-		out_fasta=open(out_fasta,"w")
+		out_fasta_nt=f.split(".gb")[0]+"_genes_NT.fasta"
+		out_fasta_aa=f.split(".gb")[0]+"_genes_AA.fasta"
+		out_fasta_nt=open(out_fasta_nt,"w")
+		out_fasta_aa=open(out_fasta_aa,"w")
 		record = SeqIO.read(open(f), "genbank", generic_dna)
 		for feature in record.features:
+			seq_aa=""
 			if feature.type.lower() == 'cds' or feature.type == 'rRNA':
 				gnb = gnb+1
 				if 'gene' in feature.qualifiers:
 					featureName = feature.qualifiers['gene'][0]
+					if 'translation' in feature.qualifiers:
+						seq_aa=feature.qualifiers['translation'][0]
 				elif 'product' in feature.qualifiers:
 					featureName = feature.qualifiers['product'][0]
+					if 'translation' in feature.qualifiers:
+						seq_aa=feature.qualifiers['translation'][0]
 				featureName = ''.join(featureName.split())
 	
-				out_fasta.write('>' + args.processName + "@" + featureName + '\n')
-				out_fasta.write(str(feature.extract(record).seq) + '\n')
-		out_fasta.close()
+				out_fasta_nt.write('>' + args.processName + "@" + featureName + '\n')
+				out_fasta_nt.write(str(feature.extract(record).seq) + '\n')
+				if str(seq_aa) != "":
+					out_fasta_aa.write('>' + args.processName + "@" + featureName + '\n')
+					out_fasta_aa.write(str(seq_aa) + '\n')
+				
+		out_fasta_nt.close()
+		out_fasta_aa.close()
 		if gnb == 0 or gnb == 1:
 			print str(gnb)+" gene was found in "+f.split(".gb")[0].split("Final_Results/"+args.processName+"_")[1]
 			logfile.write(str(gnb)+" gene was found in "+f.split(".gb")[0].split("Final_Results/"+args.processName+"_")[1]+"\n")
@@ -1305,7 +1378,7 @@ if __name__ == "__main__":
 	
 	dico_genes={}
 	dico_gcount={}
-	for f in glob.glob(pathOfFinalResults+"/*_genes.fasta"):
+	for f in glob.glob(pathOfFinalResults+"/*_genes_NT.fasta"):
 		for name, seq in read_fasta(open(f,'r')):
 			gene=name.split("@")[1]
 			if dico_genes.has_key(gene):
@@ -1322,22 +1395,38 @@ if __name__ == "__main__":
 			print "MitoFinder selected the longest sequence as the final sequence.\n"
 			logfile.write("WARNING : " + key + " has been found more than once ("+ str(value) + ") in the different mitochondrial contigs."+"\n"+"Mitofinder selected the longest sequence as the final sequence.\n"+"\n")
 			double_gene+=1
-	final_fasta=open(pathOfFinalResults+"/"+args.processName+"_final_genes.fasta","w")
+	final_fasta=open(pathOfFinalResults+"/"+args.processName+"_final_genes_NT.fasta","w")
+	
+	for key, value in dico_genes.items():
+		final_fasta.write(">"+args.processName+"@"+key+"\n"+value+"\n")
+	final_fasta.close()
+	
+	dico_genes={}
+	for f in glob.glob(pathOfFinalResults+"/*_genes_AA.fasta"):
+		for name, seq in read_fasta(open(f,'r')):
+			gene=name.split("@")[1]
+			if dico_genes.has_key(gene):
+				if len(dico_genes.get(gene)) < len(seq):
+					dico_genes[gene]=seq
+			else:
+				dico_genes[gene]=seq
+
+	final_fasta=open(pathOfFinalResults+"/"+args.processName+"_final_genes_AA.fasta","w")
 	
 	for key, value in dico_genes.items():
 		final_fasta.write(">"+args.processName+"@"+key+"\n"+value+"\n")
 	final_fasta.close()
 	
 	print "## Final sequence saved to "+pathOfFinalResults
-	print "Mitochondrial genes found by MitoFinder are in "+pathOfFinalResults+args.processName+"_final_genes.fasta"+"\n"
-	logfile.write("## Final sequence saved to "+pathOfFinalResults+"\n"+"Mitochondrial genes found by MitoFinder are in "+pathOfFinalResults+args.processName+"_final_genes.fasta"+"\n"+"\n")
+
+	logfile.write("## Final sequence saved to "+pathOfFinalResults+"\n"+"\n")
 	
 	if double_gene == 1:
-		print "\n/!\\ WARNING /!\\ "+str(double_gene)+" gene was found more than once suggesting potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes.fasta\""+" could be erroneous.\nWe recommend to check contigs and associated genes separately.\n"
-		logfile.write("\n/!\\ WARNING /!\\ "+str(double_gene)+" gene was found more than once suggesting potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes.fasta\""+" could be erroneous.\nWe recommend to check contigs and associated genes separately."+"\n\n")
+		print "\n/!\\ WARNING /!\\ "+str(double_gene)+" gene was found more than once suggesting either fragmentation or potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes_NT.fasta\""+" and \""+args.processName+"_final_genes_AA.fasta\" could be erroneous.\nWe recommend to check contigs and associated genes separately.\n"
+		logfile.write("\n/!\\ WARNING /!\\ "+str(double_gene)+" gene was found more than once suggesting either fragmentation or potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes_NT.fasta\""+" and \""+args.processName+"_final_genes_AA.fasta\" could be erroneous.\nWe recommend to check contigs and associated genes separately.\n")
 	elif double_gene > 1:
-		print "\n/!\\ WARNING /!\\ "+str(double_gene)+" genes were found more than once suggesting potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes.fasta\""+" could be erroneous.\nWe recommend to check contigs and associated genes separately.\n"
-		logfile.write("\n/!\\ WARNING /!\\ "+str(double_gene)+" genes were found more than once suggesting potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes.fasta\""+" could be erroneous.\nWe recommend to check contigs and associated genes separately."+"\n\n")
+		print "\n/!\\ WARNING /!\\ "+str(double_gene)+" genes were found more than once suggesting either fragmentation or potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes_NT.fasta\""+" and \""+args.processName+"_final_genes_AA.fasta\" could be erroneous.\nWe recommend to check contigs and associated genes separately.\n"
+		logfile.write("\n/!\\ WARNING /!\\ "+str(double_gene)+" genes were found more than once suggesting either fragmentation or potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes_NT.fasta\""+" and \""+args.processName+"_final_genes_AA.fasta\" could be erroneous.\nWe recommend to check contigs and associated genes separately.\n")
 	
 	# Cleaning 
 	tmpfiles=(pathtowork+"/"+args.processName+"_tmp")

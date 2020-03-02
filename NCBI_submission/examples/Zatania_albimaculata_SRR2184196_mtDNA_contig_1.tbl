@@ -1,0 +1,77 @@
+>Feature Zatania_albimaculata_SRR2184196.1
+82	150	gene
+			gene	tRNA-Gly
+82	150	tRNA
+			product	tRNA-Gly
+150	500	gene
+			gene	ND3
+150	500	CDS
+			product	NADH dehydrogenase subunit 3
+			transl_table	5
+604	673	gene
+			gene	tRNA-Arg
+604	673	tRNA
+			product	tRNA-Arg
+684	754	gene
+			gene	tRNA-Asn
+684	754	tRNA
+			product	tRNA-Asn
+786	846	gene
+			gene	tRNA-Ser
+786	846	tRNA
+			product	tRNA-Ser
+1015	948	gene
+			gene	tRNA-Phe
+1015	948	tRNA
+			product	tRNA-Phe
+2712	1039	gene
+			gene	ND5
+2712	1039	CDS
+			product	NADH dehydrogenase subunit 5
+			transl_table	5
+2788	2718	gene
+			gene	tRNA-His
+2788	2718	tRNA
+			product	tRNA-His
+4178	2832	gene
+			gene	ND4
+4178	2832	CDS
+			product	NADH dehydrogenase subunit 4
+			transl_table	5
+4486	4199	gene
+			gene	ND4L
+4486	4199	CDS
+			product	NADH dehydrogenase subunit 4L
+			transl_table	5
+4487	4553	gene
+			gene	tRNA-Thr
+4487	4553	tRNA
+			product	tRNA-Thr
+5292	6413	gene
+			gene	CYTB
+5292	6413	CDS
+			product	cytochrome b
+			transl_table	5
+6469	6540	gene
+			gene	tRNA-Ser2
+6469	6540	tRNA
+			product	tRNA-Ser2
+7512	6553	gene
+			gene	ND1
+7512	6553	CDS
+			product	NADH dehydrogenase subunit 1
+			transl_table	5
+8833	7461	gene
+			gene	rrnL
+8833	7461	rRNA
+			gene	rrnL
+			product	16S ribosomal RNA
+9064	8994	gene
+			gene	tRNA-Val2
+9064	8994	tRNA
+			product	tRNA-Val2
+9883	9077	gene
+			gene	rrnS
+9883	9077	rRNA
+			gene	rrnS
+			product	12S ribosomal RNA

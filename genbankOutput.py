@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.0.2
+#Version: 1.2
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
@@ -115,79 +115,115 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 				translationTable = thisFeatureAlignment.translationTable
 				tableToUse = CodonTable.unambiguous_dna_by_id[translationTable]
 				listOfStartCodons = []
+				listOfStopCodons = []
 				for startCodon in tableToUse.start_codons:
-					startCodonSeq = Seq(startCodon, IUPAC.unambiguous_dna)
+					"""startCodonSeq = Seq(startCodon, IUPAC.unambiguous_dna)
 					startCodonTranslation = str(startCodonSeq.translate(table=translationTable))
 					if startCodonTranslation not in listOfStartCodons:
-						listOfStartCodons.append(startCodonTranslation)
+						listOfStartCodons.append(startCodonTranslation)"""
+					if startCodon not in listOfStartCodons:
+						listOfStartCodons.append(startCodon)
 					startCodons = tuple(listOfStartCodons) #need to make it a tuple so that startswith works with it
-				stopCodons = ('*','$','#','+')
-				nWalkStart = nWalk
-				nWalkStop = nWalk
+				for stopCodon in tableToUse.stop_codons:
+					if stopCodon not in listOfStopCodons:
+						listOfStopCodons.append(stopCodon)
+					stopCodons = tuple(listOfStopCodons)
+				
+				nWalkStart = int(nWalk)
+				nWalkStop = int(nWalk)
 				'''
 				For genes in the -1 strand, we look for the stop codons at the start and the start codons at the end!
 				'''
-				if strandToOutput == -1:
+				"""	if strandToOutput == -1:
 					tempStartCodons = startCodons
 					tempStopCodons = stopCodons
 					startCodons = tempStopCodons
 					stopCodons = tempStartCodons
 					nWalkStart = nWalk
-					nWalkStop = nWalk			
+					nWalkStop = nWalk	"""		
 
 				try:
 					'''
 					Making sure it starts with startCodons
 					'''
 					try:
-						coding_dna_Translation = coding_dna.translate(table=translationTable)
-						coding_dna_TranslationForward = coding_dna.translate(table=translationTable)
-						coding_dna_TranslationBackward = coding_dna.translate(table=translationTable)
-						if strandToOutput == -1:
-							coding_dna_TranslationBackward = coding_dna_TranslationBackward[::-1]
-							coding_dna_TranslationForward = coding_dna_TranslationForward[::-1]
 						coding_dna_Forward = coding_dna
 						coding_dna_Backward = coding_dna
-						startBase = thisFeatureAlignment.startBase
-						endBase = thisFeatureAlignment.endBase
+						startBase = int(thisFeatureAlignment.startBase)
+						endBase = int(thisFeatureAlignment.endBase)
 						n = 0
-						while not coding_dna_TranslationForward.startswith(startCodons) \
-						and not coding_dna_TranslationBackward.startswith(startCodons) and n < nWalkStart and startBase - (3*(n+1)) >= 0:
-							try:
-								n += 1
-								coding_dna_Backward = Seq(str(finalResults.seq[startBase - (3*n) - 1:endBase]), IUPAC.unambiguous_dna)
-								if strandToOutput == -1:
+						if strandToOutput == 1:
+							while not coding_dna_Forward.startswith(startCodons) \
+							and not coding_dna_Backward.startswith(startCodons) \
+							and not coding_dna_Backward.startswith(stopCodons) and n < nWalkStart and startBase - (3*(n+1)) >= 0:
+								try:
+									n += 1
+									coding_dna_Backward = Seq(str(finalResults.seq[startBase -1 - (3*n):endBase]), IUPAC.unambiguous_dna)
+									coding_dna_Forward = Seq(str(finalResults.seq[startBase -1 - (3*n):endBase]), IUPAC.unambiguous_dna)
+									'''print str(strandToOutput)
+									print "looking for start ="+str(startCodons)
+									print "coding_dna_Forward"
+									print coding_dna_Forward
+									print coding_dna_Forward.startswith(startCodons)
+									print "coding_dna_Backward"
+									print coding_dna_Backward
+									print coding_dna_Backward.startswith(startCodons)'''
+								except:
+									pass
+							else:
+								if coding_dna_Forward.startswith(startCodons):
+									main_start_pos = SeqFeature.ExactPosition(startBase - (3*n))
+									thisFeatureAlignment.startBase = main_start_pos
+									main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
+								elif coding_dna_Backward.startswith(startCodons):
+									main_start_pos = SeqFeature.ExactPosition(startBase - (3*n))
+									thisFeatureAlignment.startBase = main_start_pos 
+									main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
+								elif coding_dna_Backward.startswith(stopCodons): # we look for a start inside the hit
+									n=0
+									while not coding_dna_Forward.startswith(startCodons) and n < nWalkStart and startBase + (3*(n+1)) <= endBase:
+										try:
+											n += 1
+											coding_dna_Forward = Seq(str(finalResults.seq[startBase -1 + (3*n):endBase]), IUPAC.unambiguous_dna)
+										except:
+											pass
+									else:
+										if coding_dna_Forward.startswith(startCodons):
+											main_start_pos = SeqFeature.ExactPosition(startBase + (3*n))
+											thisFeatureAlignment.startBase = main_start_pos
+											main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
+										
+						if strandToOutput == -1:
+							while not coding_dna_Forward.endswith(stopCodons) \
+							and not coding_dna_Backward.endswith(stopCodons) and n < nWalkStart and startBase - (3*(n+1)) >= 0 and startBase + (3*(n+1)) <= endBase:
+								try:
+									n += 1
+									coding_dna_Backward = Seq(str(finalResults.seq[startBase -1 - (3*n):endBase]), IUPAC.unambiguous_dna)
 									coding_dna_Backward = coding_dna_Backward.reverse_complement()
-								coding_dna_TranslationBackward = coding_dna_Backward.translate(table=translationTable)
-								coding_dna_Forward = Seq(str(finalResults.seq[startBase -1 - (3*n):endBase]), IUPAC.unambiguous_dna)
-								if strandToOutput == -1:
 									coding_dna_Forward = Seq(str(finalResults.seq[startBase -1 + (3*n):endBase]), IUPAC.unambiguous_dna)
 									coding_dna_Forward = coding_dna_Forward.reverse_complement()
-								coding_dna_TranslationForward = coding_dna_Forward.translate(table=translationTable)
-								if strandToOutput == -1:
-									coding_dna_TranslationBackward = coding_dna_TranslationBackward[::-1]
-									coding_dna_TranslationForward = coding_dna_TranslationForward[::-1]
-								
-							except:
-								pass
-						else:
-							if coding_dna_TranslationForward.startswith(startCodons):
-								main_start_pos = SeqFeature.ExactPosition(startBase - (3*n))
-								if strandToOutput == -1:
-									SeqFeature.ExactPosition(startBase + (3*n))
-								#startBase += (3*n) #backup
-								#thisFeatureAlignment.startBase = startBase #backup
-								thisFeatureAlignment.startBase = main_start_pos  #update
-								main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
-							elif coding_dna_TranslationBackward.startswith(startCodons):
-								main_start_pos = SeqFeature.ExactPosition(startBase - (3*n))
-								#startBase += (3*n) #backup
-								#thisFeatureAlignment.startBase = startBase #backup
-								thisFeatureAlignment.startBase = main_start_pos  #update
-								main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
+									'''print str(strandToOutput)
+									print "looking for stop ="+str(stopCodons)
+									print "coding_dna_Forward"
+									print coding_dna_Forward
+									print coding_dna_Forward.endswith(stopCodons)
+									print "coding_dna_Backward"
+									print coding_dna_Backward
+									print coding_dna_Backward.endswith(stopCodons)'''
+								except:
+									pass
+							else:
+								if coding_dna_Forward.endswith(stopCodons):
+									main_start_pos = SeqFeature.ExactPosition(startBase + (3*n))
+									thisFeatureAlignment.startBase = main_start_pos  
+									main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
+								elif coding_dna_Backward.endswith(stopCodons):
+									main_start_pos = SeqFeature.ExactPosition(startBase - (3*n))
+									thisFeatureAlignment.startBase = main_start_pos 
+									main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)							
 					except:
 						pass
-					
+						
 					'''
 					Updating coding_dna with (new) coordinates
 					'''
@@ -198,55 +234,92 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 					Making sure it ends with * (stop codon)
 					'''
 					try:
-						coding_dna_Translation = coding_dna.translate(table=translationTable)
-						coding_dna_TranslationForward = coding_dna.translate(table=translationTable)
-						coding_dna_TranslationBackward = coding_dna.translate(table=translationTable)
-						if strandToOutput == -1:
-							coding_dna_TranslationBackward = coding_dna_TranslationBackward[::-1]
-							coding_dna_TranslationForward = coding_dna_TranslationForward[::-1]
 						coding_dna_Forward = coding_dna
 						coding_dna_Backward = coding_dna
-						startBase = thisFeatureAlignment.startBase
-						endBase = thisFeatureAlignment.endBase
+						startBase = int(thisFeatureAlignment.startBase)
+						endBase = int(thisFeatureAlignment.endBase)
 						n = 0
-						while not coding_dna_TranslationForward.endswith(stopCodons) \
-						and not coding_dna_TranslationBackward.endswith(stopCodons) and n < nWalkStop and endBase + (3*(n+1)) <= len(finalResults):
-							try:
-								n += 1
-								coding_dna_Backward = Seq(str(finalResults.seq[startBase -1 :endBase - (3*n)]), IUPAC.unambiguous_dna)
-								if strandToOutput == -1:
-									coding_dna_Backward = Seq(str(finalResults.seq[startBase -1 :endBase + (3*n)]), IUPAC.unambiguous_dna)
-									coding_dna_Backward = coding_dna_Backward.reverse_complement()
-								coding_dna_TranslationBackward = coding_dna_Backward.translate(table=translationTable)
-								coding_dna_Forward = Seq(str(finalResults.seq[startBase - 1:endBase + (3*n)]), IUPAC.unambiguous_dna)
-								if strandToOutput == -1:
-									coding_dna_Forward = coding_dna_Forward.reverse_complement()
-								coding_dna_TranslationForward = coding_dna_Forward.translate(table=translationTable)
-								if strandToOutput == -1:
-									coding_dna_TranslationBackward = coding_dna_TranslationBackward[::-1]
-									coding_dna_TranslationForward = coding_dna_TranslationForward[::-1]
-							except:
-								pass
-						else:
-							if coding_dna_TranslationBackward.endswith(stopCodons):
-								main_end_pos = SeqFeature.ExactPosition(endBase - (3 * n))
-								if strandToOutput == -1:
+						if strandToOutput == 1:
+							while not coding_dna_Forward.endswith(stopCodons) \
+							and not coding_dna_Backward.endswith(stopCodons) and n < nWalkStop and endBase + (3*(n+1)) <= len(finalResults):
+								try:
+									n += 1
+									coding_dna_Backward = Seq(str(finalResults.seq[startBase - 1 :endBase - (3*n)]), IUPAC.unambiguous_dna)
+									coding_dna_Forward = Seq(str(finalResults.seq[startBase - 1 :endBase + (3*n)]), IUPAC.unambiguous_dna)
+									'''print str(strandToOutput)
+									print "looking for stop ="+str(stopCodons)
+									print "coding_dna_Forward"
+									print coding_dna_Forward
+									print coding_dna_Forward.endswith(stopCodons)
+									print "coding_dna_Backward"
+									print coding_dna_Backward	
+									print coding_dna_Backward.endswith(stopCodons)'''
+					
+								except:
+									pass
+							else:
+								if coding_dna_Backward.endswith(stopCodons):
+									main_end_pos = SeqFeature.ExactPosition(endBase - (3 * n))
+									thisFeatureAlignment.endBase = main_end_pos
+									main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
+								elif coding_dna_Forward.endswith(stopCodons):
 									main_end_pos = SeqFeature.ExactPosition(endBase + (3 * n))
-								#endBase -= (3 * (n-1)) #backup
-								#thisFeatureAlignment.endBase = endBase #backup
-								thisFeatureAlignment.endBase = main_end_pos #update
-								main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
-							elif coding_dna_TranslationForward.endswith(stopCodons):
-								main_end_pos = SeqFeature.ExactPosition(endBase + (3 * n))
-								#endBase += (3 * (n-1)) #backup
-								#thisFeatureAlignment.endBase = endBase #backup
-								thisFeatureAlignment.endBase = main_end_pos #update
-								main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
+									thisFeatureAlignment.endBase = main_end_pos 
+									main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
+						
+						if strandToOutput == -1:
+							while not coding_dna_Forward.startswith(startCodons) \
+							and not coding_dna_Backward.startswith(startCodons) \
+							and not coding_dna_Forward.startswith(stopCodons) and n < nWalkStop and endBase + (3*(n+1)) <= len(finalResults):
+								try:
+									n += 1
+									coding_dna_Backward = Seq(str(finalResults.seq[startBase - 1 :endBase + (3*n)]), IUPAC.unambiguous_dna)
+									coding_dna_Backward = coding_dna_Backward.reverse_complement()
+									coding_dna_Forward = Seq(str(finalResults.seq[startBase - 1:endBase + (3*n)]), IUPAC.unambiguous_dna)
+									coding_dna_Forward = coding_dna_Forward.reverse_complement()
+									'''print str(strandToOutput)
+									print "looking for start ="+str(startCodons)
+									print "coding_dna_Forward"
+									print coding_dna_Forward
+									print coding_dna_Forward.startswith(startCodons)
+									print "coding_dna_Backward"
+									print coding_dna_Backward	
+									print coding_dna_Backward.startswith(startCodons)'''
+					
+								except:
+									pass
+							else:
+								if coding_dna_Backward.startswith(startCodons):
+									main_end_pos = SeqFeature.ExactPosition(endBase + (3 * n))
+									thisFeatureAlignment.endBase = main_end_pos 
+									main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
+								elif coding_dna_Forward.startswith(startCodons):
+									main_end_pos = SeqFeature.ExactPosition(endBase + (3 * n))
+									thisFeatureAlignment.endBase = main_end_pos 
+									main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
+								elif coding_dna_Forward.startswith(stopCodons): # we look for a start inside the hit
+									n=0
+									while not coding_dna_Forward.startswith(startCodons) and n < nWalkStop and endBase - (3*(n+1)) >= startBase:
+										try:
+											n += 1
+											coding_dna_Forward = Seq(str(finalResults.seq[startBase - 1:endBase - (3*n)]), IUPAC.unambiguous_dna)
+											coding_dna_Forward = coding_dna_Forward.reverse_complement()
+										except:
+											pass
+									else:
+										if coding_dna_Forward.startswith(startCodons):
+											main_end_pos = SeqFeature.ExactPosition(endBase - (3 * n))
+											thisFeatureAlignment.endBase = main_end_pos 
+											main_feature_location = SeqFeature.FeatureLocation(main_start_pos-1,main_end_pos,strand=strandToOutput)
 					except:
 						pass
 						 
 					coding_dna = Seq(str(finalResults.seq[thisFeatureAlignment.startBase -1 :thisFeatureAlignment.endBase]),IUPAC.unambiguous_dna)
-					
+					'''print "\n\nFINAL SEQUENCE IS:"
+					if strandToOutput == 1:
+						print coding_dna+"\n"
+					else:
+						print coding_dna.reverse_complement()+"\n"'''
 					if strandToOutput == 1:
 						coding_dna_Translation = coding_dna.translate(table=translationTable)
 					else:

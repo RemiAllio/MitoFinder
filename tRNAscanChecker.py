@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.0.2
+#Version: 1.2
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
@@ -136,7 +136,7 @@ def tRNAscanCheck(resultFile = None, hasCircularized = False, skipTRNA = False, 
 		module_dir = os.path.dirname(__file__)
 		module_dir = os.path.abspath(module_dir)
 		scanInput = resultFile
-		module_dir = os.path.join(module_dir, "tRNAscan/")
+		module_dir = os.path.join(module_dir, "arwen/")
 		outputName = resultFile[0:-6] + ".arwen"
 		cfg_dir = os.path.dirname(__file__)
 		cfg_full_path = os.path.join(cfg_dir, 'Mitofinder.config')

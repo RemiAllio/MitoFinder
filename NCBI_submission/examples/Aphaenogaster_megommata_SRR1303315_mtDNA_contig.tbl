@@ -1,0 +1,159 @@
+>Feature Aphaenogaster_megommata_SRR1303315.1
+988	1057	gene
+			gene	tRNA-Pro
+988	1057	tRNA
+			product	tRNA-Pro
+1295	1228	gene
+			gene	tRNA-Thr
+1295	1228	tRNA
+			product	tRNA-Thr
+1374	1658	gene
+			gene	ND4L
+1374	1658	CDS
+			product	NADH dehydrogenase subunit 4L
+			transl_table	5
+1663	2985	gene
+			gene	ND4
+1663	2985	CDS
+			product	NADH dehydrogenase subunit 4
+			transl_table	5
+3012	3080	gene
+			gene	tRNA-His
+3012	3080	tRNA
+			product	tRNA-His
+3081	4742	gene
+			gene	ND5
+3081	4742	CDS
+			product	NADH dehydrogenase subunit 5
+			transl_table	5
+4843	4915	gene
+			gene	tRNA-Phe
+4843	4915	tRNA
+			product	tRNA-Phe
+5049	4978	gene
+			gene	tRNA-Glu2
+5049	4978	tRNA
+			product	tRNA-Glu2
+5073	5141	gene
+			gene	tRNA-Lys
+5073	5141	tRNA
+			product	tRNA-Lys
+5299	5231	gene
+			gene	tRNA-Arg
+5299	5231	tRNA
+			product	tRNA-Arg
+5412	5336	gene
+			gene	tRNA-Ala
+5412	5336	tRNA
+			product	tRNA-Ala
+5806	5474	gene
+			gene	ND3
+5806	5474	CDS
+			product	NADH dehydrogenase subunit 3
+			transl_table	5
+5892	5825	gene
+			gene	tRNA-Gly
+5892	5825	tRNA
+			product	tRNA-Gly
+6710	5925	gene
+			gene	COX3
+6710	5925	CDS
+			product	cytochrome c oxidase subunit III
+			transl_table	5
+7381	6719	gene
+			gene	ATP6
+7381	6719	CDS
+			product	ATP synthase F0 subunit 6
+			transl_table	5
+7548	7375	gene
+			gene	ATP8
+7548	7375	CDS
+			product	ATP synthase F0 subunit 8
+			transl_table	5
+7621	7548	gene
+			gene	tRNA-Asp
+7621	7548	tRNA
+			product	tRNA-Asp
+7696	7621	gene
+			gene	tRNA-Lys2
+7696	7621	tRNA
+			product	tRNA-Lys2
+8439	7750	gene
+			gene	COX2
+8439	7750	CDS
+			product	cytochrome c oxidase subunit II
+			transl_table	5
+8511	8440	gene
+			gene	tRNA-Leu
+8511	8440	tRNA
+			product	tRNA-Leu
+10053	8515	gene
+			gene	COX1
+10053	8515	CDS
+			product	cytochrome c oxidase subunit I
+			transl_table	5
+10114	10184	gene
+			gene	tRNA-Tyr
+10114	10184	tRNA
+			product	tRNA-Tyr
+10228	10294	gene
+			gene	tRNA-Cys
+10228	10294	tRNA
+			product	tRNA-Cys
+10401	10328	gene
+			gene	tRNA-Trp
+10401	10328	tRNA
+			product	tRNA-Trp
+11395	10412	gene
+			gene	ND2
+11395	10412	CDS
+			product	NADH dehydrogenase subunit 2
+			transl_table	5
+11486	11554	gene
+			gene	tRNA-Gln
+11486	11554	tRNA
+			product	tRNA-Gln
+11653	11580	gene
+			gene	tRNA-Ile
+11653	11580	tRNA
+			product	tRNA-Ile
+11734	11666	gene
+			gene	tRNA-Met
+11734	11666	tRNA
+			product	tRNA-Met
+11971	12040	gene
+			gene	tRNA-Val
+11971	12040	tRNA
+			product	tRNA-Val
+12508	13314	gene
+			gene	rrnS
+12508	13314	rRNA
+			gene	rrnS
+			product	12S ribosomal RNA
+13442	14823	gene
+			gene	rrnL
+13442	14823	rRNA
+			gene	rrnL
+			product	16S ribosomal RNA
+14845	14913	gene
+			gene	tRNA-Met2
+14845	14913	tRNA
+			product	tRNA-Met2
+15175	15244	gene
+			gene	tRNA-Leu2
+15175	15244	tRNA
+			product	tRNA-Leu2
+15269	16195	gene
+			gene	ND1
+15269	16195	CDS
+			product	NADH dehydrogenase subunit 1
+			transl_table	5
+16306	16233	gene
+			gene	tRNA-Ser
+16306	16233	tRNA
+			product	tRNA-Ser
+17471	16677	gene
+			gene	CYTB
+17471	16677	CDS
+			product	cytochrome b
+			transl_table	5

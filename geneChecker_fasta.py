@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.0.2
+#Version: 1.2
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
@@ -477,7 +477,7 @@ if __name__ == "__main__":
 				newTRNAEnd = tRNAFound.tRNAcoordinates[1]
 				newTRNALen = max(newTRNAStart, newTRNAEnd) - min(newTRNAStart, newTRNAEnd)
 				newTRNA = Alignment(tRNAName, prettyRNAName(tRNAName), newTRNALen)
-				newTRNA.startBase = min(newTRNAStart, newTRNAEnd)
+				newTRNA.startBase = min(newTRNAStart, newTRNAEnd)+1
 				newTRNA.endBase = max(newTRNAStart, newTRNAEnd)
 				thisFeatureFound = newTRNA
 
