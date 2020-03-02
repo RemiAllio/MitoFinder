@@ -22,7 +22,7 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 6. [UCE annotation](#uce-annotation)
 7. [Associated publication](#associated-publication)
 8. [How to get reference mitochondrial genomes from ncbi](#how-to-get-reference-mitochondrial-genomes-from-ncbi)
-9. [How to submit your mitochondrial genome(s) to GenBank NCBI](#how-to-submit-your-mitochondrial-genome(s)-to-genbank-ncbi)
+9. [How to submit your mitochondrial genomes to GenBank NCBI](#how-to-submit-your-mitochondrial-genomes-to-genbank-ncbi)
 
 # Installation guide for MitoFinder
 
@@ -266,7 +266,7 @@ tbl2asn requires:
 - [x] **Template file**				containing a text ASN.1 Submit-block object (suffix .sbt). [Create submission template](https://submit.ncbi.nlm.nih.gov/genbank/template/submission/).   
 - [x] **Nucleotide sequence data**				containing the mitochondrial sequence(s) and associated information (suffix .fsa).  
 - [x] **Feature Table**				containing annotation information for the mitochondrial sequence(s).  
-- [] **Comment file**				containing assembly and annotation method information (assembly.cmt). [Create comment template](https://submit.ncbi.nlm.nih.gov/structcomment/nongenomes/)  
+- [ ] **Comment file**				containing assembly and annotation method information (assembly.cmt). [Create comment template](https://submit.ncbi.nlm.nih.gov/structcomment/nongenomes/)  
   
 ### Creating a compatible FASTA file
 
