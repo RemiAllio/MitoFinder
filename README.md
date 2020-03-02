@@ -20,9 +20,9 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 4. [INPUTS](#inputs)
 5. [OUTPUTS](#outputs)
 6. [UCE annotation](#uce-annotation)
-7. [Associated publication](#associated-publication)
+7. [Associated publications](#associated-publications)
 8. [How to get reference mitochondrial genomes from ncbi](#how-to-get-reference-mitochondrial-genomes-from-ncbi)
-9. [How to submit your mitochondrial genomes to GenBank NCBI](#how-to-submit-your-mitochondrial-genomes-to-genbank-ncbi)
+9. [How to submit your mitochondrial genome(s) to GenBank NCBI](#how-to-submit-your-mitochondrial-genomes-to-genbank-ncbi)
 
 # Installation guide for MitoFinder
 
@@ -220,26 +220,26 @@ Mitofinder returns several files for each mitochondrial contig found:
 # UCE annotation
 MitoFinder starts by assembling both mitochondrial and nuclear reads. It is only in a second step that mitochondrial contigs are identified and extracted.
 MitoFinder thus provides UCE contigs already assembled and the annotation can be done from the following file:  
-- **[job_name]link_[assembler].scafSeq** 	containing all assembled contigs from raw reads. 
+- **[Seq_ID]link_[assembler].scafSeq** 	containing all assembled contigs from raw reads. 
 
 To do so, we recommend the PHYLUCE pipeline, which is specifically designed to annotate ultraconserved elements (Faircloth  2015; Tutorial: https://phyluce.readthedocs.io/en/latest/tutorial-one.html#finding-uce-loci).  
 You can thus use the file **[job_name]link_[assembler].scafSeq** and start the pipeline at the **"Finding UCE"** step.  
   
-# Associated publication  
+# Associated publications  
   
 If you use MitoFinder, please cite:  
   
-Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2019). **MitoFinder**: efficient automated large-scale extraction of mitogenomic data in target enrichment phylogenomics. BioRxiv, 685412. https://doi.org/10.1101/685412    
+- Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2019). **MitoFinder**: efficient automated large-scale extraction of mitogenomic data in target enrichment phylogenomics. BioRxiv, 685412. https://doi.org/10.1101/685412    
   
 Please also cite the following studies depending on the option chosen for the assembly step in MitoFinder:    
   
-Nurk, S., Meleshko, D., Korobeynikov, A., & Pevzner, P. A. (2017). **metaSPAdes**: a new versatile metagenomic assembler. Genome research, 27(5), 824-834.  
-Li, D., Luo, R., Liu, C. M., Leung, C. M., Ting, H. F., Sadakane, K., ... & Lam, T. W. (2016). **MEGAHIT v1.0**: a fast and scalable metagenome assembler driven by advanced methodologies and community practices. Methods, 102, 3-11.  
-Peng, Y., Leung, H. C., Yiu, S. M., & Chin, F. Y. (2012). **IDBA-UD**: a de novo assembler for single-cell and metagenomic sequencing data with highly uneven depth. Bioinformatics, 28(11), 1420-1428.  
+- Nurk, S., Meleshko, D., Korobeynikov, A., & Pevzner, P. A. (2017). **metaSPAdes**: a new versatile metagenomic assembler. Genome research, 27(5), 824-834.  
+- Li, D., Luo, R., Liu, C. M., Leung, C. M., Ting, H. F., Sadakane, K., ... & Lam, T. W. (2016). **MEGAHIT v1.0**: a fast and scalable metagenome assembler driven by advanced methodologies and community practices. Methods, 102, 3-11.  
+- Peng, Y., Leung, H. C., Yiu, S. M., & Chin, F. Y. (2012). **IDBA-UD**: a de novo assembler for single-cell and metagenomic sequencing data with highly uneven depth. Bioinformatics, 28(11), 1420-1428.  
  
 For the tRNA annotation:  
   
-Laslett, D., & Canbäck, B. (2008). **ARWEN**: a program to detect tRNA genes in metazoan mitochondrial nucleotide sequences. Bioinformatics, 24(2), 172-175.  
+- Laslett, D., & Canbäck, B. (2008). **ARWEN**: a program to detect tRNA genes in metazoan mitochondrial nucleotide sequences. Bioinformatics, 24(2), 172-175.  
   
 # HOW TO GET REFERENCE MITOCHONDRIAL GENOMES FROM NCBI  
 
