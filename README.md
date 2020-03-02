@@ -206,15 +206,15 @@ Mitofinder needs several files to run depending on the method you have choosen (
 ### Result folder  
 
 Mitofinder returns several files for each mitochondrial contig found:  
-- [x] **[job_name]_final_genes_NT.fasta**				containing the nucleotides sequences of the final genes selected from all contigs by MitoFinder   
-- [x] **[job_name]_final_genes_AA.fasta**				containing the amino acids sequences of the final genes selected from all contigs by MitoFinder   
-- [x] **[job_name]_mtDNA_contig.fasta**				containing a mitochondrial contig  
-- [x] **[job_name]_mtDNA_contig.gff**				containing the final annotation for a given contig (GFF3 format) 
-- [x] **[job_name]_mtDNA_contig.tbl**				containing the final annotation for a given contig (Genbank submission format)
-- [x] **[job_name]_mtDNA_contig.gb** 				containing the final annotation for a given contig (Genbank format for visualization)
-- [x] **[job_name]_mtDNA_contig_genes_NT.fasta** 				containing the nucleotide sequences of annotated genes for a given contig    
-- [x] **[job_name]_mtDNA_contig_genes_AA.fasta** 				containing the amino acids sequences of annotated genes for a given contig    
-- [x] **[job_name]_mtDNA_contig.png** 				schematic representation of the annotation of the mtDNA contig    
+- [x] **[Seq_ID]_final_genes_NT.fasta**				containing the nucleotides sequences of the final genes selected from all contigs by MitoFinder   
+- [x] **[Seq_ID]_final_genes_AA.fasta**				containing the amino acids sequences of the final genes selected from all contigs by MitoFinder   
+- [x] **[Seq_ID]_mtDNA_contig.fasta**				containing a mitochondrial contig  
+- [x] **[Seq_ID]_mtDNA_contig.gff**				containing the final annotation for a given contig (GFF3 format) 
+- [x] **[Seq_ID]_mtDNA_contig.tbl**				containing the final annotation for a given contig (Genbank submission format)
+- [x] **[Seq_ID]_mtDNA_contig.gb** 				containing the final annotation for a given contig (Genbank format for visualization)
+- [x] **[Seq_ID]_mtDNA_contig_genes_NT.fasta** 				containing the nucleotide sequences of annotated genes for a given contig    
+- [x] **[Seq_ID]_mtDNA_contig_genes_AA.fasta** 				containing the amino acids sequences of annotated genes for a given contig    
+- [x] **[Seq_ID]_mtDNA_contig.png** 				schematic representation of the annotation of the mtDNA contig    
 
 
 # UCE annotation
@@ -223,7 +223,7 @@ MitoFinder thus provides UCE contigs already assembled and the annotation can be
 - **[Seq_ID]link_[assembler].scafSeq** 	containing all assembled contigs from raw reads. 
 
 To do so, we recommend the PHYLUCE pipeline, which is specifically designed to annotate ultraconserved elements (Faircloth  2015; Tutorial: https://phyluce.readthedocs.io/en/latest/tutorial-one.html#finding-uce-loci).  
-You can thus use the file **[job_name]link_[assembler].scafSeq** and start the pipeline at the **"Finding UCE"** step.  
+You can thus use the file **[Seq_ID]link_[assembler].scafSeq** and start the pipeline at the **"Finding UCE"** step.  
   
 # Associated publications  
   
