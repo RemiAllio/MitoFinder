@@ -22,7 +22,7 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 6. [UCE annotation](#uce-annotation)
 7. [Associated publication](#associated-publication)
 8. [How to get reference mitochondrial genomes from ncbi](#how-to-get-reference-mitochondrial-genomes-from-ncbi)
-9. [How to submit your mitochondrial genome(s) to GenBank NCBI](#how-to-submit-your-mitochondrial-genome(s\)-to-genbank-ncbi)
+9. [How to submit your mitochondrial genome(s) to GenBank NCBI](#how-to-submit-your-mitochondrial-genome(s)-to-genbank-ncbi)
 
 # Installation guide for MitoFinder
 
