@@ -19,10 +19,11 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 3. [Detailed options](#detailed-options)
 4. [INPUTS](#inputs)
 5. [OUTPUTS](#outputs)
-6. [UCE annotation](#uce-annotation)
-7. [Associated publications](#associated-publications)
-8. [How to get reference mitochondrial genomes from ncbi](#how-to-get-reference-mitochondrial-genomes-from-ncbi)
-9. [How to submit your mitochondrial genome(s) to GenBank NCBI](#how-to-submit-your-mitochondrial-genomes-to-genbank-ncbi)
+6. [Particular cases](#particular-cases)
+7. [UCE annotation](#uce-annotation)
+8. [Associated publications](#associated-publications)
+9. [How to get reference mitochondrial genomes from ncbi](#how-to-get-reference-mitochondrial-genomes-from-ncbi)
+10. [How to submit your mitochondrial genome(s) to GenBank NCBI](#how-to-submit-your-mitochondrial-genomes-to-genbank-ncbi)
 
 # Installation guide for MitoFinder
 
@@ -133,10 +134,10 @@ For example:
 which megahit
 ```
 
-#### Arwen
+- **[Arwen](https://academic.oup.com/bioinformatics/article/24/2/172/228155)**
 
 The arwen source code is available in the arwen directory of MitoFinder. However, it is compiled for Linux. So, to make it executable you need to compile it on your own Mac OS system using gcc.
-To do so, cd to the ```./MitoFinder/arwen``` directory and run:
+To do so, ```cd``` to the ```./MitoFinder/arwen``` directory and run:
 
 ```shell
 gcc arwen1.2.3.c
@@ -343,10 +344,10 @@ Once you have identified nuclear contigs that may contain NUMTs, you can use Mit
 # UCE annotation
 MitoFinder starts by assembling both mitochondrial and nuclear reads using de novo metagenomic assemblers. It is only in a second step that mitochondrial contigs are identified and extracted.
 MitoFinder thus provides UCE contigs that are already assembled and the annotation can be done from the following file:  
-- **[Seq_ID]_link_[assembler].scafSeq** 	containing all assembled contigs from raw reads. 
+- **[Seq_ID]\_link\_[assembler].scafSeq** 	containing all assembled contigs from raw reads. 
 
 To do so, we recommend the use of the PHYLUCE pipeline which is specifically designed to annotate ultraconserved elements (Faircloth  2015; Tutorial: https://phyluce.readthedocs.io/en/latest/tutorial-one.html#finding-uce-loci).  
-You can thus use the file **[Seq_ID]_link_[assembler].scafSeq** and start the Phyluce pipeline at the **"Finding UCE"** step.  
+You can thus use the file **[Seq_ID]\_link\_[assembler].scafSeq** and start the Phyluce pipeline at the **"Finding UCE"** step.  
   
 # Associated publications  
   
