@@ -79,21 +79,27 @@ if __name__ == "__main__":
 						default=4, dest='processorsToUse')
 	parser.add_argument('-r', '--refseq', help='Reference mitochondrial genome in GenBank format (.gb).',
 						default="", dest='refSeqFile')
-	parser.add_argument('-e', '--blaste', help='e-value of blast program used for contig identification and annotation. Default = 0.000001', type=float,
-						default=0.000001, dest='blasteVal')
+	parser.add_argument('-e', '--blast-eval', help='e-value of blast program used for contig identification and annotation. Default = 0.00001', type=float,
+						default=0.00001, dest='blasteVal')
 	parser.add_argument('-n', '--nwalk', help='Maximum number of codon steps to be tested on each size of the gene to find the start and stop codon during the annotation step. Default = 200 (600 bases)', type=int,
 						default=200, dest='nWalk')
 	parser.add_argument('--ignore', help='This option tells MitoFinder to ignore the non-standart mitochondrial genes.', default=False, dest='ignore', action='store_true')
-	parser.add_argument('--out_gb', help='Do not create annotation output file in GenBank format.', default=True, dest='genbk', action='store_false') 
-	parser.add_argument('--blastidentitynucl', help='Nucleotide identity percentage for a hit to be retained. Default = 50',
+	parser.add_argument('--new-genes', help='This option tells MitoFinder to try to annotate the non-standart mitochondrial genes. If several references are used, make sure the non-standart genes have the same names in the several references', default=False, dest='newG', action='store_true')
+	parser.add_argument('--allow-intron', help='This option tells MitoFinder to search for genes with introns. Recommendation : Use it on mitochondrial contigs previously found with MitoFinder without this option.', default=False, dest='gap', action='store_true')
+	parser.add_argument('--numt', help='This option tells MitoFinder to search for NUMTs. Recommendation : Use it on nuclear contigs previously found with MitoFinder without this option.', default=False, dest='numt', action='store_true')
+	parser.add_argument('--intron-size', help='Size of intron allowed. Default = 1000 bp',
+					default=1000, type=float, dest='intronsize')
+	parser.add_argument('--cds-merge', help='This option allows MitoFinder to merge the exons in the NT and AA fasta files. ', default=False, dest='merge', action='store_true') 
+	parser.add_argument('--out-gb', help='Do not create annotation output file in GenBank format.', default=True, dest='genbk', action='store_false') 
+	parser.add_argument('--blast-identity-nucl', help='Nucleotide identity percentage for a hit to be retained. Default = 50',
 					default=50, type=float, dest='blastIdentityNucl')
-	parser.add_argument('--blastidentityprot', help='Amino acid identity percentage for a hit to be retained. Default = 40',
+	parser.add_argument('--blast-identity-prot', help='Amino acid identity percentage for a hit to be retained. Default = 40',
 					default=40, type=float, dest='blastIdentityProt')
-	parser.add_argument('--blastsize', help='Percentage of overlap in blast best hit to be retained. Default = 30',
+	parser.add_argument('--blast-size', help='Percentage of overlap in blast best hit to be retained. Default = 30',
 					default=30, type=float, dest='aligncutoff')
-	parser.add_argument('--circularsize', help='Size to consider when checking for circularization. Default = 45',
+	parser.add_argument('--circular-size', help='Size to consider when checking for circularization. Default = 45',
 						default=45, type=int, dest='circularSize')
-	parser.add_argument('--circularoffset', help='Offset from start and finish to consider when looking for circularization. Default = 200',
+	parser.add_argument('--circular-offset', help='Offset from start and finish to consider when looking for circularization. Default = 200',
 						default=200, type=int, dest='circularOffSet')
 #	parser.add_argument('-cove', '--covecutoff', help='Cove cutoff for tRNAscan-SE. Default = 7', type=int, default=7, dest='coveCutOff')
 	parser.add_argument('-o', '--organism', help="Organism genetic code following NCBI table (integer):\n\
@@ -257,7 +263,10 @@ if __name__ == "__main__":
 		args.inputFile=	initial_path+args.processName+".input"
 	
 	args.coveCutOff=7
-
+	if args.numt == True:
+		args.numt = 1
+	else:
+		args.numt = 0
 	
 	'''
 	Read config file and import information.
@@ -499,8 +508,10 @@ if __name__ == "__main__":
 			#create a gene database
 			os.chdir(pathtowork)
 			dico_genes={}
-
-			if os.path.isfile("ref_COX1_database.fasta") == True:
+			dico_unknown={}
+			for f in glob.glob("ref*database.fasta*"):
+				os.remove(f)
+			"""if os.path.isfile("ref_COX1_database.fasta") == True:
 				os.remove(pathtowork+"/"+"ref_COX1_database.fasta")
 			if os.path.isfile("ref_COX2_database.fasta") == True:
 				os.remove(pathtowork+"/"+"ref_COX2_database.fasta")
@@ -529,7 +540,7 @@ if __name__ == "__main__":
 			if os.path.isfile("ref_rrnL_database.fasta") == True:
 				os.remove(pathtowork+"/"+"ref_rrnL_database.fasta")
 			if os.path.isfile("ref_rrnS_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_rrnS_database.fasta")
+				os.remove(pathtowork+"/"+"ref_rrnS_database.fasta")"""
 			
 			for name, seq in read_fasta(open("translated_genes_for_database.fasta")):
 				namesp=name
@@ -566,15 +577,16 @@ if __name__ == "__main__":
 					name="rrnS"
 					
 				else:
-					if args.ignore == False:
-						print "ERROR: Gene named \""+name+"\" in the reference file is not recognized by MitoFinder."
-						print "This gene is not a standard mitochondrial gene (use --ignore) or please change it to one of the following gene names:"
-						print "COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS"
-						print " "
-						print "Aborting"
-						print " "
-						logfile.write("ERROR: Gene named \""+name+"\" in the reference file is not recognized by MitoFinder.\n"+"This gene is not a standard mitochondrial gene or please change it to one of the following gene names:\n"+"COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS\n\n"+"Aborting\n\n")
-						exit()
+					if args.ignore == False and args.newG == False:
+						dico_unknown[name]=name
+					elif args.newG == True and not dico_genes.has_key(name):
+						print "Gene named \""+name+"\" in the reference file is not recognized by MitoFinder."
+						print "MitoFinder will try to annotate it."
+						logfile.write("Gene named \""+name+"\" in the reference file is not recognized by MitoFinder."+"\n"+"MitoFinder will try to annotate it."+"\n\n")
+						'''with open(pathtowork+"/genes_list", "a") as genelist:
+							genelist.write(name+"\n")'''
+					elif args.newG == True and dico_genes.has_key(name):
+						pass
 					else:
 						print "WARNING: Gene named \""+name+"\" in the reference file is not recognized by MitoFinder."
 						print "This gene will not be annotated by MitoFinder"
@@ -621,17 +633,7 @@ if __name__ == "__main__":
 					name="rrnS"
 
 				else:
-					if args.ignore == False:
-						print "ERROR: Gene named \""+name+"\" in the reference file is not recognized by MitoFinder."
-						print "This gene is not a standard mitochondrial gene or please change it to one of the following gene names:"
-						print "COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS"
-						print " "
-						print "Aborting"
-						print " "
-						logfile.write("ERROR: Gene named \""+name+"\" in the reference file is not recognized by MitoFinder\n"+"This gene is not a standard mitochondrial gene or please change it to one of the following gene names:\n"+"COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS\n\n"+"Aborting\n\n")
-						exit()
-					else:
-						name="no"						
+					pass						
 				
 				if name == "rrnL" or name == "rrnS":
 					geneOut=open("ref_"+name+"_database.fasta",'a')
@@ -641,7 +643,33 @@ if __name__ == "__main__":
 				geneOut=open("contig_id_database.fasta",'a')
 				geneOut.write(namesp.split("@")[0]+"@"+name+"\n"+seq+"\n")
 				geneOut.close()
-				
+			
+			if len(dico_unknown) > 0:
+				if len(dico_unknown) == 1:
+					print "ERROR: Gene named \""+next(iter(dico_unknown))+"\" in the reference file(s) is not recognized by MitoFinder."
+					print "This gene is not a standard mitochondrial gene  (use --ignore or --new-genes options) or please change it to one of the following gene names:"
+					print "COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS"
+					print " "
+					print "If you decide to use the new-genes option, please be aware that the names of the new genes in your reference(s) should be homogenized to be considered as unique by MitoFinder (example : Gene1 is not equal to gene1 or gene-1 , use one unique name for all equivalent genes in the different references) "
+					print " "
+					print "Aborting"
+					print " "
+					logfile.write("ERROR: Gene named \""+name+"\" in the reference file(s) are not recognized by MitoFinder\n"+"This gene is not a standard mitochondrial gene (use --ignore or --new-genes options) or please change it to one of the following gene names:\n"+"COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS\n\nIf you decide to use the new-genes option, please be aware that the names of the new genes in your reference(s) should be homogenized to be considered as unique by MitoFinder (example : Gene1 is not equal to gene1 or gene-1 , use one unique name for all equivalent genes in the different references)\n"+"Aborting\n\n")
+				else:
+					print "ERROR: The following genes in the reference file(s) are not recognized by MitoFinder."
+					for k, v in dico_unknown.items():
+						print " -" + k
+						logfile.write(" -"+k+"\n")
+					print "These genes are not standard mitochondrial genes (use --ignore or --new-genes options) or please change them to one of the following gene names:"
+					print "COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS"
+					print " "
+					print "If you decide to use the new-genes option, please be aware that the names of the new genes in your reference(s) should be homogenized to be considered as unique by MitoFinder (example : Gene1 is not equal to gene1 or gene-1 , use one unique name for all equivalent genes in the different references) "
+					print " "
+					print "Aborting"
+					print " "
+					logfile.write("ERROR: Gene named \""+name+"\" in the reference file(s) are not recognized by MitoFinder\n"+"These genes are not standard mitochondrial genes (use --ignore or --new-genes options) or please change them to one of the following gene names:\n"+"COX1; COX2; COX3; CYTB; ND1; ND2; ND3; ND4; ND4L; ND5; ND6; ATP8; ATP6; rrnL; rrnS\n\nIf you decide to use the new-genes option, please be aware that the names of the new genes in your reference(s) should be homogenized to be considered as unique by MitoFinder (example : Gene1 is not equal to gene1 or gene-1 , use one unique name for all equivalent genes in the different references)\n"+"Aborting\n\n")
+				exit()	
+
 			print ""
 			logfile.write("\n")
 			
@@ -935,11 +963,17 @@ if __name__ == "__main__":
 								refFile.write(name+"\n"+seq+"\n")
 				
 					refFile.close()
-					
-				command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
-				args1 = shlex.split(command)
-				fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
-				fifthStep.wait()	
+
+				if args.gap == True or args.numt == 1:
+					command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt)
+					args1 = shlex.split(command)
+					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+					fifthStep.wait()	
+				else:
+					command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
+					args1 = shlex.split(command)
+					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+					fifthStep.wait()	
 			
 			else:
 
@@ -950,10 +984,16 @@ if __name__ == "__main__":
 						best_ref.write(name+"\n"+seq+"\n")
 				best_ref.close()
 				
-				command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
-				args1 = shlex.split(command)
-				fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'w'), stderr=open('geneChecker_erreur.log', 'w'))
-				fifthStep.wait()
+				if args.gap == True or args.numt == 1:
+					command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt)
+					args1 = shlex.split(command)
+					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+					fifthStep.wait()	
+				else:
+					command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
+					args1 = shlex.split(command)
+					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'w'), stderr=open('geneChecker_erreur.log', 'w'))
+					fifthStep.wait()
 
 			test_arwen=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.arwen"
 			if os.path.isfile(test_arwen) == True:
@@ -1182,10 +1222,16 @@ if __name__ == "__main__":
 				"""
 
 				if recordCount > 1:
-					command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_contig_" + str(c) + ".fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
-					args1 = shlex.split(command)
-					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
-					fifthStep.wait()
+					if args.gap == True or args.numt == 1:
+						command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_contig_" + str(c) + ".fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt)
+						args1 = shlex.split(command)
+						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+						fifthStep.wait()	
+					else:
+						command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_contig_" + str(c) + ".fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
+						args1 = shlex.split(command)
+						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+						fifthStep.wait()
 				
 				else:
 					#creation du fichier .fasta pour geneChecker_fasta.py
@@ -1196,10 +1242,16 @@ if __name__ == "__main__":
 							best_ref.write(name+"\n"+seq+"\n")
 					best_ref.close()
 					
-					command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_contigs.fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
-					args1 = shlex.split(command)
-					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'w'), stderr=open('geneChecker_erreur.log', 'w'))
-					fifthStep.wait()
+					if args.gap == True or args.numt == 1:
+						command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_contigs.fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt)
+						args1 = shlex.split(command)
+						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+						fifthStep.wait()
+					else:
+						command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_contigs.fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
+						args1 = shlex.split(command)
+						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'w'), stderr=open('geneChecker_erreur.log', 'w'))
+						fifthStep.wait()
 	
 			
 				test_arwen=pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".arwen"
@@ -1275,10 +1327,16 @@ if __name__ == "__main__":
 			
 				refFile.close()
 				
-			command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + args.CONTIG + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
-			args1 = shlex.split(command)
-			fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
-			fifthStep.wait()	
+			if args.gap == True or args.numt == 1:
+				command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_contigs.fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt)
+				args1 = shlex.split(command)
+				fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+				fifthStep.wait()
+			else:
+				command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_contigs.fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
+				args1 = shlex.split(command)
+				fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+				fifthStep.wait()	
 		
 		else:
 			print "Running Annotation\n"
@@ -1291,10 +1349,16 @@ if __name__ == "__main__":
 					best_ref.write(name+"\n"+seq+"\n")
 			best_ref.close()
 			
-			command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + args.CONTIG + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
-			args1 = shlex.split(command)
-			fifthStep = Popen(args1, cwd=pathOfFinalResults,stdout=open('geneChecker.log', 'w'), stderr=open('geneChecker_erreur.log', 'w'))
-			fifthStep.wait()
+			if args.gap == True or args.numt == 1:
+				command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + args.CONTIG + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt)
+				args1 = shlex.split(command)
+				fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+				fifthStep.wait()
+			else:
+				command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + args.CONTIG + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
+				args1 = shlex.split(command)
+				fifthStep = Popen(args1, cwd=pathOfFinalResults,stdout=open('geneChecker.log', 'w'), stderr=open('geneChecker_erreur.log', 'w'))
+				fifthStep.wait()
 		
 		test_arwen=args.CONTIG.split("/")[-1]
 		test_arwen=test_arwen[0:-6] + ".arwen"
@@ -1326,27 +1390,83 @@ if __name__ == "__main__":
 		out_fasta_aa=f.split(".gb")[0]+"_genes_AA.fasta"
 		out_fasta_nt=open(out_fasta_nt,"w")
 		out_fasta_aa=open(out_fasta_aa,"w")
-		record = SeqIO.read(open(f), "genbank", generic_dna)
-		for feature in record.features:
-			seq_aa=""
-			if feature.type.lower() == 'cds' or feature.type == 'rRNA':
-				gnb = gnb+1
-				if 'gene' in feature.qualifiers:
-					featureName = feature.qualifiers['gene'][0]
-					if 'translation' in feature.qualifiers:
-						seq_aa=feature.qualifiers['translation'][0]
-				elif 'product' in feature.qualifiers:
-					featureName = feature.qualifiers['product'][0]
-					if 'translation' in feature.qualifiers:
-						seq_aa=feature.qualifiers['translation'][0]
-				featureName = ''.join(featureName.split())
-	
-				out_fasta_nt.write('>' + args.processName + "@" + featureName + '\n')
-				out_fasta_nt.write(str(feature.extract(record).seq) + '\n')
-				if str(seq_aa) != "":
-					out_fasta_aa.write('>' + args.processName + "@" + featureName + '\n')
-					out_fasta_aa.write(str(seq_aa) + '\n')
-				
+		dgen={}
+		with open(f) as infile :
+			record = SeqIO.read(infile, "genbank", generic_dna)
+			for feature in record.features:
+				seq_aa=""
+				if feature.type.lower() == 'cds' or feature.type == 'rRNA':
+					if 'gene' in feature.qualifiers:
+						featureName = feature.qualifiers['gene'][0]
+						if 'translation' in feature.qualifiers:
+							seq_aa=feature.qualifiers['translation'][0]
+					elif 'product' in feature.qualifiers:
+						featureName = feature.qualifiers['product'][0]
+						if 'translation' in feature.qualifiers:
+							seq_aa=feature.qualifiers['translation'][0]
+					featureName = ''.join(featureName.split()).split("_")[0]
+					if dgen.has_key(featureName):
+						dgen[featureName]+=1
+					else:
+						dgen[featureName]=1
+		dico_cds_n={}
+		dico_cds_aa={}
+		dico_cds_nt={}
+		with open(f) as infile :
+			record = SeqIO.read(infile, "genbank", generic_dna)
+			for feature in record.features:
+				seq_aa=""
+				if feature.type.lower() == 'cds' or feature.type == 'rRNA':
+					if 'gene' in feature.qualifiers:
+						featureName = feature.qualifiers['gene'][0]
+						if 'translation' in feature.qualifiers:
+							seq_aa=feature.qualifiers['translation'][0]
+					elif 'product' in feature.qualifiers:
+						featureName = feature.qualifiers['product'][0]
+						if 'translation' in feature.qualifiers:
+							seq_aa=feature.qualifiers['translation'][0]
+					featureName = ''.join(featureName.split()).split("_")[0]
+					if dgen.get(featureName) == 1:
+						gnb = gnb+1
+						out_fasta_nt.write('>' + args.processName + "@" + featureName + '\n')
+						out_fasta_nt.write(str(feature.extract(record).seq) + '\n')
+						if str(seq_aa) != "":
+							out_fasta_aa.write('>' + args.processName + "@" + featureName + '\n')
+							out_fasta_aa.write(str(seq_aa) + '\n')
+					
+					elif not dico_cds_n.has_key(featureName) and args.merge == True:
+						gnb = gnb+1
+						dico_cds_n[featureName]=1
+						dico_cds_nt[featureName]=str(feature.extract(record).seq)
+						if str(seq_aa) != "":
+							dico_cds_aa[featureName]=str(seq_aa)
+					elif dico_cds_n.has_key(featureName) and dico_cds_n.get(featureName) < dgen.get(featureName) and args.merge == True:
+						dico_cds_n[featureName]+=1
+						if "(+)" in str(feature.location):
+							dico_cds_nt[featureName]=str(dico_cds_nt.get(featureName))+str(feature.extract(record).seq)
+							if str(seq_aa) != "":
+								dico_cds_aa[featureName]=str(dico_cds_aa.get(featureName))+str(seq_aa)
+						else:
+							dico_cds_nt[featureName]=str(feature.extract(record).seq)+str(dico_cds_nt.get(featureName))
+							if str(seq_aa) != "":
+								dico_cds_aa[featureName]=str(seq_aa)+str(dico_cds_aa.get(featureName))
+					else:
+						if not dico_cds_n.has_key(featureName):
+							dico_cds_n[featureName]=1
+							gnb = gnb+1
+						out_fasta_nt.write('>' + args.processName + "@" + featureName + '\n')
+						out_fasta_nt.write(str(feature.extract(record).seq) + '\n')
+						if str(seq_aa) != "":
+							out_fasta_aa.write('>' + args.processName + "@" + featureName + '\n')
+							out_fasta_aa.write(str(seq_aa) + '\n')
+								
+					if dico_cds_n.has_key(featureName) and dico_cds_n.get(featureName) == dgen.get(featureName) and args.merge == True:
+						out_fasta_nt.write('>' + args.processName + "@" + featureName + '\n')
+						out_fasta_nt.write(str(dico_cds_nt.get(featureName)) + '\n')
+						if str(dico_cds_aa.get(featureName)) != "":
+							out_fasta_aa.write('>' + args.processName + "@" + featureName + '\n')
+							out_fasta_aa.write(str(dico_cds_aa.get(featureName)) + '\n')
+						
 		out_fasta_nt.close()
 		out_fasta_aa.close()
 		if gnb == 0 or gnb == 1:
@@ -1378,44 +1498,48 @@ if __name__ == "__main__":
 	
 	dico_genes={}
 	dico_gcount={}
-	for f in glob.glob(pathOfFinalResults+"/*_genes_NT.fasta"):
-		for name, seq in read_fasta(open(f,'r')):
-			gene=name.split("@")[1]
-			if dico_genes.has_key(gene):
-				dico_gcount[gene]=dico_gcount.get(gene)+1
-				if len(dico_genes.get(gene)) < len(seq):
+	c=len(glob.glob(pathOfFinalResults+"/*_genes_NT.fasta"))
+	double_gene=0
+	if c > 1 and args.numt == 0:	
+		for f in glob.glob(pathOfFinalResults+"/*_genes_NT.fasta"):
+			for name, seq in read_fasta(open(f,'r')):
+				gene=name.split("@")[1]
+				if dico_genes.has_key(gene):
+					dico_gcount[gene]=dico_gcount.get(gene)+1
+					if len(dico_genes.get(gene)) < len(seq):
+						dico_genes[gene]=seq
+				else:
 					dico_genes[gene]=seq
-			else:
-				dico_genes[gene]=seq
-				dico_gcount[gene]=1
-	double_gene=0	
-	for key, value in dico_gcount.items():
-		if value > 1:
-			print "WARNING: " + key + " has been found more than once ("+ str(value) + ") in the different mitochondrial contigs."
-			print "MitoFinder selected the longest sequence as the final sequence.\n"
-			logfile.write("WARNING : " + key + " has been found more than once ("+ str(value) + ") in the different mitochondrial contigs."+"\n"+"Mitofinder selected the longest sequence as the final sequence.\n"+"\n")
-			double_gene+=1
-	final_fasta=open(pathOfFinalResults+"/"+args.processName+"_final_genes_NT.fasta","w")
-	
-	for key, value in dico_genes.items():
-		final_fasta.write(">"+args.processName+"@"+key+"\n"+value+"\n")
-	final_fasta.close()
-	
-	dico_genes={}
-	for f in glob.glob(pathOfFinalResults+"/*_genes_AA.fasta"):
-		for name, seq in read_fasta(open(f,'r')):
-			gene=name.split("@")[1]
-			if dico_genes.has_key(gene):
-				if len(dico_genes.get(gene)) < len(seq):
-					dico_genes[gene]=seq
-			else:
-				dico_genes[gene]=seq
+					dico_gcount[gene]=1
+			
+		for key, value in dico_gcount.items():
+			if value > 1 and c > 1:
+				print "WARNING: " + key + " has been found more than once ("+ str(value) + ") in the different mitochondrial contigs."
+				print "MitoFinder selected the longest sequence as the final sequence.\n"
+				logfile.write("WARNING : " + key + " has been found more than once ("+ str(value) + ") in the different mitochondrial contigs."+"\n"+"Mitofinder selected the longest sequence as the final sequence.\n"+"\n")
+				double_gene+=1
 
-	final_fasta=open(pathOfFinalResults+"/"+args.processName+"_final_genes_AA.fasta","w")
+		final_fasta=open(pathOfFinalResults+"/"+args.processName+"_final_genes_NT.fasta","w")
+		
+		for key, value in dico_genes.items():
+			final_fasta.write(">"+args.processName+"@"+key+"\n"+value+"\n")
+		final_fasta.close()
 	
-	for key, value in dico_genes.items():
-		final_fasta.write(">"+args.processName+"@"+key+"\n"+value+"\n")
-	final_fasta.close()
+		dico_genes={}
+		for f in glob.glob(pathOfFinalResults+"/*_genes_AA.fasta"):
+			for name, seq in read_fasta(open(f,'r')):
+				gene=name.split("@")[1]
+				if dico_genes.has_key(gene):
+					if len(dico_genes.get(gene)) < len(seq):
+						dico_genes[gene]=seq
+				else:
+					dico_genes[gene]=seq
+	
+		final_fasta=open(pathOfFinalResults+"/"+args.processName+"_final_genes_AA.fasta","w")
+		
+		for key, value in dico_genes.items():
+			final_fasta.write(">"+args.processName+"@"+key+"\n"+value+"\n")
+		final_fasta.close()
 	
 	print "## Final sequence saved to "+pathOfFinalResults
 
@@ -1427,6 +1551,12 @@ if __name__ == "__main__":
 	elif double_gene > 1:
 		print "\n/!\\ WARNING /!\\ "+str(double_gene)+" genes were found more than once suggesting either fragmentation, NUMT annotations, or potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes_NT.fasta\""+" and \""+args.processName+"_final_genes_AA.fasta\" could be erroneous.\nWe recommend to check contigs and associated genes separately.\n"
 		logfile.write("\n/!\\ WARNING /!\\ "+str(double_gene)+" genes were found more than once suggesting either fragmentation, NUMT annotations, or potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes_NT.fasta\""+" and \""+args.processName+"_final_genes_AA.fasta\" could be erroneous.\nWe recommend to check contigs and associated genes separately.\n")
+	
+	if args.gap == True :
+		print "\n/!\\ WARNING /!\\ You have shoosen to use the \"allow-gap\" option. Given that the annotation of exons is only based on similarity (BLASTX), we highly recommend to double-check the annoation.\n"
+		logfile.write("\n/!\\ WARNING /!\\ You have shoosen to use the \"allow-gap\" option. Given that the annotation of exons is only based on similarity (BLASTX), we highly recommend to double-check the annoation.\n")
+
+	
 	
 	# Cleaning 
 	tmpfiles=(pathtowork+"/"+args.processName+"_tmp")

@@ -46,7 +46,17 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 			finalResults.name = finalResults.name[0:16]
 			finalResults.id = finalResults.id[0:16]
 		count = SeqIO.write(finalResults, outputResult, "genbank")
-
+	
+	dico_intron={}
+	for thisFeatureAlignment in listOfFeaturesToOutput:
+		if not ('trn' in thisFeatureAlignment.seq2.lower() or 'rrn' in thisFeatureAlignment.seq2.lower() \
+			or 'ribosomal' in thisFeatureAlignment.seq2.lower() or 'rnr' in thisFeatureAlignment.seq2.lower()):
+			if dico_intron.has_key(thisFeatureAlignment.seq2.split("_")[0]):
+				dico_intron[thisFeatureAlignment.seq2.split("_")[0]]+=1
+			else:
+				dico_intron[thisFeatureAlignment.seq2.split("_")[0]]=1
+	
+	dico_gene={}
 	with open(resultGbFile, "rU") as outputResult: #opening the output file, this time to insert the features
 		finalResults = SeqIO.read(outputResult, "genbank", generic_dna)
 		#lastFeatureAlignment = None
@@ -65,6 +75,11 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 			else:
 				main_feature_qualifiers['gene'] = thisFeatureAlignment.seq2
 				main_feature_type = "gene"
+			gene=thisFeatureAlignment.seq2.split("_")[0]
+			if dico_gene.has_key(gene):
+				dico_gene[gene]+=1	
+			else:
+				dico_gene[gene]=1	
 				
 			main_start_pos = SeqFeature.ExactPosition(thisFeatureAlignment.startBase)
 			main_end_pos = SeqFeature.ExactPosition(thisFeatureAlignment.endBase)
@@ -155,7 +170,8 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 						if strandToOutput == 1:
 							while not coding_dna_Forward.startswith(startCodons) \
 							and not coding_dna_Backward.startswith(startCodons) \
-							and not coding_dna_Backward.startswith(stopCodons) and n < nWalkStart and startBase - (3*(n+1)) >= 0:
+							and not coding_dna_Backward.startswith(stopCodons) \
+							and dico_gene.get(gene) == 1 and n < nWalkStart and startBase - (3*(n+1)) >= 0:
 								try:
 									n += 1
 									coding_dna_Backward = Seq(str(finalResults.seq[startBase -1 - (3*n):endBase]), IUPAC.unambiguous_dna)
@@ -195,7 +211,8 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 										
 						if strandToOutput == -1:
 							while not coding_dna_Forward.endswith(stopCodons) \
-							and not coding_dna_Backward.endswith(stopCodons) and n < nWalkStart and startBase - (3*(n+1)) >= 0 and startBase + (3*(n+1)) <= endBase:
+							and not coding_dna_Backward.endswith(stopCodons) \
+							and dico_gene.get(gene) == 1 and n < nWalkStart and startBase - (3*(n+1)) >= 0 and startBase + (3*(n+1)) <= endBase:
 								try:
 									n += 1
 									coding_dna_Backward = Seq(str(finalResults.seq[startBase -1 - (3*n):endBase]), IUPAC.unambiguous_dna)
@@ -241,7 +258,8 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 						n = 0
 						if strandToOutput == 1:
 							while not coding_dna_Forward.endswith(stopCodons) \
-							and not coding_dna_Backward.endswith(stopCodons) and n < nWalkStop and endBase + (3*(n+1)) <= len(finalResults):
+							and not coding_dna_Backward.endswith(stopCodons) \
+							and dico_gene.get(gene) == dico_intron.get(gene) and n < nWalkStop and endBase + (3*(n+1)) <= len(finalResults):
 								try:
 									n += 1
 									coding_dna_Backward = Seq(str(finalResults.seq[startBase - 1 :endBase - (3*n)]), IUPAC.unambiguous_dna)
@@ -270,7 +288,8 @@ def genbankOutput(resultGbFile, resultFile, listOfFeaturesToOutput, buildCloropl
 						if strandToOutput == -1:
 							while not coding_dna_Forward.startswith(startCodons) \
 							and not coding_dna_Backward.startswith(startCodons) \
-							and not coding_dna_Forward.startswith(stopCodons) and n < nWalkStop and endBase + (3*(n+1)) <= len(finalResults):
+							and not coding_dna_Forward.startswith(stopCodons) \
+							and dico_gene.get(gene) == dico_intron.get(gene) and n < nWalkStop and endBase + (3*(n+1)) <= len(finalResults):
 								try:
 									n += 1
 									coding_dna_Backward = Seq(str(finalResults.seq[startBase - 1 :endBase + (3*n)]), IUPAC.unambiguous_dna)

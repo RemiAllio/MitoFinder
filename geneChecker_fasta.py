@@ -145,9 +145,9 @@ def geneCheck(fastaReference, resultFile, cutoffEquality_prot, cutoffEquality_nu
 				for hsp in qhit.hsps: #hsp object checking, this contains the alignment info 
 					featureName = qhit.id
 					if float(str(hsp.ident_num)+".00")/float(str(hsp.aln_span)+".00")*100 >= float(cutoffEquality_prot):
-						if hsp.aln_span*3 >= alignCutOff:
-							if featureName in listOfImportantFeatures:
-								targetFeature = listOfImportantFeatures[featureName]
+						if featureName in listOfImportantFeatures:
+							targetFeature = listOfImportantFeatures[featureName]
+							if hsp.aln_span*3 >= (len(targetFeature*3)+3) * alignCutOff/100:				
 								startBase = min(hsp.query_range[0],hsp.query_range[1])+1
 								endBase = max(hsp.query_range[0],hsp.query_range[1])
 								alignLen = (endBase-startBase)+1

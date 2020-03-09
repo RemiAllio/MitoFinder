@@ -5,12 +5,12 @@ Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & D
   <img src="/image/logo.png" alt="Drawing" width="250"/>
 </p>
 
-Mitofinder is a pipeline to assemble mitochondrial genomes and extract mitochondrial genes from trimmed 
-sequencing read data.
+Mitofinder is a pipeline to assemble mitochondrial genomes and annotate mitochondrial genes from trimmed 
+read sequencing data.
 
 # Requirements
 
-This software is suitable for all linux-like systems with gcc installed (Unfortunately, not MAC and Windows < v.10).
+This software is suitable for all linux-like systems with gcc installed (Unfortunately not Windows < v.10).
 
 # Table of content
 
@@ -26,7 +26,7 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 
 # Installation guide for MitoFinder
 
-## Get MitoFinder
+## Get and install MitoFinder (Linux)
 
 Clone mitofinder from [GitHub](https://github.com/RemiAllio/MitoFinder)
 
@@ -50,7 +50,7 @@ cd MitoFinder
 PATH/TO/MITOFINDER/mitofinder -h  
 ```
 
-## Add mitofinder to your path -> linux
+### Add mitofinder to your path
 
 ```shell
 cd PATH/TO/MITOFINDER/
@@ -59,12 +59,95 @@ echo -e "\n#Path to mitofinder \nexport PATH=$PATH:$p" >> ~/.bashrc
 source ~/.bashrc  
 ```
   
-WARNING: If you previously installed MitoFinder on your system and want to install a new version, you must replace the old MitoFinder PATH by the updated one in your ~/.bashrc file. To do so, you should edit your ~/.bashrc file, remove the lines that add MitoFinder to the PATH, and close your terminal. Then, you should open a new terminal and re-execute the command lines from above.
+WARNING: If you previously installed MitoFinder on your system and want to install a new version, you should replace the old MitoFinder PATH by the updated one in your ~/.bashrc file. To do so, you need to edit your ~/.bashrc file, remove the lines that add MitoFinder to the PATH, and close your terminal. Then, you should open a new terminal and re-execute the command lines from above.
 
 To check if the right version of MitoFinder is actually in your PATH:  
 ```shell
 mitofinder -v
 ```
+ 
+## Get MitoFinder and install dependencies (Mac OS)
+
+### Get MitoFinder 
+
+Clone mitofinder from [GitHub](https://github.com/RemiAllio/MitoFinder)
+
+```shell 
+git clone https://github.com/RemiAllio/MitoFinder.git
+```
+
+or download [master.zip](https://github.com/RemiAllio/MitoFinder/archive/master.zip)  
+
+```shell
+wget https://github.com/RemiAllio/MitoFinder/archive/master.zip
+unzip master.zip
+mv MitoFinder-master MitoFinder
+```
+
+### Install dependencies 
+
+#### BLAST
+
+Given that MitoFinder uses makeblastdb, blastn, and blastx, you need to download the associated binaries (latest versions [here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/)).
+
+```shell
+wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/ncbi-blast-2.10.0+-x64-macosx.tar.gz 
+tar -xvf ncbi-blast-2.10.0+-x64-macosx.tar.gz 
+```  
+
+Once installed, you need to indicate the PATH to the directory containing the binaries in the **Mitofinder.config** file.  
+
+#### Assemblers 
+
+To get MitoFinder to work, you need to install **at least one** of the following assemblers.
+
+- **[MEGAHIT](https://github.com/voutcn/megahit)**   
+
+Installation with conda:
+```shell
+conda install -c bioconda megahit
+```
+
+- **[MetaSPAdes](https://github.com/ablab/spades)** 
+
+We recommend to download the [pre-compiled binaries](http://cab.spbu.ru/files/release3.14.0/SPAdes-3.14.0-Darwin.tar.gz):
+
+```shell
+curl http://cab.spbu.ru/files/release3.14.0/SPAdes-3.14.0-Darwin.tar.gz -o SPAdes-3.14.0-Darwin.tar.gz
+tar -zxf SPAdes-3.14.0-Darwin.tar.gz
+cd SPAdes-3.14.0-Darwin/bin/
+```
+
+- **[IDBA-UD](https://github.com/loneknightpy/idba)** 
+
+To our knowledge, IDBA-UD is not supported for Mac OS at the moment.  
+  
+
+
+Once installed, you need to indicate the paths to the directory containing the executables on the **Mitofinder.config** file.
+
+TIP: To find the path to the executable you can use ```which```:   
+For example:
+
+```shell
+which megahit
+```
+
+#### Arwen
+
+The arwen source code is available in the arwen directory of MitoFinder. However, it is compiled for Linux. So, to make it executable you need to compile it on your own Mac OS system using gcc.
+To do so, cd to the ```./MitoFinder/arwen``` directory and run:
+
+```shell
+gcc arwen1.2.3.c
+```
+
+Once it is compiled, you can test it by running:  
+
+```shell
+./arwen -h
+```
+ 
   
 # How to use MitoFinder
 
@@ -76,7 +159,7 @@ First, you can choose the assembler using the following options:
 
 ## Mitochondrial genome assembly  
 
-TIP: use mitofinder --example to print usual examples of use  
+TIP: use mitofinder --example to print basic usage examples  
 
 ### Trimmed paired-end reads
 ```shell
@@ -88,14 +171,14 @@ mitofinder -j [seqid] -1 [left_reads.fastq.gz] -2 [right_reads.fastq.gz] -r [gen
 mitofinder -j [seqid] -s [SE_reads.fastq.gz] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]
 ```
 
-### MitoFinder can be used with your own assembly (one or several contig.s in fasta format)
+### MitoFinder can also be run directly on a previously computed assembly (one or several contig.s in fasta format)
 ```shell
 mitofinder -j [seqid] -a [assembly.fasta] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]
 ```
 
 ### Restart
 Use the same command line.  
-WARNING: If you want to make the assembly again (for example because it failed) you have to remove the result assembly directory. If not, MitoFinder will skip the assembly step.  
+WARNING: If you want to compute the assembly again (for example because it failed) you have to remove the assembly results' directory. If not, MitoFinder will skip the assembly step.  
 
 ## Test case  
 ```shell
@@ -110,11 +193,13 @@ mitofinder -j Aphaenogaster_megommata_SRR1303315 -1 Aphaenogaster_megommata_SRR1
 usage: mitofinder [-h] [--megahit] [--idba] [--metaspades] [-j PROCESSNAME]
                   [-1 PE1] [-2 PE2] [-s SE] [-a ASSEMBLY] [-m MEM]
                   [-l SHORTESTCONTIG] [-p PROCESSORSTOUSE] [-r REFSEQFILE]
-                  [-e BLASTEVAL] [-n NWALK] [--ignore] [--out_gb]
-                  [--blastidentitynucl BLASTIDENTITYNUCL]
-                  [--blastidentityprot BLASTIDENTITYPROT]
-                  [--blastsize ALIGNCUTOFF] [--circularsize CIRCULARSIZE]
-                  [--circularoffset CIRCULAROFFSET] [-o ORGANISMTYPE] [-v]
+                  [-e BLASTEVAL] [-n NWALK] [--ignore] [--new-genes]
+                  [--allow-intron] [--numt] [--intron-size INTRONSIZE]
+                  [--cds-merge] [--out-gb]
+                  [--blast-identity-nucl BLASTIDENTITYNUCL]
+                  [--blast-identity-prot BLASTIDENTITYPROT]
+                  [--blast-size ALIGNCUTOFF] [--circular-size CIRCULARSIZE]
+                  [--circular-offset CIRCULAROFFSET] [-o ORGANISMTYPE] [-v]
                   [--example]
 
 Mitofinder is a pipeline to assemble and annotate mitochondrial DNA from
@@ -145,30 +230,45 @@ optional arguments:
   -r REFSEQFILE, --refseq REFSEQFILE
                         Reference mitochondrial genome in GenBank format
                         (.gb).
-  -e BLASTEVAL, --blaste BLASTEVAL
+  -e BLASTEVAL, --blast-eval BLASTEVAL
                         e-value of blast program used for contig
-                        identification and annotation. Default = 0.000001
+                        identification and annotation. Default = 0.00001
   -n NWALK, --nwalk NWALK
                         Maximum number of codon steps to be tested on each
                         size of the gene to find the start and stop codon
                         during the annotation step. Default = 200 (600 bases)
   --ignore              This option tells MitoFinder to ignore the non-
                         standart mitochondrial genes.
-  --out_gb              Do not create annotation output file in GenBank
+  --new-genes           This option tells MitoFinder to try to annotate the
+                        non-standart mitochondrial genes. If several
+                        references are used, make sure the non-standart genes
+                        have the same names in the several references
+  --allow-intron        This option tells MitoFinder to search for genes with
+                        introns. Recommendation : Use it on mitochondrial
+                        contigs previously found with MitoFinder without this
+                        option.
+  --numt                This option tells MitoFinder to search for NUMTs.
+                        Recommendation : Use it on nuclear contigs previously
+                        found with MitoFinder without this option.
+  --intron-size INTRONSIZE
+                        Size of intron allowed. Default = 1000 bp
+  --cds-merge           This option allows MitoFinder to merge the exons in
+                        the NT and AA fasta files.
+  --out-gb              Do not create annotation output file in GenBank
                         format.
-  --blastidentitynucl BLASTIDENTITYNUCL
+  --blast-identity-nucl BLASTIDENTITYNUCL
                         Nucleotide identity percentage for a hit to be
                         retained. Default = 50
-  --blastidentityprot BLASTIDENTITYPROT
+  --blast-identity-prot BLASTIDENTITYPROT
                         Amino acid identity percentage for a hit to be
                         retained. Default = 40
-  --blastsize ALIGNCUTOFF
+  --blast-size ALIGNCUTOFF
                         Percentage of overlap in blast best hit to be
                         retained. Default = 30
-  --circularsize CIRCULARSIZE
+  --circular-size CIRCULARSIZE
                         Size to consider when checking for circularization.
                         Default = 45
-  --circularoffset CIRCULAROFFSET
+  --circular-offset CIRCULAROFFSET
                         Offset from start and finish to consider when looking
                         for circularization. Default = 200
   -o ORGANISMTYPE, --organism ORGANISMTYPE
@@ -193,7 +293,7 @@ optional arguments:
   --example             Print getting started examples
 ```
 
-# INPUTS
+# INPUT FILES
 
 Mitofinder needs several files to run depending on the method you have choosen (see above):  
 - [x] **Reference_file.gb**				containing at least one mitochondrial genome of reference extracted from [NCBI](https://www.ncbi.nlm.nih.gov/)
@@ -202,12 +302,12 @@ Mitofinder needs several files to run depending on the method you have choosen (
 - [ ] **SE_reads.fastq.gz** 				containing the reads of single-end sequencing  
 - [ ] **assembly.fasta**				containing the assembly on which MitoFinder have to find and annotate mitochondrial contig.s   
 
-# OUTPUTS 
-### Result folder  
+# OUTPUT FILES 
+### Results' folder  
 
 Mitofinder returns several files for each mitochondrial contig found:  
-- [x] **[Seq_ID]_final_genes_NT.fasta**				containing the nucleotides sequences of the final genes selected from all contigs by MitoFinder   
-- [x] **[Seq_ID]_final_genes_AA.fasta**				containing the amino acids sequences of the final genes selected from all contigs by MitoFinder   
+- [x] **[Seq_ID]_final_genes_NT.fasta**				containing the nucleotides sequences of the final genes selected from all contigs found by MitoFinder   
+- [x] **[Seq_ID]_final_genes_AA.fasta**				containing the amino acids sequences of the final genes selected from all contigs found by MitoFinder   
 - [x] **[Seq_ID]_mtDNA_contig.fasta**				containing a mitochondrial contig  
 - [x] **[Seq_ID]_mtDNA_contig.gff**				containing the final annotation for a given contig (GFF3 format) 
 - [x] **[Seq_ID]_mtDNA_contig.tbl**				containing the final annotation for a given contig (Genbank submission format)
@@ -217,13 +317,36 @@ Mitofinder returns several files for each mitochondrial contig found:
 - [x] **[Seq_ID]_mtDNA_contig.png** 				schematic representation of the annotation of the mtDNA contig    
 
 
-# UCE annotation
-MitoFinder starts by assembling both mitochondrial and nuclear reads. It is only in a second step that mitochondrial contigs are identified and extracted.
-MitoFinder thus provides UCE contigs already assembled and the annotation can be done from the following file:  
-- **[Seq_ID]link_[assembler].scafSeq** 	containing all assembled contigs from raw reads. 
+# Particular cases
 
-To do so, we recommend the PHYLUCE pipeline, which is specifically designed to annotate ultraconserved elements (Faircloth  2015; Tutorial: https://phyluce.readthedocs.io/en/latest/tutorial-one.html#finding-uce-loci).  
-You can thus use the file **[Seq_ID]link_[assembler].scafSeq** and start the pipeline at the **"Finding UCE"** step.  
+/!\ Close reference required /!\  
+
+For the particular cases below, we recommend using MitoFinder in two different steps. First, you can use it to assemble and/or identify mitochondrial-like contigs, then use it in a second step to annotate these particular contigs (option -a) with the corresponding additional options.  
+Also, these options are recommended for cases in which a (really) close reference is available.  
+
+## Annotation of mitochondrial genes containing intron(s)
+
+/!\ Close reference required /!\  
+
+In some taxa (e.g. fungi), it's possible to find protein-coding mitochondrial genes containing intron(s). In these cases, we add the --allow-intron option (combined with --gapsize and --cds-merge).
+However, it is important to note that, despite the search for start and stop codons is functional for this option, there is no search for intronic boundaries. The exon annotation is based only on the similarity with the reference. That's why a close reference is necessary and even with a good reference, we recommend to double check the exon annotation.  
+Note: The presence of "introns" in non protein-coding genes is not yet supported in MitoFinder.
+
+
+## Annotation of NUMTs
+
+/!\ Close reference required /!\  
+
+Once you have identified nuclear contigs that may contain NUMTs, you can use MitoFinder to find the NUMTs using the --numt option. Basically, this option allows MitoFinder to find the same gene several times in a contig. Given that the NUMTs can be full of stop codons, we recommand to limit the number of walks (--nwalk 0) that MitoFinder can do to improve the annotation (looking for start and stop codons).  
+
+
+# UCE annotation
+MitoFinder starts by assembling both mitochondrial and nuclear reads using de novo metagenomic assemblers. It is only in a second step that mitochondrial contigs are identified and extracted.
+MitoFinder thus provides UCE contigs that are already assembled and the annotation can be done from the following file:  
+- **[Seq_ID]_link_[assembler].scafSeq** 	containing all assembled contigs from raw reads. 
+
+To do so, we recommend the use of the PHYLUCE pipeline which is specifically designed to annotate ultraconserved elements (Faircloth  2015; Tutorial: https://phyluce.readthedocs.io/en/latest/tutorial-one.html#finding-uce-loci).  
+You can thus use the file **[Seq_ID]_link_[assembler].scafSeq** and start the Phyluce pipeline at the **"Finding UCE"** step.  
   
 # Associated publications  
   
@@ -231,16 +354,21 @@ If you use MitoFinder, please cite:
   
 - Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2019). **MitoFinder**: efficient automated large-scale extraction of mitogenomic data in target enrichment phylogenomics. BioRxiv, 685412. https://doi.org/10.1101/685412    
   
-Please also cite the following studies depending on the option chosen for the assembly step in MitoFinder:    
+Please also cite the following references depending on the option chosen for the assembly step in MitoFinder:    
   
+- Li, D., Luo, R., Liu, C. M., Leung, C. M., Ting, H. F., Sadakane, K., Yamashita, H. & Lam, T. W. (2016). **MEGAHIT v1.0**: a fast and scalable metagenome assembler driven by advanced methodologies and community practices. Methods, 102(6), 3-11.  
 - Nurk, S., Meleshko, D., Korobeynikov, A., & Pevzner, P. A. (2017). **metaSPAdes**: a new versatile metagenomic assembler. Genome research, 27(5), 824-834.  
-- Li, D., Luo, R., Liu, C. M., Leung, C. M., Ting, H. F., Sadakane, K., ... & Lam, T. W. (2016). **MEGAHIT v1.0**: a fast and scalable metagenome assembler driven by advanced methodologies and community practices. Methods, 102, 3-11.  
 - Peng, Y., Leung, H. C., Yiu, S. M., & Chin, F. Y. (2012). **IDBA-UD**: a de novo assembler for single-cell and metagenomic sequencing data with highly uneven depth. Bioinformatics, 28(11), 1420-1428.  
  
-For the tRNA annotation:  
+For tRNAs annotation:  
   
 - Laslett, D., & Canbäck, B. (2008). **ARWEN**: a program to detect tRNA genes in metazoan mitochondrial nucleotide sequences. Bioinformatics, 24(2), 172-175.  
+
+For UCEs extraction:  
   
+Faircloth, B. C. (2016). **PHYLUCE** is a software package for the analysis of conserved genomic loci. Bioinformatics, 32(5), 786-788.  
+
+
 # HOW TO GET REFERENCE MITOCHONDRIAL GENOMES FROM NCBI  
 
 1. Go to [NCBI](https://www.ncbi.nlm.nih.gov/)  
@@ -252,16 +380,15 @@ For the tRNA annotation:
 
 ![](/image/NCBI.png)
 
-# How to submit your mitochondrial genome(s) to GenBank NCBI   
+# How to submit your annotated mitochondrial genome(s) to NCBI GenBank   
 
 ## Submission with BankIt
 
 If you have few mitochondrial genomes to submit, you should be able to do it with [BankIt](https://submit.ncbi.nlm.nih.gov/about/bankit/) through the NCBI submission portal.  
 
-
 ## Submission with tbl2asn
 
-If you want to submit several complete or partial mitogenomes, we designed MitoFinder to facilitate the submission using [tbl2asn](https://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/).  
+If you want to submit several complete or partial mitogenomes, we designed MitoFinder to strealine the submission process using [tbl2asn](https://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/).  
 tbl2asn requires:  
 - [x] **Template file**				containing a text ASN.1 Submit-block object (suffix .sbt). [Create submission template](https://submit.ncbi.nlm.nih.gov/genbank/template/submission/).   
 - [x] **Nucleotide sequence data**				containing the mitochondrial sequence(s) and associated information (suffix .fsa).  
@@ -270,17 +397,16 @@ tbl2asn requires:
   
 ### Creating a compatible FASTA file
 
-Because tbl2asn requires the FASTA file to contain informations associated with the data, we wrote a script to create a FASTA file containing the mitochondrial contig(s) found by MitoFinder for each species (Seq_ID) with the associated information.
+Because tbl2asn requires the FASTA file to contain information associated with the data, we wrote a script to create a FASTA file containing the mitochondrial contig(s) found by MitoFinder for each species (Seq_ID) with the associated information.
 This script and the associated example files can be found in the MitoFinder directory named "NCBI_submission".
 
 #### INPUT
 - [x] index_file.csv				A CSV file (comma-delimited table) containing the metadata information.
 
 The headers of the index file are as follows:
-Directory path, Seq ID, organism, location, mgcode, SRA Run1, SRA Run2, keywords ...
+Directory path, Seq ID, organism, location, mgcode, SRA, keywords ...
 
 The first two columns are mandatory and the names cannot be changed but you can complete the index file with the different [source modifiers](https://www.ncbi.nlm.nih.gov/Sequin/modifiers.html) of NCBI by adding columns in the index file.  
-NOTE: SRA Run1 = SRRXXXXXXXX1 (corresponding to SRRXXXXXXXX.1); SRA Run2 = SRRXXXXXXXX2. These columns could be left empty if your mitogenome is not associated with a particular SRA accession. However, if you use them, these two column names cannot be changed!
 
 The directory path correponds to the path where the [Seq_ID]_mtDNA_contig.fasta file, or [Seq_ID]_mtDNA_contig_\*.fasta files if you have several contigs for the same individual, could be found. If left blank, the script will search for the contig in the directory where you run the script from (./).
 
@@ -291,7 +417,6 @@ TIPS:
 ```shell 
 /PATH/TO/MITOFINDER/NCBI_submission/create_tbl2asn_files.py -i index_file.csv
 ```
-
 
 #### OUTPUT
 - [x] **[Seq_ID].fsa**				new FASTA file containing all mtDNA contigs and the information for a given [Seq_ID]

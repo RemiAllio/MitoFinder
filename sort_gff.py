@@ -110,7 +110,36 @@ for line in open(sys.argv[1]):
 					dicotrna[gene]=gene
 					break
 	dicof[start]=line.rstrip()	
-	
+
+dicog={}
+dicogl={}
+for line in open(sys.argv[1]):
+	line=line.rstrip()
+	gene=line.split("\t")[8]
+	if not "_" in gene:
+		dicog[gene]=1
+		dicogl[gene]=line
+		
+for line in open(sys.argv[1]):
+	line=line.rstrip()
+	gene=line.split("\t")[8]
+	if "_" in gene:
+		if line.split("\t")[6]== "-":
+			if int(line.split("\t")[3]) > int(dicogl.get(gene.split("_")[0]).split(";")[0].split("\t")[3]): 
+				dicog[gene.split("_")[0]]+=1
+				dicogl[gene.split("_")[0]]=line+";"+dicogl.get(gene.split("_")[0])
+			else:
+				dicog[gene.split("_")[0]]+=1
+				dicogl[gene.split("_")[0]]=dicogl.get(gene.split("_")[0])+";"+line
+		elif line.split("\t")[6]== "+":
+			if int(line.split("\t")[3]) < int(dicogl.get(gene.split("_")[0]).split(";")[0].split("\t")[3]): 
+				dicog[gene.split("_")[0]]+=1
+				dicogl[gene.split("_")[0]]=line+";"+dicogl.get(gene.split("_")[0])
+			else:
+				dicog[gene.split("_")[0]]+=1
+				dicogl[gene.split("_")[0]]=dicogl.get(gene.split("_")[0])+";"+line
+
+			
 sorted_x = sorted(dicof.items(), key=operator.itemgetter(0))
 sorted_dict = collections.OrderedDict(sorted_x)
 gout=sys.argv[1].split("_raw.gff")[0]+".gff"
@@ -121,6 +150,22 @@ tout=open(tout, "w")
 tout.write(">Feature "+seqID+"\n")
 #tout.write("1\t"+str(length)+"\tREFERENCE\n")
 #tout.write("\t\t\tMitoFinder\txxxxxx\n")
+
+dico_product={}
+dico_product["COX1"]="cytochrome c oxidase subunit I"
+dico_product["COX2"]="cytochrome c oxidase subunit II"
+dico_product["COX3"]="cytochrome c oxidase subunit III"
+dico_product["ND1"]="NADH dehydrogenase subunit 1"
+dico_product["ND2"]="NADH dehydrogenase subunit 2"
+dico_product["ND3"]="NADH dehydrogenase subunit 3"
+dico_product["ND4"]="NADH dehydrogenase subunit 4"
+dico_product["ND4L"]="NADH dehydrogenase subunit 4L"
+dico_product["ND5"]="NADH dehydrogenase subunit 5"
+dico_product["ND6"]="NADH dehydrogenase subunit 6"
+dico_product["CYTB"]="cytochrome b"
+dico_product["ATP6"]="ATP synthase F0 subunit 6"
+dico_product["ATP8"]="ATP synthase F0 subunit 8"
+
 
 for k, v in sorted_dict.items():
 	if not dicotrna.has_key(v.split("\t")[8]):
@@ -134,774 +179,180 @@ for k, v in sorted_dict.items():
 		col8=v.split("\t")[7]
 		col9=v.split("\t")[8].rstrip()
 		ext=""
-		if "COX1" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
-						if ext != "":
-							ext="Partial CDS"
+		if not "trn" in col9 and not "tRNA" in col9 and not "rrn" in col9:
+			if dicog.get(col9) == 1:
+				size=int(col5)-int(col4)+1
+				if size%3 == 0:
+					if col7 == "+":
+						if dico_start[col9] in startCodons:
+							start=col4
 						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit I\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
-						if ext != "":
-							ext="Partial CDS"
+							start="<"+col4
+							ext="5' Partial CDS"
+						if dico_end[col9] in stopCodons:
+							stop=col5
 						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit I\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")				
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit I\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit I\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
-		
-		if "COX2" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
-						if ext != "":
-							ext="Partial CDS"
+							stop=">"+col5
+							if ext != "":
+								ext="Partial CDS"
+							else:
+								ext="3' Partial CDS"				
+						tout.write(start+"\t"+stop+"\t"+"gene\n")
+						tout.write("\t\t\tgene\t"+col9+"\n")
+						tout.write(start+"\t"+stop+"\t"+"CDS\n")
+						if dico_product.has_key(col9):
+							tout.write("\t\t\tproduct\t"+dico_product.get(col9)+"\n")
 						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit II\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
+							tout.write("\t\t\tproduct\tunknown\n")
+						tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
 						if ext != "":
-							ext="Partial CDS"
+							tout.write("\t\t\tnote\t"+ext+"\n")						
+					if col7 == "-":
+						if dico_start[col9] in startCodons:
+							start=col5
 						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit II\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")				
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit II\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit II\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
-		
-		if "COX3" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
+							start="<"+col5
+							ext="3' Partial CDS"
+						if dico_end[col9] in stopCodons:
+							stop=col4
+						else:
+							stop=">"+col4
+							if ext != "":
+								ext="Partial CDS"
+							else:
+								ext="5' Partial CDS"						
+						tout.write(start+"\t"+stop+"\t"+"gene\n")
+						tout.write("\t\t\tgene\t"+col9+"\n")
+						tout.write(start+"\t"+stop+"\t"+"CDS\n")
+						if dico_product.has_key(col9):
+							tout.write("\t\t\tproduct\t"+dico_product.get(col9)+"\n")
+						else:
+							tout.write("\t\t\tproduct\t"+col9+"\n")
+						tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")				
 						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit III\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit III\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")				
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit III\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome c oxidase subunit III\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
-	
-		if "ND1" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 1\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 1\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")				
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 1\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 1\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
+							tout.write("\t\t\tnote\t"+ext+"\n")						
+				else:
+					ext="Note: Not a multiple of 3"
+					if col7 == "+":
+						tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
+						tout.write("\t\t\tgene\t"+col9+"\n")
+						tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
+						tout.write("\t\t\tproduct\t"+dico_product.get(col9)+"\n")
+						tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
+						tout.write("\t\t\tnote\tPartial sequence\n")
+					if col7 == "-":
+						tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
+						tout.write("\t\t\tgene\t"+col9+"\n")
+						tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
+						tout.write("\t\t\tproduct\t"+dico_product.get(col9)+"\n")
+						tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
+						tout.write("\t\t\tnote\tPartial sequence\n")
+				gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
+				gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
+			
+			if dicog.get(col9) > 1:
+				c=1
+				list_tmp_gene=[]
+				list_tmp_cds=[]
+				dico_tmp_gff={}
+				for line in dicogl.get(col9).split(";"):
+					col1=seqID
+					col2=line.split("\t")[1]
+					col3=line.split("\t")[2]
+					col4=line.split("\t")[3]
+					col5=line.split("\t")[4]
+					col6=line.split("\t")[5]
+					col7=line.split("\t")[6]
+					col8=line.split("\t")[7]
+					col9=line.split("\t")[8].split("_")[0].rstrip()
+					size=int(col5)-int(col4)+1
+					if c == 1:
+						if size%3 == 0:
+							if col7 == "+":
+								if dico_start[col9] in startCodons:
+									start=col4
+								else:
+									start="<"+col4
+									ext="5' Partial CDS"
+								stop=col5
+							if col7 == "-":
+								if dico_end[col9] in stopCodons:
+									stop=col4
+								else:
+									stop=">"+col4
+									if ext != "":
+										ext="Partial CDS"
+									else:
+										ext="5' Partial CDS"						
+								start=col5
+							list_tmp_gene.append(int(start.replace("<","").replace(">","")))
+							list_tmp_gene.append(int(stop.replace("<","").replace(">","")))
+							list_tmp_cds.append(start+"\t"+stop+"\t"+"CDS")
+							dico_tmp_gff[int(col4)+1]=col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Parent="+col9+".1 CDS "+ext
+							
+					if c > 1 and c < int(dicog.get(col9)):
+						if size%3 == 0:
+							if col7 == "+":
+								start=col4
+								stop=col5
+							if col7 == "-":
+								start=col5
+								stop=col4
+							list_tmp_gene.append(int(start.replace("<","").replace(">","")))
+							list_tmp_gene.append(int(stop.replace("<","").replace(">","")))
+							list_tmp_cds.append(start+"\t"+stop)
+							dico_tmp_gff[int(col4)+1]=col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Parent="+col9+".1 CDS "+ext
+							
+					if c > 1 and c == int(dicog.get(col9)):
+						if size%3 == 0:
+							if col7 == "+":
+								start=col4
+								if dico_end[col9] in stopCodons:
+									stop=col5
+								else:
+									stop=">"+col5
+									if ext != "":
+										ext="Partial CDS"
+									else:
+										ext="3' Partial CDS"				
+							if col7 == "-":
+								if dico_start[col9] in startCodons:
+									start=col5
+								else:
+									start="<"+col5
+									ext="3' Partial CDS"
+								stop=col4		
+							list_tmp_gene.append(int(start.replace("<","").replace(">","")))
+							list_tmp_gene.append(int(stop.replace("<","").replace(">","")))
+							list_tmp_cds.append(start+"\t"+stop)
+							dico_tmp_gff[int(col4)+1]=col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Parent="+col9+".1 CDS "+ext
+							
+					c+=1
+				list_tmp_gene=sorted(list_tmp_gene)
 
-		if "ND2" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 2\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 2\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")				
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 2\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 2\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
-		
-		if "ND3" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 3\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 3\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")				
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 3\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 3\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
+				if col7 == "+":	
+					tout.write(str(list_tmp_gene[0])+"\t"+str(list_tmp_gene[-1])+"\tgene\n")
+					gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+str(list_tmp_gene[0])+"\t"+str(list_tmp_gene[-1])+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Parent="+col9+"\n")
+				if col7 == "-":	
+					tout.write(str(list_tmp_gene[-1])+"\t"+str(list_tmp_gene[0])+"\tgene\n")
+					gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+str(list_tmp_gene[0])+"\t"+str(list_tmp_gene[-1])+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Parent="+col9+"\n")
+				tout.write("\t\t\tgene\t"+col9+"\n")
+				for line in list_tmp_cds:
+					tout.write(line+"\n")
 
-		if "ND4" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 4\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 4\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")				
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 4\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 4\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
-
-		if "ND4L" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 4L\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 4L\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")				
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 4L\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 4L\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
-
-		if "ND5" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 5\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 5\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")				
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 5\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tNADH dehydrogenase subunit 5\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
-
-		if "CYTB" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome b\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome b\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")				
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome b\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tcytochrome b\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
-
-		if "ATP8" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tATP synthase F0 subunit 8\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tATP synthase F0 subunit 8\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")	
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tATP synthase F0 subunit 8\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tATP synthase F0 subunit 8\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
-
-		if "ATP6" == col9:
-			size=int(col5)-int(col4)+1
-			if size%3 == 0:
-				if col7 == "+":
-					if dico_start[col9] in startCodons:
-						start=col4
-					else:
-						start="<"+col4
-						ext="5' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col5
-					else:
-						stop=">"+col5
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="3' Partial CDS"				
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tATP synthase F0 subunit 6\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-				if col7 == "-":
-					if dico_start[col9] in startCodons:
-						start=col5
-					else:
-						start="<"+col5
-						ext="3' Partial CDS"
-					if dico_end[col9] in stopCodons:
-						stop=col4
-					else:
-						stop=">"+col4
-						if ext != "":
-							ext="Partial CDS"
-						else:
-							ext="5' Partial CDS"						
-					tout.write(start+"\t"+stop+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(start+"\t"+stop+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tATP synthase F0 subunit 6\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")	
-					if ext != "":
-						tout.write("\t\t\tnote\t"+ext+"\n")						
-			else:
-				ext="Note: Not a multiple of 3"
-				if col7 == "+":
-					tout.write(col4+"\t"+">"+col5+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write(col4+"\t"+">"+col5+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tATP synthase F0 subunit 6\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-				if col7 == "-":
-					tout.write("<"+col5+"\t"+col4+"\t"+"gene\n")
-					tout.write("\t\t\tgene\t"+col9+"\n")
-					tout.write("<"+col5+"\t"+col4+"\t"+"CDS\n")
-					tout.write("\t\t\tproduct\tATP synthase F0 subunit 6\n")
-					tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
-					tout.write("\t\t\tnote\tPartial sequence\n")
-			gout.write(col1+"\t"+col2+"\t"+"gene"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" gene "+ext+"\n")
-			gout.write(col1+"\t"+col2+"\t"+"CDS"+"\t"+col4+"\t"+col5+"\t"+col6+"\t"+col7+"\t"+col8+"\t"+"Name="+col9+" CDS "+ext+"\n")
-
+				if dico_product.has_key(col9):
+					tout.write("\t\t\tproduct\t"+dico_product.get(col9)+"\n")
+				else:
+					tout.write("\t\t\tproduct\t"+col9+"\n")
+				tout.write("\t\t\ttransl_table\t"+sys.argv[3]+"\n")
+				if ext != "":
+					tout.write("\t\t\tnote\t"+ext+"\n")
+				sorted_y = sorted(dico_tmp_gff.items(), key=operator.itemgetter(0))
+				sorted_dico = collections.OrderedDict(sorted_y)
+				
+				for key, val in sorted_dico.items():
+					gout.write(val+"\n")
+								
 		if "tRNA" in col9:
 			size=int(col5)-int(col4)+1
 			if size <= 120:
