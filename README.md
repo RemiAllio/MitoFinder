@@ -101,6 +101,9 @@ Once installed, you need to indicate the PATH to the directory containing the bi
 #### Assemblers 
 
 To get MitoFinder to work, you need to install **at least one** of the following assemblers.
+Once installed, you need to indicate the paths to the directory containing the executables on the **Mitofinder.config** file.
+**TIP**: If the executable is in your PATh, to find it you can use ```which```:   
+For example, ```which megahit```.
 
 - **[MEGAHIT](https://github.com/voutcn/megahit)**   
 
@@ -124,15 +127,7 @@ cd SPAdes-3.14.0-Darwin/bin/
 To our knowledge, IDBA-UD is not supported for Mac OS at the moment.  
   
 
-
-Once installed, you need to indicate the paths to the directory containing the executables on the **Mitofinder.config** file.
-
-TIP: To find the path to the executable you can use ```which```:   
-For example:
-
-```shell
-which megahit
-```
+#### tRNA annotation 
 
 - **[Arwen](https://academic.oup.com/bioinformatics/article/24/2/172/228155)**
 
@@ -426,7 +421,7 @@ TIPS:
 
 ### Command line to run tbl2asn
 
-Once your FASTA and TBL files have been created, you can run [tbl2asn](https://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/) (download [here](ftp://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/tbl2asn/) as follows:
+Once your FASTA and TBL files have been created, you can run [tbl2asn](https://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/) (download [here](ftp://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/tbl2asn/)) as follows:
 
 ```shell 
 tbl2asn -t template.sbt -i [Seq_ID].fsa -V v -w assembly.cmt -a s
@@ -434,7 +429,7 @@ tbl2asn -t template.sbt -i [Seq_ID].fsa -V v -w assembly.cmt -a s
 
 This command will create several files:
 - [x] **[Seq_ID].sqn**				Submission file (.sqn) to be sent by e-mail to gb-sub@ncbi.nlm.nih.gov
-- [x] **[Seq_ID].val**				Containing ERROR and WARNING values associated with tbl2asn. (ERROR explanations [here](https://www.ncbi.nlm.nih.gov/genbank/genome_validation/)
+- [x] **[Seq_ID].val**				Containing ERROR and WARNING values associated with tbl2asn. (ERROR explanations [here](https://www.ncbi.nlm.nih.gov/genbank/genome_validation/))
 
 If you don't have any error and you are happy with the annotation, you can submit your mitochondrial contig(s) by sending the .sqn files to gb-sub@ncbi.nlm.nih.gov
 
