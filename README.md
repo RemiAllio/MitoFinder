@@ -15,6 +15,8 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 # Table of content
 
 1. [Installation guide for MitoFinder](#installation-guide-for-mitofinder)
+	1. [Linux](#get-and-install-mitofinder-linux)
+	2. [MAC](#get-mitofinder-and-install-dependencies-mac-os)
 2. [How to use MitoFinder](#how-to-use-mitofinder)
 3. [Detailed options](#detailed-options)
 4. [INPUTS](#inputs)
