@@ -88,27 +88,10 @@ if __name__ == "__main__":
 		dico_sra1[seqid]=""
 		dico_sra2[seqid]=""
 		for col, value in sorted(dico.items()):
-			if col != "Directory path" and col != "Seq ID" and not "SRA" in col:
+			if col != "Directory path" and col != "Seq ID":
 				if not row[col] != row[col]:
 					dico_seqid[seqid]=str(dico_seqid.get(seqid))+" ["+str(col)+"="+str(row[col])+"]"		
-			if "SRA Run1" == col:
-				if not row[col] != row[col]:
-					dico_sra1[seqid]=" [SRA="+str(row[col])
-			if "SRA Run2" == col:
-				if not row[col] != row[col]:
-					if dico_sra1[seqid] != "":
-						dico_sra2[seqid]=str(dico_sra1.get(seqid))+","+str(row[col])+"]"
-					else:
-						dico_sra1[seqid]=" [SRA="+str(row[col])+"]"
-		if dico_sra2[seqid] == "" and dico_sra1[seqid] == "":
-			dico_sra1[seqid]=""
-		elif dico_sra2[seqid] == "" :
-			dico_sra1[seqid]=dico_sra1.get(seqid)+"]"
-		else:
-			dico_sra1[seqid]=dico_sra2.get(seqid)
-		dico_seqid[seqid]=str(dico_seqid.get(seqid))+str(dico_sra1.get(seqid))
-		
-				
+							
 	for index, row in df.iterrows():
 		path=row["Directory path"]
 		seqid=str(row["Seq ID"])

@@ -15,8 +15,8 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 # Table of content
 
 1. [Installation guide for MitoFinder](#installation-guide-for-mitofinder)
-	1. [Linux](#get-and-install-mitofinder-linux)
-	2. [MAC](#get-mitofinder-and-install-dependencies-mac-os)
+	- [Linux](#get-and-install-mitofinder-linux)
+	- [MAC](#get-mitofinder-and-install-dependencies-mac-os)
 2. [How to use MitoFinder](#how-to-use-mitofinder)
 3. [Detailed options](#detailed-options)
 4. [INPUTS](#inputs)
@@ -103,16 +103,18 @@ Once installed, you need to indicate the PATH to the directory containing the bi
 #### Assemblers 
 
 To get MitoFinder to work, you need to install **at least one** of the following assemblers.
-Once installed, you need to indicate the paths to the directory containing the executables on the **Mitofinder.config** file.
+Once installed, you need to indicate the paths to the directory containing the executables on the **Mitofinder.config** file.  
 **TIP**: If the executable is in your PATh, to find it you can use ```which```:   
 For example, ```which megahit```.
 
 - **[MEGAHIT](https://github.com/voutcn/megahit)**   
 
-Installation with conda:
+Installation with [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html):
 ```shell
 conda install -c bioconda megahit
 ```
+If you install megahit with conda, the executable will be in the miniconda/anaconda bin directory.  
+For example : ```/Users/remiallio/bin/miniconda2/bin/```  
 
 - **[MetaSPAdes](https://github.com/ablab/spades)** 
 
@@ -138,6 +140,7 @@ To do so, ```cd``` to the ```./MitoFinder/arwen``` directory and run:
 
 ```shell
 gcc arwen1.2.3.c
+mv a.out arwen
 ```
 
 Once it is compiled, you can test it by running:  
@@ -364,7 +367,7 @@ For tRNAs annotation:
 
 For UCEs extraction:  
   
-Faircloth, B. C. (2016). **PHYLUCE** is a software package for the analysis of conserved genomic loci. Bioinformatics, 32(5), 786-788.  
+- Faircloth, B. C. (2016). **PHYLUCE** is a software package for the analysis of conserved genomic loci. Bioinformatics, 32(5), 786-788.  
 
 
 # HOW TO GET REFERENCE MITOCHONDRIAL GENOMES FROM NCBI  

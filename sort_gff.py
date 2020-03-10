@@ -212,7 +212,7 @@ for k, v in sorted_dict.items():
 							start=col5
 						else:
 							start="<"+col5
-							ext="3' Partial CDS"
+							ext="5' Partial CDS"
 						if dico_end[col9] in stopCodons:
 							stop=col4
 						else:
@@ -220,7 +220,7 @@ for k, v in sorted_dict.items():
 							if ext != "":
 								ext="Partial CDS"
 							else:
-								ext="5' Partial CDS"						
+								ext="3' Partial CDS"						
 						tout.write(start+"\t"+stop+"\t"+"gene\n")
 						tout.write("\t\t\tgene\t"+col9+"\n")
 						tout.write(start+"\t"+stop+"\t"+"CDS\n")
@@ -283,7 +283,7 @@ for k, v in sorted_dict.items():
 									if ext != "":
 										ext="Partial CDS"
 									else:
-										ext="5' Partial CDS"						
+										ext="3' Partial CDS"						
 								start=col5
 							list_tmp_gene.append(int(start.replace("<","").replace(">","")))
 							list_tmp_gene.append(int(stop.replace("<","").replace(">","")))
@@ -320,7 +320,7 @@ for k, v in sorted_dict.items():
 									start=col5
 								else:
 									start="<"+col5
-									ext="3' Partial CDS"
+									ext="5' Partial CDS"
 								stop=col4		
 							list_tmp_gene.append(int(start.replace("<","").replace(">","")))
 							list_tmp_gene.append(int(stop.replace("<","").replace(">","")))

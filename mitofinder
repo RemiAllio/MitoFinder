@@ -83,6 +83,7 @@ if __name__ == "__main__":
 						default=0.00001, dest='blasteVal')
 	parser.add_argument('-n', '--nwalk', help='Maximum number of codon steps to be tested on each size of the gene to find the start and stop codon during the annotation step. Default = 200 (600 bases)', type=int,
 						default=200, dest='nWalk')
+	parser.add_argument('--override', help='This option tells MitoFinder to override the previous output directory for the selected assembler.', default=False, dest='override', action='store_true')
 	parser.add_argument('--ignore', help='This option tells MitoFinder to ignore the non-standart mitochondrial genes.', default=False, dest='ignore', action='store_true')
 	parser.add_argument('--new-genes', help='This option tells MitoFinder to try to annotate the non-standart mitochondrial genes. If several references are used, make sure the non-standart genes have the same names in the several references', default=False, dest='newG', action='store_true')
 	parser.add_argument('--allow-intron', help='This option tells MitoFinder to search for genes with introns. Recommendation : Use it on mitochondrial contigs previously found with MitoFinder without this option.', default=False, dest='gap', action='store_true')
@@ -730,7 +731,7 @@ if __name__ == "__main__":
 		logfile.close()
 		#let's call megahit
 		if args.megahit == True and args.idba == False and args.metaspades == False:
-			firstStep = runMegahit.runMegahit(processName = args.processName, inputFile = args.inputFile, shortestContig = args.shortestContig, processorsToUse = args.processorsToUse, megahitFolder = pathToMegahitFolder, refSeqFile = args.refSeqFile, organismType = args.organismType, blastFolder = blastFolder, maxMemory=args.mem, logfile=Logfile)
+			firstStep = runMegahit.runMegahit(processName = args.processName, inputFile = args.inputFile, shortestContig = args.shortestContig, processorsToUse = args.processorsToUse, megahitFolder = pathToMegahitFolder, refSeqFile = args.refSeqFile, organismType = args.organismType, blastFolder = blastFolder, maxMemory=args.mem, logfile=Logfile, override=args.override)
 			out=args.processName+"_megahit"
 			logfile=open(Logfile,"a")
 			if not os.path.isfile(pathtowork+"/"+out+"/"+out+".contigs.fa") == True:
@@ -745,7 +746,7 @@ if __name__ == "__main__":
 		
 		#let's call IDBA-UD
 		if args.idba == True :
-			firstStep = runIDBA.runIDBA(processName = args.processName, inputFile = args.inputFile, shortestContig = args.shortestContig, processorsToUse = args.processorsToUse, idbaFolder = pathToIdbaFolder, refSeqFile = args.refSeqFile, organismType = args.organismType, blastFolder = blastFolder, logfile=Logfile)
+			firstStep = runIDBA.runIDBA(processName = args.processName, inputFile = args.inputFile, shortestContig = args.shortestContig, processorsToUse = args.processorsToUse, idbaFolder = pathToIdbaFolder, refSeqFile = args.refSeqFile, organismType = args.organismType, blastFolder = blastFolder, logfile=Logfile, override=args.override)
 			out=args.processName+"_idba"
 			logfile=open(Logfile,"a")
 			if not os.path.isfile(pathtowork+"/"+out+"/contig.fa") == True:
@@ -760,7 +761,7 @@ if __name__ == "__main__":
 		
 		#let's call MetaSPAdes
 		if args.metaspades == True :
-			firstStep = runMetaspades.runMetaspades(processName = args.processName, inputFile = args.inputFile, shortestContig = args.shortestContig, processorsToUse = args.processorsToUse, metaspadesFolder = pathToMetaspadesFolder, refSeqFile = args.refSeqFile, organismType = args.organismType, blastFolder = blastFolder, maxMemory=args.mem, logfile=Logfile)
+			firstStep = runMetaspades.runMetaspades(processName = args.processName, inputFile = args.inputFile, shortestContig = args.shortestContig, processorsToUse = args.processorsToUse, metaspadesFolder = pathToMetaspadesFolder, refSeqFile = args.refSeqFile, organismType = args.organismType, blastFolder = blastFolder, maxMemory=args.mem, logfile=Logfile, override=args.override)
 			out=args.processName+"_metaspades"
 			logfile=open(Logfile,"a")
 			if not os.path.isfile(pathtowork+"/"+out+"/"+"scaffolds.fasta") == True:

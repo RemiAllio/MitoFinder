@@ -34,7 +34,7 @@ from shutil import copyfile
 
 def runMetaspades(processName = 'teste', shortestContig = 100, inputFile = 'teste.input', processorsToUse = 4,
 					metaspadesFolder= 'installed', refSeqFile = None, organismType = 2,
-					blastFolder = 'installed', maxMemory="", logfile='logfile'):
+					blastFolder = 'installed', maxMemory="", logfile='logfile', override=False):
 
 	pathToMetaspades = metaspadesFolder
 	bestBuild = None
@@ -80,13 +80,15 @@ def runMetaspades(processName = 'teste', shortestContig = 100, inputFile = 'test
 	metaspades="yes"
 	if os.path.isdir(out):
 		print "\n####################################"
-		print "\n WARNING : "+pathToWork+out+" already exists." 
+		print "\n WARNING : "+pathToWork+out+" already exists. (use --override option)" 
 		print "Mitofinder will skip MetaSPAdes step"
-		print "\nIf you want to run MetaSPAdes again, kill the mitofinder process, remove or rename the MetaSPAdes result folder, and restart mitofinder\n"
+		print "\nIf you want to run MetaSPAdes again, kill the mitofinder process, remove (or use --override) or rename the MetaSPAdes result folder, and restart mitofinder\n"
 		print "#####################################\n"
-		logfile.write("\n####################################"+"\n"+"\n WARNING : "+pathToWork+out+" already exists." +"\n"+"Mitofinder will skip MetaSPAdes step"+"\n"+"\nIf you want to run MetaSPAdes again, kill the mitofinder process, remove or rename the MetaSPAdes result folder, and restart mitofinder\n"+"\n"+"#####################################\n"+"\n")
+		logfile.write("\n####################################"+"\n"+"\n WARNING : "+pathToWork+out+" already exists. (use --override option)" +"\n"+"Mitofinder will skip MetaSPAdes step"+"\n"+"\nIf you want to run MetaSPAdes again, kill the mitofinder process, remove (or use --override) or rename the MetaSPAdes result folder, and restart mitofinder\n"+"\n"+"#####################################\n"+"\n")
 		time.sleep(2)
 		metaspades="no"
+	elif os.path.isdir(out) and override == True:
+		shutil.rmtree(out)
 	if metaspades == "yes":
 		with open(pathToWork + 'metaspades.log','w') as metaspadesLogFile:
 			if t == "PE":

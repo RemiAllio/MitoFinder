@@ -35,7 +35,7 @@ from shutil import copyfile
 
 def runIDBA(processName = 'teste', shortestContig = 100, inputFile = 'teste.input', processorsToUse = 4,
 					idbaFolder= 'installed', refSeqFile = None, organismType = 2,
-					blastFolder = 'installed', logfile='logfile'):
+					blastFolder = 'installed', logfile='logfile', override=False):
 
 	pathToIdba = idbaFolder
 	bestBuild = None
@@ -62,15 +62,17 @@ def runIDBA(processName = 'teste', shortestContig = 100, inputFile = 'teste.inpu
 		
 	out=processName+"_idba"
 	idba="yes"
-	if os.path.isdir(out):
+	if os.path.isdir(out) and override == False:
 		print "\n####################################"
-		print "\n WARNING : "+pathToWork+out+" already exists." 
+		print "\n WARNING : "+pathToWork+out+" already exists. (use --override option)" 
 		print "Mitofinder will skip idba step"
-		print "\nIf you want to run idba again, kill the mitofinder process, remove or rename the idba result folder, and restart mitofinder\n"
+		print "\nIf you want to run idba again, kill the mitofinder process, remove (or use --override) or rename the idba result folder, and restart mitofinder\n"
 		print "#####################################\n"
-		logfile.write("\n####################################"+"\n"+"\n WARNING : "+pathToWork+out+" already exists." +"\n"+"Mitofinder will skip idba step"+"\n"+"\nIf you want to run idba again, kill the mitofinder process, remove or rename the idba result folder, and restart mitofinder\n"+"\n"+"#####################################\n"+"\n")
+		logfile.write("\n####################################"+"\n"+"\n WARNING : "+pathToWork+out+" already exists. (use --override option)" +"\n"+"Mitofinder will skip idba step"+"\n"+"\nIf you want to run idba again, kill the mitofinder process, remove (or use --override) or rename the idba result folder, and restart mitofinder\n"+"\n"+"#####################################\n"+"\n")
 		time.sleep(2)
 		idba="no"
+	elif os.path.isdir(out) and override == True:
+		shutil.rmtree(out)
 	#create IDBA logfile:
 	if idba == "yes":
 		with open(inputFile,'r') as InputFile:

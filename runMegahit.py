@@ -34,7 +34,7 @@ from shutil import copyfile
 
 def runMegahit(processName = 'teste', shortestContig = 100, inputFile = 'teste.input', processorsToUse = 4,
 					megahitFolder= 'installed', refSeqFile = None, organismType = 2,
-					blastFolder = 'installed', maxMemory="", logfile='logfile'):
+					blastFolder = 'installed', maxMemory="", logfile='logfile', override=False):
 
 	pathToMegahit = megahitFolder
 	bestBuild = None
@@ -78,15 +78,17 @@ def runMegahit(processName = 'teste', shortestContig = 100, inputFile = 'teste.i
 	#try:
 	out=processName+"_megahit"
 	megahit="yes"
-	if os.path.isdir(out):
+	if os.path.isdir(out) and override == False:
 		print "\n####################################"
-		print "\n WARNING : "+pathToWork+out+" already exists." 
+		print "\n WARNING : "+pathToWork+out+" already exists. (use --override option)" 
 		print "Mitofinder will skip MEGAHIT step"
-		print "\nIf you want to run MEGAHIT again, kill the mitofinder process, remove or rename the MEGAHIT result folder, and restart mitofinder\n"
+		print "\nIf you want to run MEGAHIT again, kill the mitofinder process, remove (or use --override) or rename the MEGAHIT result folder, and restart mitofinder\n"
 		print "#####################################\n"
-		logfile.write("\n####################################"+"\n"+"\n WARNING : "+pathToWork+out+" already exists." +"\n"+"Mitofinder will skip MEGAHIT step"+"\n"+"\nIf you want to run MEGAHIT again, kill the mitofinder process, remove or rename the MEGAHIT result folder, and restart mitofinder\n"+"\n"+"#####################################\n"+"\n")
+		logfile.write("\n####################################"+"\n"+"\n WARNING : "+pathToWork+out+" already exists. (use --override option)" +"\n"+"Mitofinder will skip MEGAHIT step"+"\n"+"\nIf you want to run MEGAHIT again, kill the mitofinder process, remove (or use --override) or rename the MEGAHIT result folder, and restart mitofinder\n"+"\n"+"#####################################\n"+"\n")
 		time.sleep(2)
 		megahit="no"
+	elif os.path.isdir(out) and override == True:
+		shutil.rmtree(out)
 	if megahit == "yes":
 		with open(pathToWork + 'megahit.log','w') as megahitLogFile:
 			if t == "PE":
