@@ -62,7 +62,8 @@ echo -e "\n#Path to mitofinder \nexport PATH=$PATH:$p" >> ~/.bashrc
 source ~/.bashrc  
 ```
   
-WARNING: If you previously installed MitoFinder on your system and want to install a new version, you should replace the old MitoFinder PATH by the updated one in your ~/.bashrc file. To do so, you need to edit your ~/.bashrc file, remove the lines that add MitoFinder to the PATH, and close your terminal. Then, you should open a new terminal and re-execute the command lines from above.
+**WARNING**: If you previously installed MitoFinder on your system and want to install a new version, you should replace the old MitoFinder PATH by the updated one in your ~/.bashrc file. To do so, you need to edit your ~/.bashrc file, remove the lines that add MitoFinder to the PATH, and close your terminal. Then, you should open a new terminal and re-execute the command lines from above.  
+**TIP**: If you are connected to cluster, you can use either ```nano``` or ```vi``` to edit the ~/.bashrc file.
 
 To check if the right version of MitoFinder is actually in your PATH:  
 ```shell
@@ -89,6 +90,11 @@ mv MitoFinder-master MitoFinder
 
 ### Install dependencies 
 
+Once installed, you need to indicate the paths to the directory containing the executables on the **Mitofinder.config** file.  
+**TIP**:  
+1. If the executable is in your PATH, to find it you can use ```which```. For example, ```which megahit```.  
+2. If not, you can go to the directory containing the executable and use ```pwd``` to get the PATH. Then, you can copy the PATH in the Mitofinder.config file.  
+
 #### BLAST
 
 Given that MitoFinder uses makeblastdb, blastn, and blastx, you need to download the associated binaries (latest versions [here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/)).
@@ -96,6 +102,7 @@ Given that MitoFinder uses makeblastdb, blastn, and blastx, you need to download
 ```shell
 wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/ncbi-blast-2.10.0+-x64-macosx.tar.gz 
 tar -xvf ncbi-blast-2.10.0+-x64-macosx.tar.gz 
+cd ncbi-blast-2.10.0+/bin/
 ```  
 
 Once installed, you need to indicate the PATH to the directory containing the binaries in the **Mitofinder.config** file.  
@@ -103,9 +110,6 @@ Once installed, you need to indicate the PATH to the directory containing the bi
 #### Assemblers 
 
 To get MitoFinder to work, you need to install **at least one** of the following assemblers.
-Once installed, you need to indicate the paths to the directory containing the executables on the **Mitofinder.config** file.  
-**TIP**: If the executable is in your PATh, to find it you can use ```which```:   
-For example, ```which megahit```.
 
 - **[MEGAHIT](https://github.com/voutcn/megahit)**   
 
@@ -135,10 +139,10 @@ To our knowledge, IDBA-UD is not supported for Mac OS at the moment.
 
 - **[Arwen](https://academic.oup.com/bioinformatics/article/24/2/172/228155)**
 
-The arwen source code is available in the arwen directory of MitoFinder. However, it is compiled for Linux. So, to make it executable you need to compile it on your own Mac OS system using gcc.
-To do so, ```cd``` to the ```./MitoFinder/arwen``` directory and run:
+The arwen source code is available in the arwen directory of MitoFinder. However, it is compiled for Linux. So, to make it executable you need to compile it on your own Mac OS system using gcc.  
 
 ```shell
+cd PATH/TO/MITOFINDER/arwen/
 gcc arwen1.2.3.c
 mv a.out arwen
 ```
@@ -179,7 +183,7 @@ mitofinder -j [seqid] -a [assembly.fasta] -r [genbank_reference.gb] -o [genetic_
 
 ### Restart
 Use the same command line.  
-WARNING: If you want to compute the assembly again (for example because it failed) you have to remove the assembly results' directory. If not, MitoFinder will skip the assembly step.  
+**WARNING**: If you want to compute the assembly again (for example because it failed) you have to remove the assembly results' directory (--override option). If not, MitoFinder will skip the assembly step.  
 
 ## Test case  
 ```shell
@@ -194,9 +198,9 @@ mitofinder -j Aphaenogaster_megommata_SRR1303315 -1 Aphaenogaster_megommata_SRR1
 usage: mitofinder [-h] [--megahit] [--idba] [--metaspades] [-j PROCESSNAME]
                   [-1 PE1] [-2 PE2] [-s SE] [-a ASSEMBLY] [-m MEM]
                   [-l SHORTESTCONTIG] [-p PROCESSORSTOUSE] [-r REFSEQFILE]
-                  [-e BLASTEVAL] [-n NWALK] [--ignore] [--new-genes]
-                  [--allow-intron] [--numt] [--intron-size INTRONSIZE]
-                  [--cds-merge] [--out-gb]
+                  [-e BLASTEVAL] [-n NWALK] [--override] [--ignore]
+                  [--new-genes] [--allow-intron] [--numt]
+                  [--intron-size INTRONSIZE] [--cds-merge] [--out-gb]
                   [--blast-identity-nucl BLASTIDENTITYNUCL]
                   [--blast-identity-prot BLASTIDENTITYPROT]
                   [--blast-size ALIGNCUTOFF] [--circular-size CIRCULARSIZE]
@@ -238,6 +242,8 @@ optional arguments:
                         Maximum number of codon steps to be tested on each
                         size of the gene to find the start and stop codon
                         during the annotation step. Default = 200 (600 bases)
+  --override            This option tells MitoFinder to override the previous
+                        output directory for the selected assembler.
   --ignore              This option tells MitoFinder to ignore the non-
                         standart mitochondrial genes.
   --new-genes           This option tells MitoFinder to try to annotate the
