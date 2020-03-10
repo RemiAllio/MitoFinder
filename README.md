@@ -91,9 +91,9 @@ mv MitoFinder-master MitoFinder
 ### Install dependencies 
 
 Once installed, you need to indicate the paths to the directory containing the executables on the **Mitofinder.config** file.  
-**TIP**:  
-1. If the executable is in your PATH, to find it you can use ```which```. For example, ```which megahit```.  
-2. If not, you can go to the directory containing the executable and use ```pwd``` to get the PATH. Then, you can copy the PATH in the Mitofinder.config file.  
+**TIPS**:  
+(1) If the executable is in your PATH, to find it you can use ```which```. For example, ```which megahit```.  
+(2) If not, you can go to the directory containing the executable and use ```pwd``` to get the PATH. Then, you can copy the PATH in the Mitofinder.config file.  
 
 #### BLAST
 
@@ -117,6 +117,7 @@ Installation with [conda](https://docs.conda.io/projects/conda/en/latest/user-gu
 ```shell
 conda install -c bioconda megahit
 ```
+  
 If you install megahit with conda, the executable will be in the miniconda/anaconda bin directory.  
 For example : ```/Users/remiallio/bin/miniconda2/bin/```  
 
@@ -415,15 +416,16 @@ Directory path, Seq ID, organism, location, mgcode, SRA, keywords ...
 
 The first two columns are mandatory and the names cannot be changed but you can complete the index file with the different [source modifiers](https://www.ncbi.nlm.nih.gov/Sequin/modifiers.html) of NCBI by adding columns in the index file.  
 
-The directory path correponds to the path where the [Seq_ID]_mtDNA_contig.fasta file, or [Seq_ID]_mtDNA_contig_\*.fasta files if you have several contigs for the same individual, could be found. If left blank, the script will search for the contig in the directory where you run the script from (./).
-
-TIPS:  
-(1) You can copy or link (symbolic links) all your FASTA and TBL contig files in the same directory and run the script from this directory.  
-(2) You can leave blanks in the index file if some species do not need a given source modifier.  
+The directory path correponds to the path where the [Seq_ID]_mtDNA_contig.fasta file, or [Seq_ID]_mtDNA_contig_\*.fasta files if you have several contigs for the same individual, could be found. If left blank, the script will search for the contig in the directory where you run the script from (./).  
  
 ```shell 
 /PATH/TO/MITOFINDER/NCBI_submission/create_tbl2asn_files.py -i index_file.csv
 ```
+
+**TIPS**:  
+(1) You can copy or link (symbolic links) all your FASTA and TBL contig files in the same directory and run the script from this directory.  
+(2) You can leave blanks in the index file if some species do not need a given source modifier.  
+
 
 #### OUTPUT
 - [x] **[Seq_ID].fsa**				new FASTA file containing all mtDNA contigs and the information for a given [Seq_ID]
