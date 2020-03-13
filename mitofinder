@@ -83,9 +83,9 @@ if __name__ == "__main__":
 						default=0.00001, dest='blasteVal')
 	parser.add_argument('-n', '--nwalk', help='Maximum number of codon steps to be tested on each size of the gene to find the start and stop codon during the annotation step. Default = 200 (600 bases)', type=int,
 						default=200, dest='nWalk')
-	parser.add_argument('--override', help='This option tells MitoFinder to override the previous output directory for the selected assembler.', default=False, dest='override', action='store_true')
+	parser.add_argument('--override', help='This option forces MitoFinder to override the previous output directory for the selected assembler.', default=False, dest='override', action='store_true')
 	parser.add_argument('--ignore', help='This option tells MitoFinder to ignore the non-standart mitochondrial genes.', default=False, dest='ignore', action='store_true')
-	parser.add_argument('--new-genes', help='This option tells MitoFinder to try to annotate the non-standart mitochondrial genes. If several references are used, make sure the non-standart genes have the same names in the several references', default=False, dest='newG', action='store_true')
+	parser.add_argument('--new-genes', help='This option tells MitoFinder to try to annotate the non-standard animal mitochondrial genes (e.g. rps3 in fungi). If several references are used, make sure the non-standard genes have the same names in the several references', default=False, dest='newG', action='store_true')
 	parser.add_argument('--allow-intron', help='This option tells MitoFinder to search for genes with introns. Recommendation : Use it on mitochondrial contigs previously found with MitoFinder without this option.', default=False, dest='gap', action='store_true')
 	parser.add_argument('--numt', help='This option tells MitoFinder to search for NUMTs. Recommendation : Use it on nuclear contigs previously found with MitoFinder without this option.', default=False, dest='numt', action='store_true')
 	parser.add_argument('--intron-size', help='Size of intron allowed. Default = 1000 bp',
@@ -1047,7 +1047,7 @@ if __name__ == "__main__":
 			print ''
 			print 'MitoFinder found '+str(fl)+' contigs matching provided mitochondrial reference(s)'
 			print 'Did not check for circularization'
-			logfile.write('\nMitofinder found '+str(fl)+' contigs matching provided mitochondrial reference(s)'+'\nDid not check for circularization\n')	
+			logfile.write('\nMitoFinder found '+str(fl)+' contigs matching provided mitochondrial reference(s)'+'\nDid not check for circularization\n')	
 			"""#choose best reference for each contig
 			
 			blastout=open(pathtowork+"/"+args.processName+'_blast_out.txt')

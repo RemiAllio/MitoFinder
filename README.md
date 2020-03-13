@@ -97,7 +97,7 @@ Once installed, you need to indicate the paths to the directory containing the e
 
 #### BLAST
 
-Given that MitoFinder uses makeblastdb, blastn, and blastx, you need to download the associated binaries (latest versions [here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/)).
+Given that MitoFinder uses makeblastdb, blastn, and blastx, you need to download the associated binaries (latest versions here: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/).
 
 ```shell
 wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/ncbi-blast-2.10.0+-x64-macosx.tar.gz 
@@ -243,14 +243,15 @@ optional arguments:
                         Maximum number of codon steps to be tested on each
                         size of the gene to find the start and stop codon
                         during the annotation step. Default = 200 (600 bases)
-  --override            This option tells MitoFinder to override the previous
+  --override            This option forces MitoFinder to override the previous
                         output directory for the selected assembler.
   --ignore              This option tells MitoFinder to ignore the non-
                         standart mitochondrial genes.
   --new-genes           This option tells MitoFinder to try to annotate the
-                        non-standart mitochondrial genes. If several
-                        references are used, make sure the non-standart genes
-                        have the same names in the several references
+                        non-standard animal mitochondrial genes (e.g. rps3 in
+                        fungi). If several references are used, make sure the
+                        non-standard genes have the same names in the several
+                        references
   --allow-intron        This option tells MitoFinder to search for genes with
                         introns. Recommendation : Use it on mitochondrial
                         contigs previously found with MitoFinder without this
@@ -434,7 +435,7 @@ The directory path correponds to the path where the [Seq_ID]_mtDNA_contig.fasta 
 
 ### Command line to run tbl2asn
 
-Once your FASTA and TBL files have been created, you can run [tbl2asn](https://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/) (download [here](ftp://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/tbl2asn/)) as follows:
+Once your FASTA and TBL files have been created, you can run [tbl2asn](https://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/) (download here: ftp://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/tbl2asn/) as follows:
 
 ```shell 
 tbl2asn -t template.sbt -i [Seq_ID].fsa -V v -w assembly.cmt -a s
