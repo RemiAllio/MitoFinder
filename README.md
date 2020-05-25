@@ -23,7 +23,7 @@ This software is suitable for all linux-like systems with gcc installed (Unfortu
 5. [OUTPUTS](#outputs)
 6. [Particular cases](#particular-cases)
 7. [UCE annotation](#uce-annotation)
-8. [Associated publications](#associated-publications)
+8. [How to cite MitoFinder](#how-to-cite-mitofinder)
 9. [How to get reference mitochondrial genomes from ncbi](#how-to-get-reference-mitochondrial-genomes-from-ncbi)
 10. [How to submit your annotated mitochondrial genome(s) to GenBank NCBI](#how-to-submit-your-annotated-mitochondrial-genomes-to-ncbi-genbank)
 
@@ -186,6 +186,10 @@ mitofinder -j [seqid] -a [assembly.fasta] -r [genbank_reference.gb] -o [genetic_
 Use the same command line.  
 **WARNING**: If you want to compute the assembly again (for example because it failed) you have to remove the assembly results' directory (--override option). If not, MitoFinder will skip the assembly step.  
 
+### Reference  
+ 
+Depending on the proximity of your reference, you can play with the following parameters : nWalk; --blast-eval; --blast-identity-nucl; --blast-identity-prot; --blast-size 
+
 ## Test case  
 ```shell
 cd PATH/TO/MITOFINDER/test_case/
@@ -199,14 +203,16 @@ mitofinder -j Aphaenogaster_megommata_SRR1303315 -1 Aphaenogaster_megommata_SRR1
 usage: mitofinder [-h] [--megahit] [--idba] [--metaspades] [-j PROCESSNAME]
                   [-1 PE1] [-2 PE2] [-s SE] [-a ASSEMBLY] [-m MEM]
                   [-l SHORTESTCONTIG] [-p PROCESSORSTOUSE] [-r REFSEQFILE]
-                  [-e BLASTEVAL] [-n NWALK] [--override] [--ignore]
-                  [--new-genes] [--allow-intron] [--numt]
-                  [--intron-size INTRONSIZE] [--cds-merge] [--out-gb]
+                  [-e BLASTEVAL] [-n NWALK] [--override] [--adjust-direction]
+                  [--ignore] [--new-genes] [--allow-intron] [--numt]
+                  [--intron-size INTRONSIZE] [--max-contig MAXCONTIG]
+                  [--cds-merge] [--out-gb] [--contig-size CONTIGSIZE]
+                  [--rename-contig RENAME]
                   [--blast-identity-nucl BLASTIDENTITYNUCL]
                   [--blast-identity-prot BLASTIDENTITYPROT]
                   [--blast-size ALIGNCUTOFF] [--circular-size CIRCULARSIZE]
                   [--circular-offset CIRCULAROFFSET] [-o ORGANISMTYPE] [-v]
-                  [--example]
+                  [--example] [--citation]
 
 Mitofinder is a pipeline to assemble and annotate mitochondrial DNA from
 trimmed sequencing reads.
@@ -242,9 +248,11 @@ optional arguments:
   -n NWALK, --nwalk NWALK
                         Maximum number of codon steps to be tested on each
                         size of the gene to find the start and stop codon
-                        during the annotation step. Default = 200 (600 bases)
+                        during the annotation step. Default = 5 (30 bases)
   --override            This option forces MitoFinder to override the previous
                         output directory for the selected assembler.
+  --adjust-direction    This option tells MitoFinder to adjust the direction
+                        of selected contig(s) (given the reference).
   --ignore              This option tells MitoFinder to ignore the non-
                         standart mitochondrial genes.
   --new-genes           This option tells MitoFinder to try to annotate the
@@ -256,15 +264,26 @@ optional arguments:
                         introns. Recommendation : Use it on mitochondrial
                         contigs previously found with MitoFinder without this
                         option.
-  --numt                This option tells MitoFinder to search for NUMTs.
-                        Recommendation : Use it on nuclear contigs previously
-                        found with MitoFinder without this option.
+  --numt                This option tells MitoFinder to search for both
+                        mitochondrial genes and NUMTs. Recommendation : Use it
+                        on nuclear contigs previously found with MitoFinder
+                        without this option.
   --intron-size INTRONSIZE
-                        Size of intron allowed. Default = 1000 bp
-  --cds-merge           This option allows MitoFinder to merge the exons in
+                        Size of intron allowed. Default = 5000 bp
+  --max-contig MAXCONTIG
+                        Maximum number of contigs matching to the reference to
+                        keep. Default = 0 (unlimited)
+  --cds-merge           This option tells MitoFinder to not merge the exons in
                         the NT and AA fasta files.
   --out-gb              Do not create annotation output file in GenBank
                         format.
+  --contig-size CONTIGSIZE
+                        Minimum size of a contig to be considered. Default =
+                        1000
+  --rename-contig RENAME
+                        "yes/no" If "yes", the contigs matching the
+                        reference(s) are renamed. Default is "yes" for de novo
+                        assembly and "no" for existing assembly (-a option)
   --blast-identity-nucl BLASTIDENTITYNUCL
                         Nucleotide identity percentage for a hit to be
                         retained. Default = 50
@@ -298,8 +317,9 @@ optional arguments:
                         Mitochondrial Code 24. Pterobranchia Mitochondrial
                         Code 25. Candidate Division SR1 and Gracilibacteria
                         Code
-  -v, --version         Version 1.2
+  -v, --version         Version 1.3
   --example             Print getting started examples
+  --citation            How to cite MitoFinder
 ```
 
 # INPUT FILES
@@ -324,6 +344,7 @@ Mitofinder returns several files for each mitochondrial contig found:
 - [x] **[Seq_ID]_mtDNA_contig_genes_NT.fasta** 				containing the nucleotide sequences of annotated genes for a given contig    
 - [x] **[Seq_ID]_mtDNA_contig_genes_AA.fasta** 				containing the amino acids sequences of annotated genes for a given contig    
 - [x] **[Seq_ID]_mtDNA_contig.png** 				schematic representation of the annotation of the mtDNA contig    
+- [x] **[Seq_ID]_mtDNA_contig.infos** 				containing the initial contig name, the length of the contig and the GC content   
 
 
 # Particular cases
@@ -337,9 +358,8 @@ Also, these options are recommended for cases in which a (really) close referenc
 
 /!\ Close reference required /!\  
 
-In some taxa (e.g. fungi), it's possible to find protein-coding mitochondrial genes containing intron(s). In these cases, we add the --allow-intron option (combined with --gapsize and --cds-merge).
+In some taxa (e.g. fungi), it's possible to find mitochondrial genes containing intron(s). In these cases, we add the --allow-intron option (combined with --intron-size and --cds-merge).
 However, it is important to note that, despite the search for start and stop codons is functional for this option, there is no search for intronic boundaries. The exon annotation is based only on the similarity with the reference. That's why a close reference is necessary and even with a good reference, we recommend to double check the exon annotation.  
-Note: The presence of "introns" in non protein-coding genes is not yet supported in MitoFinder.
 
 
 ## Annotation of NUMTs
@@ -357,11 +377,11 @@ MitoFinder thus provides UCE contigs that are already assembled and the annotati
 To do so, we recommend the use of the PHYLUCE pipeline which is specifically designed to annotate ultraconserved elements (Faircloth  2015; Tutorial: https://phyluce.readthedocs.io/en/latest/tutorial-one.html#finding-uce-loci).  
 You can thus use the file **[Seq_ID]\_link\_[assembler].scafSeq** and start the Phyluce pipeline at the **"Finding UCE"** step.  
   
-# Associated publications  
+# How to cite MitoFinder  
   
 If you use MitoFinder, please cite:  
   
-- Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2019). **MitoFinder**: efficient automated large-scale extraction of mitogenomic data in target enrichment phylogenomics. BioRxiv, 685412. https://doi.org/10.1101/685412    
+-  Allio, R, Schomaker‐Bastos, A, Romiguier, J, Prosdocimi, F, Nabholz, B, Delsuc, F. MitoFinder: Efficient automated large‐scale extraction of mitogenomic data in target enrichment phylogenomics. Mol Ecol Resour. 2020; 00: 1– 14. https://doi.org/10.1111/1755-0998.13160     
   
 Please also cite the following references depending on the option chosen for the assembly step in MitoFinder:    
   

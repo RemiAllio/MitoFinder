@@ -5,6 +5,9 @@
 
 import sys
 import os.path
+from Bio import SeqIO, SeqFeature
+from Bio.Alphabet import generic_dna, generic_protein, IUPAC
+from Bio.Seq import Seq
 
 def read_fasta(fp):
     name, seq = None, []
@@ -18,9 +21,18 @@ def read_fasta(fp):
     if name: yield (name, ''.join(seq))
 
 seqID=sys.argv[1]
-fasta = open(sys.argv[2])
 fout = open(sys.argv[3], 'w')
 c=sys.argv[4]
+direction=sys.argv[5]
 
-for name, seq in read_fasta(fasta):
-	fout.write(">"+seqID+"."+str(c)+"\n"+seq+"\n")
+resultFile=SeqIO.read(open(sys.argv[2], 'rU'), "fasta", generic_dna)
+if direction == "+":
+	if sys.argv[6] == "yes":
+		fout.write(">"+seqID+"."+str(c)+"\n"+str(resultFile.seq)+"\n")
+	else:
+		fout.write(">"+str(resultFile.id)+"\n"+str(resultFile.seq)+"\n")
+else:
+	if sys.argv[6] == "yes":
+		fout.write(">"+seqID+"."+str(c)+"\n"+str(resultFile.seq.reverse_complement())+"\n")
+	else:
+		fout.write(">"+str(resultFile.id)+" (reverse)\n"+str(resultFile.seq)+"\n")

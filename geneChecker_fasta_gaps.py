@@ -95,27 +95,9 @@ def geneCheck(fastaReference, resultFile, cutoffEquality_prot, cutoffEquality_nu
 			importantFeaturesFile.write('>' + featureName + '\n' + seq + "\n")
 			listOfImportantFeatures[featureName] = seq
 	importantFeaturesFile.close()	
-#	with open('important_features.fasta', 'w') as importantFeaturesFile:
-#		for feature in record.features:
-#			if feature.type.lower() == 'cds':
-#				if 'gene' in feature.qualifiers:
-#					featureName = feature.qualifiers['gene'][0]
-#				elif 'product' in feature.qualifiers:
-#					featureName = feature.qualifiers['product'][0]
-#				featureName = ''.join(featureName.split())
-#				if featureName in listOfImportantFeatures:
-#					featureName += '_' + str(listOfImportantFeatures.keys().count(featureName) + 1)
-#					
-#				importantFeaturesFile.write('>' + featureName + '\n')
-#				if 'translation' in feature.qualifiers:
-#					importantFeaturesFile.write(str(feature.qualifiers['translation'][0]) + '\n')
-#				else:
-#					importantFeaturesFile.write(str(feature.extract(record).seq.translate(table=organismType,to_stop=True))+'\n')
-#					print '		WARNING: reference did not give a CDS translation for %s. Creating our own from refSeq.' \
-#						% featureName
-#				listOfImportantFeatures[featureName] = feature
 
 	#running blast
+	dico_feature={}
 	if nbrgene > 0:
 		
 		print "Formatting database for blast..."
@@ -135,6 +117,15 @@ def geneCheck(fastaReference, resultFile, cutoffEquality_prot, cutoffEquality_nu
 			args = shlex.split(command)
 			blastAll = Popen(args, stdout=blastResultFile)
 			blastAll.wait()
+		with open("important_features.blast.out",'w') as blastResultFile:
+			if usedOwnGenBankReference == True: #using a personal genbank reference
+				command = blastFolder+"/blastx -db important_features.fasta -query " + resultFile + " -evalue " + str(blasteVal) + " -outfmt 6 -num_threads 2 -query_gencode " + str(organismType) + " -seg no" #call BLAST with XML output
+			else: #using a non personal genbank reference
+				print('Genetic code: ', str(organismType))
+				command = blastFolder+"/blastx -db important_features.fasta -query " + resultFile + "-evalue " + str(blasteVal) + " -outfmt 6 -num_threads 2 -query_gencode " + str(organismType) + " -seg no" #call BLAST with XML output
+			args = shlex.split(command)
+			blastAll = Popen(args, stdout=blastResultFile)
+			blastAll.wait()
 		#SearchIO object handler and checker for best hit separation
 		listOfSplits = []
 		listOfCompleteGenes = []
@@ -144,30 +135,92 @@ def geneCheck(fastaReference, resultFile, cutoffEquality_prot, cutoffEquality_nu
 			for qhit in qresult.hits:
 				for hsp in qhit.hsps: #hsp object checking, this contains the alignment info 
 					featureName = qhit.id
-					if float(str(hsp.ident_num)+".00")/float(str(hsp.aln_span)+".00")*100 >= float(cutoffEquality_prot):
+					if float(str(hsp.ident_num)+".00")/float(str(hsp.aln_span)+".00")*100 >= float(cutoffEquality_prot):		
 						if featureName in listOfImportantFeatures:
 							targetFeature = listOfImportantFeatures[featureName]
-							if hsp.aln_span*3 >= (len(targetFeature*3)+3) * alignCutOff/100:				
+							if hsp.aln_span*3 >= (len(targetFeature*3)+3) * alignCutOff/100:
 								startBase = min(hsp.query_range[0],hsp.query_range[1])+1
 								endBase = max(hsp.query_range[0],hsp.query_range[1])
 								alignLen = (endBase-startBase)+1
-								if alignLen >= (len(targetFeature*3)+3) * 0.10:
-									featureFrame = hsp.query_frame
-									seqName = featureName
-									alignment = Alignment(featureName, seqName, alignLen)
-									alignment.refSeq = refSeq
-									alignment.translationTable = organismType
-									alignment.frame = featureFrame
-									alignment.startBase = startBase
-									alignment.endBase = endBase
-									alignment.seqFound = refSeq.seq[(startBase-1):endBase]
-									listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment, featureFrame <= -1)
-									if alignLen >= (len(targetFeature*3)+3) * 0.99:
-									#if we've already built a lot, dont even bother with finding splits
-										listOfCompleteGenes.append(featureName)
-									break
+								if featureName in listOfPresentFeatures:
+									mainFeatureName = featureName
+									mainFeatureFound = listOfPresentFeatures[mainFeatureName]
+									mainFeatureFoundAlignment = mainFeatureFound[1] 
+									#check if it's close in order to consider it a split sequence
+									if (abs(startBase - mainFeatureFoundAlignment.endBase) <= float(gapsize) or abs(endBase - mainFeatureFoundAlignment.startBase) <= float(gapsize)) and (abs(abs(mainFeatureFoundAlignment.endBase - mainFeatureFoundAlignment.startBase) + abs(endBase - startBase)) <= len(targetFeature*3)+33) and intron == 1 and numt == 0:
+										print '%s is split' % featureName
+										if not (startBase > mainFeatureFoundAlignment.startBase and \
+											endBase < mainFeatureFoundAlignment.endBase):
+											if featureName not in listOfSplits:
+												listOfSplits.append(featureName)
+											print featureName
+											dico_feature[featureName]=dico_feature.get(featureName)+1
+											featureName += '_' + str(dico_feature.get(featureName))
+											featureFrame = hsp.query_frame
+											seqName = featureName
+											alignment = Alignment(featureName, seqName, alignLen)
+											alignment.refSeq = refSeq
+											alignment.translationTable = organismType
+											alignment.frame = featureFrame
+											alignment.startBase = startBase
+											alignment.endBase = endBase
+											alignment.seqFound = refSeq.seq[startBase-1:endBase]
+											listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment,featureFrame <= -1)
+									if ((abs(abs(mainFeatureFoundAlignment.endBase - mainFeatureFoundAlignment.startBase) + abs(endBase - startBase)) >= len(targetFeature*3)+33) or (abs(endBase - startBase) - (len(targetFeature*3)+3) <= 200)) and numt == 1 and intron == 0:
+										print '%s is duplicated.' % featureName
+										if not (startBase > mainFeatureFoundAlignment.startBase and \
+											endBase < mainFeatureFoundAlignment.endBase):
+											if featureName not in listOfSplits:
+												listOfSplits.append(featureName)
+											dico_feature[featureName]=dico_feature.get(featureName)+1
+											featureName += '#' + str(dico_feature.get(featureName))
+											featureFrame = hsp.query_frame
+											seqName = featureName
+											alignment = Alignment(featureName, seqName, alignLen)
+											alignment.refSeq = refSeq
+											alignment.translationTable = organismType
+											alignment.frame = featureFrame
+											alignment.startBase = startBase
+											alignment.endBase = endBase
+											alignment.seqFound = refSeq.seq[startBase-1:endBase]
+											listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment, featureFrame <= -1)
+									if (((abs(startBase - mainFeatureFoundAlignment.endBase) <= float(gapsize) or abs(endBase - mainFeatureFoundAlignment.startBase) <= float(gapsize)) and (abs(abs(mainFeatureFoundAlignment.endBase - mainFeatureFoundAlignment.startBase) + abs(endBase - startBase)) <= len(targetFeature*3)+33)) or abs(abs(mainFeatureFoundAlignment.endBase - mainFeatureFoundAlignment.startBase) + abs(endBase - startBase)) >= len(targetFeature*3)+33 or (abs(endBase - startBase) - (len(targetFeature*3)+3) <= 200)) and numt == 1 and intron == 1:
+										if not (startBase > mainFeatureFoundAlignment.startBase and \
+											endBase < mainFeatureFoundAlignment.endBase):
+											if featureName not in listOfSplits:
+												listOfSplits.append(featureName)
+											print intron
+											print featureName
+											dico_feature[featureName]=dico_feature.get(featureName)+1
+											featureName += '@' + str(dico_feature.get(featureName))
+											featureFrame = hsp.query_frame
+											seqName = featureName
+											alignment = Alignment(featureName, seqName, alignLen)
+											alignment.refSeq = refSeq
+											alignment.translationTable = organismType
+											alignment.frame = featureFrame
+											alignment.startBase = startBase
+											alignment.endBase = endBase
+											alignment.seqFound = refSeq.seq[startBase-1:endBase]
+											listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment, featureFrame <= -1)
+								else:
+									if alignLen >= (len(targetFeature*3)+3) * alignCutOff/100:
+										featureFrame = hsp.query_frame
+										seqName = featureName
+										alignment = Alignment(featureName, seqName, alignLen)
+										alignment.refSeq = refSeq
+										alignment.translationTable = organismType
+										alignment.frame = featureFrame
+										alignment.startBase = startBase
+										alignment.endBase = endBase
+										alignment.seqFound = refSeq.seq[(startBase-1):endBase]
+										listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment, featureFrame <= -1)
+										dico_feature[featureName]=1
+										"""if alignLen >= (len(targetFeature*3)+3) * 0.99:
+										#if we've already built a lot, dont even bother with finding splits
+											listOfCompleteGenes.append(featureName)
+											break"""
 
-		#exit()
 		#copying the blast result in order for this info to be assessed later if the user desires
 		shutil.copyfile("important_features.blast.xml", out_blast+"_ref.cds.blast.xml")
 		os.remove("important_features.blast.xml")
@@ -266,24 +319,82 @@ def geneCheck(fastaReference, resultFile, cutoffEquality_prot, cutoffEquality_nu
 					featureName = qhit.id
 					if float(str(hsp.ident_num)+".00")/float(str(hsp.aln_span)+".00")*100 >= float(cutoffEquality_prot):		
 						if featureName in listOfImportantFeatures:
-							print featureName
 							targetFeature = listOfImportantFeatures[featureName]
 							if hsp.aln_span*3 >= len(targetFeature)* alignCutOff/100:
 								startBase = min(hsp.query_range[0],hsp.query_range[1])+1
 								endBase = max(hsp.query_range[0],hsp.query_range[1])
 								alignLen = (endBase-startBase)+1
-								if alignLen >= len(targetFeature) * alignCutOff/100:
-									featureFrame = hsp.hit_frame
-									seqName = featureName
-									alignment = Alignment(featureName, seqName, alignLen)
-									alignment.refSeq = refSeq
-									alignment.translationTable = organismType
-									alignment.frame = featureFrame
-									alignment.startBase = startBase
-									alignment.endBase = endBase
-									alignment.seqFound = refSeq.seq[(startBase-1):endBase]
-									listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment, featureFrame <= -1)
-									break
+								if featureName in listOfPresentFeatures:
+									print '%s is split or duplicated' % featureName
+									mainFeatureName = featureName
+									mainFeatureFound = listOfPresentFeatures[mainFeatureName]
+									mainFeatureFoundAlignment = mainFeatureFound[1] 
+									#check if it's close in order to consider it a split sequence
+									if (abs(startBase - mainFeatureFoundAlignment.endBase) <= float(gapsize) or abs(endBase - mainFeatureFoundAlignment.startBase) <= float(gapsize)) and (abs(abs(mainFeatureFoundAlignment.endBase - mainFeatureFoundAlignment.startBase) + abs(endBase - startBase)) <= len(targetFeature)+33) and intron == 1 and numt == 0:
+										print '%s is split' % featureName
+										if not (startBase > mainFeatureFoundAlignment.startBase and \
+											endBase < mainFeatureFoundAlignment.endBase):
+											if featureName not in listOfSplits:
+												listOfSplits.append(featureName)
+											featureName += '_' + str(listOfPresentFeatures.keys().count(featureName) + 1)
+											featureFrame = hsp.hit_frame
+											seqName = featureName
+											alignment = Alignment(featureName, seqName, alignLen)
+											alignment.refSeq = refSeq
+											alignment.translationTable = organismType
+											alignment.frame = featureFrame
+											alignment.startBase = startBase
+											alignment.endBase = endBase
+											alignment.seqFound = refSeq.seq[startBase-1:endBase]
+											listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment,featureFrame <= -1)
+									if (abs(abs(mainFeatureFoundAlignment.endBase - mainFeatureFoundAlignment.startBase) + abs(endBase - startBase)) >= len(targetFeature)+33) and numt == 1 and intron == 0:
+										print '%s is duplicated.' % featureName
+										if not (startBase > mainFeatureFoundAlignment.startBase and \
+											endBase < mainFeatureFoundAlignment.endBase):
+											if featureName not in listOfSplits:
+												listOfSplits.append(featureName)
+											dico_feature[featureName]=dico_feature.get(featureName)+1
+											featureName += '#' + str(dico_feature.get(featureName))
+											featureFrame = hsp.hit_frame
+											seqName = featureName
+											alignment = Alignment(featureName, seqName, alignLen)
+											alignment.refSeq = refSeq
+											alignment.translationTable = organismType
+											alignment.frame = featureFrame
+											alignment.startBase = startBase
+											alignment.endBase = endBase
+											alignment.seqFound = refSeq.seq[startBase-1:endBase]
+											listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment, featureFrame <= -1)
+									if (((abs(startBase - mainFeatureFoundAlignment.endBase) <= float(gapsize) or abs(endBase - mainFeatureFoundAlignment.startBase) <= float(gapsize)) and (abs(abs(mainFeatureFoundAlignment.endBase - mainFeatureFoundAlignment.startBase) + abs(endBase - startBase)) <= len(targetFeature*3)+33)) or abs(abs(mainFeatureFoundAlignment.endBase - mainFeatureFoundAlignment.startBase) + abs(endBase - startBase)) >= len(targetFeature*3)+33 or (abs(endBase - startBase) - (len(targetFeature*3)+3) <= 200)) and numt == 1 and intron == 1:
+										if not (startBase > mainFeatureFoundAlignment.startBase and \
+											endBase < mainFeatureFoundAlignment.endBase):
+											if featureName not in listOfSplits:
+												listOfSplits.append(featureName)
+											dico_feature[featureName]=dico_feature.get(featureName)+1
+											featureName += '@' + str(dico_feature.get(featureName))
+											featureFrame = hsp.query_frame
+											seqName = featureName
+											alignment = Alignment(featureName, seqName, alignLen)
+											alignment.refSeq = refSeq
+											alignment.translationTable = organismType
+											alignment.frame = featureFrame
+											alignment.startBase = startBase
+											alignment.endBase = endBase
+											alignment.seqFound = refSeq.seq[startBase-1:endBase]
+											listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment, featureFrame <= -1)
+								else:
+									if alignLen >= len(targetFeature) * alignCutOff/100:
+										featureFrame = hsp.hit_frame
+										seqName = featureName
+										alignment = Alignment(featureName, seqName, alignLen)
+										alignment.refSeq = refSeq
+										alignment.translationTable = organismType
+										alignment.frame = featureFrame
+										alignment.startBase = startBase
+										alignment.endBase = endBase
+										alignment.seqFound = refSeq.seq[(startBase-1):endBase]
+										listOfPresentFeatures[featureName] = (listOfImportantFeatures[qhit.id], alignment, featureFrame <= -1)
+										dico_feature[featureName]=1
 		
 				
 		shutil.copyfile("important_features.blast.xml", out_blast+"_ref.blast.xml")
@@ -399,7 +510,10 @@ if __name__ == "__main__":
 	percent_equality_prot=sys.argv[8]
 	percent_equality_nucl=sys.argv[9]
 	genbank=sys.argv[10]
-	nWalk=sys.argv[11]
+	nWalk=int(sys.argv[11])
+	gapsize=float(sys.argv[12])
+	numt=int(sys.argv[13])
+	intron=int(sys.argv[14])
 	if sys.argv[1] == '-h' or sys.argv[1] == '--help':
 		print 'Usage: genbank_reference fasta_file output_file organism_type(integer, default=2) alignCutOff(float, default=45) coveCutOff(7)'
 		print 'Only the first, second, and third arguments are required.'
@@ -511,8 +625,7 @@ if __name__ == "__main__":
 		outputFile=outputFile.split(".gb")[0]+'_raw.gff'
 		outputFile=open(outputFile,"w")
 		seq = SeqIO.read(open(resultFile, 'rU'), "fasta", generic_dna)
-		seq_name = seq.name
-
+		seq_name = finalResults.description
 		genes={}
 		for gbkFeature in finalResults.features:
 			for qualifier in gbkFeature.qualifiers:

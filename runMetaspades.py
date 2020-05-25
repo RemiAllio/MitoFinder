@@ -78,7 +78,7 @@ def runMetaspades(processName = 'teste', shortestContig = 100, inputFile = 'test
 	#try:
 	out=processName+"_metaspades"
 	metaspades="yes"
-	if os.path.isdir(out):
+	if os.path.isdir(out) and override == False:
 		print "\n####################################"
 		print "\n WARNING : "+pathToWork+out+" already exists. (use --override option)" 
 		print "Mitofinder will skip MetaSPAdes step"
