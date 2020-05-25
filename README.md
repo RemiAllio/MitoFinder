@@ -1,4 +1,4 @@
-# MitoFinder version 1.2		
+# MitoFinder version 1.3		
 Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F.
 
 <p align="center">

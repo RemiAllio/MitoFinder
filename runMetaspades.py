@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.2
+#Version: 1.3
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
