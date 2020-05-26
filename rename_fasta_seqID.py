@@ -35,4 +35,4 @@ else:
 	if sys.argv[6] == "yes":
 		fout.write(">"+seqID+"."+str(c)+"\n"+str(resultFile.seq.reverse_complement())+"\n")
 	else:
-		fout.write(">"+str(resultFile.id)+" (reverse)\n"+str(resultFile.seq)+"\n")
+		fout.write(">"+str(resultFile.id)+" (reverse)\n"+str(resultFile.seq.reverse_complement())+"\n")
