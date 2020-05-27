@@ -1512,13 +1512,13 @@ if __name__ == "__main__":
 	#sort gff
 	pathlist = glob.glob(pathOfFinalResults+"/*.gb")
 	if len(pathlist) == 1 :
-		for f in glob.glob(pathOfFinalResults+"/*_raw.gff"):
+		for f in sorted(glob.glob(pathOfFinalResults+"/*_raw.gff"), key=os.path.getmtime):
 			command = module_dir+"/sort_gff.py " + f + " " + args.processName +".1 " + str(args.organismType) + " " + str(args.rename)
 			args1 = shlex.split(command)
 			sort_gff = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
 			sort_gff.wait()	
 	else:
-		for f in glob.glob(pathOfFinalResults+"/*_raw.gff"):
+		for f in sorted(glob.glob(pathOfFinalResults+"/*_raw.gff"), key=os.path.getmtime):
 			command = module_dir+"/sort_gff.py " + f + " " + args.processName +"."+ f.split("_raw")[0][-1] + " " + str(args.organismType) + " " + str(args.rename)
 			args1 = shlex.split(command)
 			sort_gff = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
@@ -1536,7 +1536,7 @@ if __name__ == "__main__":
 			shutil.copy(f+"_AA.fasta",pathOfFinalResults+"/"+args.processName+"_final_genes_AA.fasta")
 			shutil.copy(f+"_NT.fasta",pathOfFinalResults+"/"+args.processName+"_final_genes_NT.fasta")
 	if c > 1 and args.numt == 0:	
-		for f in glob.glob(pathOfFinalResults+"/*_genes_NT.fasta"):
+		for f in sorted(glob.glob(pathOfFinalResults+"/*_genes_NT.fasta"), key=os.path.getmtime):
 			for name, seq in read_fasta(open(f,'r')):
 				gene=name.split("@")[1]
 				if dico_genes.has_key(gene):
@@ -1561,7 +1561,7 @@ if __name__ == "__main__":
 		final_fasta.close()
 	
 		dico_genes={}
-		for f in glob.glob(pathOfFinalResults+"/*_genes_AA.fasta"):
+		for f in sorted(glob.glob(pathOfFinalResults+"/*_genes_AA.fasta"), key=os.path.getmtime):
 			for name, seq in read_fasta(open(f,'r')):
 				gene=name.split("@")[1]
 				if dico_genes.has_key(gene):
