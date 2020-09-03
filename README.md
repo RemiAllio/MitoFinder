@@ -5,9 +5,9 @@ Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & D
   <img src="/image/logo.png" alt="Drawing" width="250"/>
 </p>
 
-Mitofinder is a pipeline to assemble mitochondrial genomes and annotate mitochondrial genes from Illumina short reads.  
+MitoFinder is a pipeline to assemble mitochondrial genomes and annotate mitochondrial genes from Illumina short reads.  
 
-Mitofinder is also designed to find and annotate mitochondrial sequences in existing genomic assemblies (generated from Hifi/Nanopore/PacBio/Illumina sequencing data...)  
+MitoFinder is also designed to find and annotate mitochondrial sequences in existing genomic assemblies (generated from Hifi/PacBio/Nanopore/Illumina sequencing data...)  
 
 # Requirements
 
@@ -382,7 +382,7 @@ You can thus use the file **[Seq_ID]\_link\_[assembler].scafSeq** and start the 
   
 If you use MitoFinder, please cite:  
   
--  Allio, R, Schomaker‐Bastos, A, Romiguier, J, Prosdocimi, F, Nabholz, B, Delsuc, F. MitoFinder: Efficient automated large‐scale extraction of mitogenomic data in target enrichment phylogenomics. Mol Ecol Resour. 2020; 00: 1– 14. https://doi.org/10.1111/1755-0998.13160     
+-  Allio, R, Schomaker‐Bastos, A, Romiguier, J, Prosdocimi, F, Nabholz, B, Delsuc, F. (2020). **MitoFinder**: Efficient automated large‐scale extraction of mitogenomic data in target enrichment phylogenomics. Mol Ecol Resour. 20, 892-905. https://doi.org/10.1111/1755-0998.13160     
   
 Please also cite the following references depending on the option chosen for the assembly step in MitoFinder:    
   
