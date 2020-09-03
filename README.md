@@ -5,8 +5,9 @@ Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & D
   <img src="/image/logo.png" alt="Drawing" width="250"/>
 </p>
 
-Mitofinder is a pipeline to assemble mitochondrial genomes and annotate mitochondrial genes from trimmed 
-read sequencing data.
+Mitofinder is a pipeline to assemble mitochondrial genomes and annotate mitochondrial genes from Illumina short reads.  
+
+Mitofinder is also designed to find and annotate mitochondrial sequences in existing genomic assemblies (generated from Hifi/Nanopore/PacBio/Illumina sequencing data...)  
 
 # Requirements
 
