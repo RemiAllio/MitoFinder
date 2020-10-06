@@ -96,6 +96,8 @@ Clone mitofinder from [GitHub](https://github.com/RemiAllio/MitoFinder)
 
 ```shell 
 git clone https://github.com/RemiAllio/MitoFinder.git
+cd MitoFinder
+./install.sh
 ```
 
 or download [master.zip](https://github.com/RemiAllio/MitoFinder/archive/master.zip)  
@@ -104,6 +106,8 @@ or download [master.zip](https://github.com/RemiAllio/MitoFinder/archive/master.
 wget https://github.com/RemiAllio/MitoFinder/archive/master.zip
 unzip master.zip
 mv MitoFinder-master MitoFinder
+cd MitoFinder
+./install.sh
 ```
 
 ### Install dependencies 
