@@ -118,7 +118,7 @@ Once installed, you need to indicate the paths to the directory containing the e
 (1) If the executable is in your PATH, to find it you can use ```which```. For example, ```which megahit```.  
 (2) If not, you can go to the directory containing the executable and use ```pwd``` to get the PATH. Then, you can copy the PATH in the Mitofinder.config file.  
 
-#### BLAST
+### BLAST
 
 Given that MitoFinder uses makeblastdb, blastn, and blastx, you need to download the associated binaries available [here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/).
 
@@ -131,7 +131,7 @@ cd ncbi-blast-*+/bin/
 Once downloaded, you need to indicate the PATH to the directory containing the binaries ```makeblastdb```, ```blastn```, etc. in the **Mitofinder.config** file.  
 **TIP**: ```wget``` can be install with Homebrew using ```brew install wget```  
 
-#### Assemblers 
+### Assemblers 
 
 To get MitoFinder to work, you need to install **at least one** of the following assemblers.
 
@@ -163,12 +163,12 @@ Once downloaded, you need to indicate the PATH to the directory containing the e
 To our knowledge, IDBA-UD is not supported for Mac OS at the moment.  
   
 
-#### tRNA annotation 
+### tRNA annotation 
 
 - **[MiTFi](https://academic.oup.com/nar/article/40/7/2833/1184754)** and **[tRNAscan-SE](https://link.springer.com/protocol/10.1007%2F978-1-4939-9173-0_1)** should be installed by MitoFinder when running the install.sh.  
 However, **MiTFi** requires ```java``` to be installed. You can download the .dmg file to install it [here](https://www.oracle.com/java/technologies/javase-downloads.html).
   
-- **[Arwen](https://academic.oup.com/bioinformatics/article/24/2/172/228155)**
+- **[ARWEN](https://academic.oup.com/bioinformatics/article/24/2/172/228155)**
 
 The arwen source code is available in the arwen directory of MitoFinder. However, it is compiled for Linux. So, to make it executable you need to compile it on your own Mac OS system using gcc.  
 
