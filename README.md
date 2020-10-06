@@ -36,7 +36,7 @@ This software is suitable for all linux-like systems with automake, autoconf and
 
 ## Get and install MitoFinder (Linux)
 
-Before starting, MitoFinder installation requires ```autoconf``` and ```autoconf``` to be installed. Even if these two tools are often already installed in the linux system, here is the command to install them if necessary:  
+Before starting, MitoFinder installation requires ```automake``` and ```autoconf``` to be installed. Even if these two tools are often already installed in the linux system, here is the command to install them if necessary:  
   
 ```shell  
 sudo apt-get install automake autoconf  
@@ -83,8 +83,8 @@ mitofinder -v
  
 ## Get MitoFinder and install dependencies (Mac OS)
 
-To install MitoFinder in Mac Os, you need ```automake``` and ```autoconf```  to be installed. 
-The easiest way to install it (if necessary) is to use [brew](https://brew.sh) as follow:
+To install MitoFinder in Mac OS, you need ```automake``` and ```autoconf```  to be installed. 
+The easiest way to install it (if necessary) is to use [Homebrew](https://brew.sh) as follow:
 
 ```shell 
 brew install autoconf automake
