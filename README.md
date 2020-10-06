@@ -1,5 +1,5 @@
 # MitoFinder version 1.4		
-Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2020) Mol Ecol Resour. 20, 892-905. ([link](https://doi.org/10.1111/1755-0998.13160))
+Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2020) Mol Ecol Resour. 20, 892-905. ([publication link](https://doi.org/10.1111/1755-0998.13160))
 
 <p align="center">
   <img src="/image/logo.png" alt="Drawing" width="250"/>
@@ -25,8 +25,8 @@ The pipeline is mainly written in **python 2.7**.
 2. [How to use MitoFinder](#how-to-use-mitofinder)
 	- [Test cases](#test-cases)
 3. [Detailed options](#detailed-options)
-4. [INPUTS](#inputs)
-5. [OUTPUTS](#outputs)
+4. [INPUT FILES](#input-files)
+5. [OUTPUT FILES](#output-files)
 6. [Particular cases](#particular-cases)
 7. [UCE annotation](#uce-annotation)
 8. [How to cite MitoFinder](#how-to-cite-mitofinder)
