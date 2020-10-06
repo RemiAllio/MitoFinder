@@ -166,7 +166,7 @@ To our knowledge, IDBA-UD is not supported for Mac OS at the moment.
 ### tRNA annotation 
 
 - **[MiTFi](https://academic.oup.com/nar/article/40/7/2833/1184754)** and **[tRNAscan-SE](https://link.springer.com/protocol/10.1007%2F978-1-4939-9173-0_1)** should be installed by MitoFinder when running the install.sh.  
-However, **MiTFi** requires ```java``` to be installed. You can download the .dmg file to install it [here](https://www.oracle.com/java/technologies/javase-downloads.html).
+However, **MiTFi** requires ```java``` to be installed. If ```java``` is not installed, you can download the .dmg file to install it [here](https://www.oracle.com/java/technologies/javase-downloads.html).
   
 - **[ARWEN](https://academic.oup.com/bioinformatics/article/24/2/172/228155)**
 
