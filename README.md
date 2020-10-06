@@ -14,7 +14,8 @@ MitoFinder is distributed under the [license](https://github.com/RemiAllio/MitoF
   
 # Requirements
 
-This software is suitable for all linux-like systems with automake, autoconf and gcc installed (Unfortunately not Windows < v.10).
+This software is suitable for all linux-like systems with automake, autoconf, java and gcc installed (Unfortunately not Windows < v.10).
+The pipeline is mainly written in **python 2.7**.
 
 # Table of content
 
@@ -119,15 +120,16 @@ Once installed, you need to indicate the paths to the directory containing the e
 
 #### BLAST
 
-Given that MitoFinder uses makeblastdb, blastn, and blastx, you need to download the associated binaries (latest versions here: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/).
+Given that MitoFinder uses makeblastdb, blastn, and blastx, you need to download the associated binaries available [here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/).
 
 ```shell
-wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/ncbi-blast-2.10.0+-x64-macosx.tar.gz 
-tar -xvf ncbi-blast-2.10.0+-x64-macosx.tar.gz 
-cd ncbi-blast-2.10.0+/bin/
+wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/ncbi-blast-*-x64-macosx.tar.gz 
+tar -xvf ncbi-blast-*-x64-macosx.tar.gz 
+cd ncbi-blast-*+/bin/
 ```  
 
-Once installed, you need to indicate the PATH to the directory containing the binaries in the **Mitofinder.config** file.  
+Once downloaded, you need to indicate the PATH to the directory containing the binaries ```makeblastdb```, ```blastn```, etc. in the **Mitofinder.config** file.  
+**TIP**: ```wget``` can be install with Homebrew using ```brew install wget```  
 
 #### Assemblers 
 
@@ -135,11 +137,12 @@ To get MitoFinder to work, you need to install **at least one** of the following
 
 - **[MEGAHIT](https://github.com/voutcn/megahit)**   
 
-Installation with [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html):
+Installation with [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html) (miniconda2 or anaconda2):
 ```shell
 conda install -c bioconda megahit
 ```
   
+Once installed, you need to indicate the PATH to the directory containing the exectutable ```megahit``` in the **Mitofinder.config** file.  
 If you install megahit with conda, the executable will be in the miniconda/anaconda bin directory.  
 For example : ```/Users/remiallio/bin/miniconda2/bin/```  
 
@@ -152,6 +155,8 @@ curl http://cab.spbu.ru/files/release3.14.0/SPAdes-3.14.0-Darwin.tar.gz -o SPAde
 tar -zxf SPAdes-3.14.0-Darwin.tar.gz
 cd SPAdes-3.14.0-Darwin/bin/
 ```
+  
+Once downloaded, you need to indicate the PATH to the directory containing the exectutable ```metaspades.py``` in the **Mitofinder.config** file.  
 
 - **[IDBA-UD](https://github.com/loneknightpy/idba)** 
 
@@ -161,6 +166,7 @@ To our knowledge, IDBA-UD is not supported for Mac OS at the moment.
 #### tRNA annotation 
 
 - **[MiTFi](https://academic.oup.com/nar/article/40/7/2833/1184754)** and **[tRNAscan-SE](https://link.springer.com/protocol/10.1007%2F978-1-4939-9173-0_1)** should be installed by MitoFinder when running the install.sh.  
+However, **MiTFi** requires ```java``` to be installed. You can download the .dmg file to install it [here](https://www.oracle.com/java/technologies/javase-downloads.html).
   
 - **[Arwen](https://academic.oup.com/bioinformatics/article/24/2/172/228155)**
 
