@@ -156,7 +156,7 @@ To our knowledge, IDBA-UD is not supported for Mac OS at the moment.
 
 #### tRNA annotation 
 
-- **MiTFi** and **tRNAscan-SE** should be installed by MitoFinder when running the install.sh.  
+- **[MiTFi](https://academic.oup.com/nar/article/40/7/2833/1184754)** and **[tRNAscan-SE](https://link.springer.com/protocol/10.1007%2F978-1-4939-9173-0_1)** should be installed by MitoFinder when running the install.sh.  
   
 - **[Arwen](https://academic.oup.com/bioinformatics/article/24/2/172/228155)**
 
@@ -184,7 +184,7 @@ First, you can choose the assembler using the following options:
 -- idba  
 
 ### tRNA annotation step
-Secon, you can choose the tool for the tRNA annotation step of MitoFinder using the -t option:  
+Second, you can choose the tool for the tRNA annotation step of MitoFinder using the -t option:  
 -t mitfi	(default, MiTFi: slower but really efficient)  
 -t arwen	(ARWEN: faster)  
 -t trnascan	(tRNAscan-SE)  
@@ -421,7 +421,7 @@ You can thus use the file **[Seq_ID]\_link\_[assembler].scafSeq** and start the 
   
 If you use MitoFinder, please cite:  
   
--  Allio, R, Schomaker‐Bastos, A, Romiguier, J, Prosdocimi, F, Nabholz, B, Delsuc, F. (2020) **MitoFinder**: Efficient automated large‐scale extraction of mitogenomic data in target enrichment phylogenomics. Mol Ecol Resour. 20, 892-905. https://doi.org/10.1111/1755-0998.13160     
+-  Allio, R, Schomaker‐Bastos, A, Romiguier, J, Prosdocimi, F, Nabholz, B, Delsuc, F. (2020). **MitoFinder**: Efficient automated large‐scale extraction of mitogenomic data in target enrichment phylogenomics. Mol Ecol Resour. 20, 892-905. https://doi.org/10.1111/1755-0998.13160     
   
 Please also cite the following references depending on the option chosen for the assembly step in MitoFinder:    
   
