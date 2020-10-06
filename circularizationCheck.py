@@ -42,7 +42,7 @@ def circularizationCheck(resultFile, circularSize, circularOffSet, blastFolder):
 		if blastFolder == 'installed':
 			command = "formatdb -in " + resultFile + " -p F" #need to formatdb refseq first
 		else:
-			command = blastFolder + "/bin/makeblastdb -in " + resultFile + " -dbtype nucl" #need to formatdb refseq first
+			command = blastFolder + "makeblastdb -in " + resultFile + " -dbtype nucl" #need to formatdb refseq first
 		args = shlex.split(command)
 		formatDB = Popen(args, stdout=open(os.devnull, 'wb'))
 		formatDB.wait()
@@ -56,7 +56,7 @@ def circularizationCheck(resultFile, circularSize, circularOffSet, blastFolder):
 		if blastFolder == 'installed':
 			command = "blastall -p blastn -d " + resultFile + " -i " + resultFile + " -m 7" #call BLAST with XML output
 		else:
-			command = blastFolder + "/bin/blastn -task blastn -db " + resultFile + " -query " + resultFile + " -outfmt 5" #call BLAST with XML output
+			command = blastFolder + "blastn -task blastn -db " + resultFile + " -query " + resultFile + " -outfmt 5" #call BLAST with XML output
 		args = shlex.split(command)
 		blastAll = Popen(args, stdout=blastResultFile)
 		blastAll.wait()
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 	else:
 		module_dir = os.path.dirname(__file__)
 		module_dir = os.path.abspath(module_dir)
-		cfg_full_path = os.path.join(module_dir, 'generalMaker.config')
+		cfg_full_path = os.path.join(module_dir, 'Mitofinder.config')
 
 		with open(cfg_full_path,'r') as configFile:
 			for line in configFile:
@@ -99,6 +99,6 @@ if __name__ == '__main__':
 						blastFolder = line.replace('\n','').replace(' ','').split('=')[-1]
 
 		if blastFolder.lower() == 'default':
-			blastFolder = os.path.join(module_dir, 'blast/')
+			blastFolder = os.path.join(module_dir, 'blast/bin/')
 
 		print(circularizationCheck(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), blastFolder))

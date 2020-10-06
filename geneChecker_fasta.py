@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.3
+#Version: 1.4
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
@@ -399,7 +399,8 @@ if __name__ == "__main__":
 	percent_equality_prot=sys.argv[8]
 	percent_equality_nucl=sys.argv[9]
 	genbank=sys.argv[10]
-	nWalk=sys.argv[11]
+	nWalk=int(sys.argv[11])
+	tRNAscan=sys.argv[12]
 	if sys.argv[1] == '-h' or sys.argv[1] == '--help':
 		print 'Usage: genbank_reference fasta_file output_file organism_type(integer, default=2) alignCutOff(float, default=45) coveCutOff(7)'
 		print 'Only the first, second, and third arguments are required.'
@@ -445,9 +446,9 @@ if __name__ == "__main__":
 		print 'Features found: %s' % len(x[0])
 		print 'Total features: %s' % len(x[1])
 		print ''
-		print('Running arwen...')
+		print('Running tRNA annotation with '+tRNAscan)
 		presentFeatures = x[0]
-		assemblyCheck = tRNAscanChecker.tRNAscanCheck(resultFile, True, False, organismType, coveCutOff) #returns a Assembly object with statistics and alignment info 
+		assemblyCheck = tRNAscanChecker.tRNAscanCheck(resultFile, True, False, organismType, coveCutOff, False, False, tRNAscan) #returns a Assembly object with statistics and alignment info 
 		tRNAs = assemblyCheck.tRNAs
 		
 		listOfFeaturesToOutput = []
@@ -500,7 +501,7 @@ if __name__ == "__main__":
 				listOfFeaturesToOutput.append(thisFeatureFound)
 
 		listOfFeaturesToOutput.sort()
-		print 'Total features found after Arwen: ',len(listOfFeaturesToOutput)
+		print 'Total features found after '+str(tRNAscan)+': ',len(listOfFeaturesToOutput)
 
 		finalResults = genbankOutput.genbankOutput(outputFile, resultFile, listOfFeaturesToOutput, False, 900, nWalk)
 
@@ -525,44 +526,29 @@ if __name__ == "__main__":
 						outputFile.write(seq_name+"\t"+"mitofinder"+"\t"+str(gbkFeature.type)+"\t"+str(gbkFeature.location.start+1)+"\t"+str(gbkFeature.location.end)+"\t"+"."+"\t"+direction+"\t"+"0"+"\t"+str(gbkFeature.qualifiers[qualifier])+"\n")
 						genes[gbkFeature.qualifiers[qualifier]]=gbkFeature.qualifiers[qualifier]
 		outputFile.close()
+		"""
+		if ('TRNF' in presentFeatures) or ('tRNA-Phe' in presentFeatures) or ('trnf' in presentFeatures) or ('trnF' in presentFeatures):
+			print 'Creating ordered genbank file (with tRNA-Phe at the start)...'
+			resultOrderedGbFile = outputFile.replace('.gb','') + '.ordered.gb'
 
-"""			
-		outputFile=outputFile.split(".gb")[0]+'.gff'
-		outputFile=open(outputFile,"w")
-		seq_name = SeqIO.read(open(resultFile, 'rU'), "fasta", generic_dna)
-		seq_name = seq_name.name
+			if 'TRNF' in presentFeatures:
+				lookForPhe = 'TRNF'
+			elif 'tRNA-Phe' in presentFeatures:
+				lookForPhe = 'tRNA-Phe'
+			elif 'trnf' in presentFeatures:
+				lookForPhe = 'trnf'
+			elif 'trnF' in presentFeatures:
+				lookForPhe = 'trnF'
 
-		for thisFeatureAlignment in listOfFeaturesToOutput:
-			main_feature_qualifiers = {} 
+			pheAlignment = presentFeatures[lookForPhe][1]
+			pheStart = pheAlignment.startBase
+			orderedFinalResults = finalResults[pheStart:] + finalResults[0:pheStart]
 
-			if 'trn' in thisFeatureAlignment.seq2.lower() or 'rrn' in thisFeatureAlignment.seq2.lower() \
-			or 'ribosomal' in thisFeatureAlignment.seq2.lower() or 'rnr' in thisFeatureAlignment.seq2.lower():
-				main_feature_qualifiers['locus'] = thisFeatureAlignment.seq2
-				if 'trn' in thisFeatureAlignment.seq2.lower():
-					main_feature_type = "tRNA"
-				else:
-					main_feature_type = "rRNA"
-			else:
-				main_feature_qualifiers['locus'] = thisFeatureAlignment.seq2
-				main_feature_type = "gene"
-				
-			main_start_pos = SeqFeature.ExactPosition(thisFeatureAlignment.startBase)
-			main_end_pos = SeqFeature.ExactPosition(thisFeatureAlignment.endBase)
+			with open(resultOrderedGbFile, "w") as outputResult: #create the file!
+				count = SeqIO.write(orderedFinalResults, outputResult, "genbank")
+				count = SeqIO.write(orderedFinalResults, resultOrderedGbFile.replace('.gb','.fasta'), "fasta")
+				createImageOfAnnotation(orderedFinalResults, 'orderedResult.png')
 			
-			if main_feature_type == "gene":
-				codonDiff = ((main_end_pos - (main_start_pos + 1)) % 3)
-				if codonDiff == 2:
-					main_end_pos += 1
-				elif codonDiff == 1:
-					main_end_pos -= 1
-			
-			if thisFeatureAlignment.frame < 0:
-				strandToOutput = "-"
-			else:
-				strandToOutput = "+"
-			
-			outputFile.write(seq_name+"\t"+"mitofinder"+"\t"+str(main_feature_type)+"\t"+str(main_start_pos)+"\t"+str(main_end_pos)+"\t"+"."+"\t"+strandToOutput+"\t"+"0"+"\t"+str(main_feature_qualifiers['locus'])+"\n")
-		
-		outputFile.close()
-			
-"""
+		else:
+			print "Since tRNA-Phe couldn't be found, ordered genbank file wasn't created."
+		"""

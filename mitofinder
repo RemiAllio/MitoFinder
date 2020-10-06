@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.3
+#Version: 1.4
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
@@ -66,12 +66,11 @@ if __name__ == "__main__":
 						default=False, dest='idba', action='store_true')
 	parser.add_argument('--metaspades', help='Use MetaSPAdes for assembly. ',
 						default=False, dest='metaspades', action='store_true')
-#	parser.add_argument('--annotate', help='Use Mitofinder to annotate a given mitochondrial (-c) ', dest='Annotate', action='store_true')	
+	parser.add_argument('-t', '--tRNA-annotation', help = '\"arwen\"/\"mitfi\"/\"trnascan\" tRNA annotater to use. Default = mitfi', default="mitfi", dest='tRNAannotation')
 	parser.add_argument('-j', '--seqid', help = 'Sequence ID to be used throughout the process', default="", dest='processName')
 	parser.add_argument('-1', '--Paired-end1', help='File with forward paired-end reads', default="", dest='PE1')	
 	parser.add_argument('-2', '--Paired-end2', help='File with reverse paired-end reads', default="", dest='PE2')	
 	parser.add_argument('-s', '--Single-end', help='File with single-end reads', default="", dest='SE')	
-#	parser.add_argument('-c', '--contig', help='File with mitochondrial contig (only one)', default="", dest='CONTIG')	
 	parser.add_argument('-a', '--assembly', help='File with your own assembly', default="", dest='Assembly')	
 	parser.add_argument('-m', '--max-memory', help='max memory to use in Go (MEGAHIT or MetaSPAdes)', 
 						default="", dest='mem')
@@ -97,8 +96,10 @@ if __name__ == "__main__":
 					default=0, type=int, dest='maxContig')
 	parser.add_argument('--cds-merge', help='This option tells MitoFinder to not merge the exons in the NT and AA fasta files. ', default=True, dest='merge', action='store_false') 
 	parser.add_argument('--out-gb', help='Do not create annotation output file in GenBank format.', default=True, dest='genbk', action='store_false') 
-	parser.add_argument('--contig-size', help='Minimum size of a contig to be considered. Default = 1000',
-					default=1000, type=float, dest='contigSize')
+	parser.add_argument('--contig-size-min', help='Minimum size of a contig to be considered. Default = 1000',
+					default=1000, type=float, dest='contigSizeMin')
+	parser.add_argument('--contig-size-max', help='Maximum size of a contig to be considered. Default = 25000',
+					default=25000, type=float, dest='contigSizeMax')				
 	parser.add_argument('--rename-contig', help='\"yes/no\" If \"yes\", the contigs matching the reference(s) are renamed. Default is \"yes\" for de novo assembly and \"no\" for existing assembly (-a option)', default="Yes", dest='rename') 
 	parser.add_argument('--blast-identity-nucl', help='Nucleotide identity percentage for a hit to be retained. Default = 50',
 					default=50, type=float, dest='blastIdentityNucl')
@@ -110,7 +111,6 @@ if __name__ == "__main__":
 						default=45, type=int, dest='circularSize')
 	parser.add_argument('--circular-offset', help='Offset from start and finish to consider when looking for circularization. Default = 200',
 						default=200, type=int, dest='circularOffSet')
-#	parser.add_argument('-cove', '--covecutoff', help='Cove cutoff for tRNAscan-SE. Default = 7', type=int, default=7, dest='coveCutOff')
 	parser.add_argument('-o', '--organism', help="Organism genetic code following NCBI table (integer):\n\
 					1. The Standard Code \
 					2. The Vertebrate Mitochondrial Code\
@@ -130,7 +130,7 @@ if __name__ == "__main__":
 					23. Thraustochytrium Mitochondrial Code\
 					24. Pterobranchia Mitochondrial Code\
 					25. Candidate Division SR1 and Gracilibacteria Code", default="", dest='organismType')
-	parser.add_argument('-v', '--version', help="Version 1.3", default=False, dest='versionCheck', action='store_true')
+	parser.add_argument('-v', '--version', help="Version 1.4", default=False, dest='versionCheck', action='store_true')
 	parser.add_argument('--example', help="Print getting started examples", default=False, dest='example', action='store_true')
 	parser.add_argument('--citation', help="How to cite MitoFinder", default=False, dest='citation', action='store_true')
 	
@@ -139,61 +139,22 @@ if __name__ == "__main__":
 	blasteVal = args.blasteVal
 	usingOwnGenBankReference = False
 	initial_path = os.getcwd()+"/"
-
+		
 	if args.example == True:
 		print "\n # For trimmed paired-end reads:\nmitofinder --megahit -j [seqid] \\\n\t-1 [left_reads.fastq.gz] \\\n\t-2 [right_reads.fastq.gz] \\\n\t-r [genbank_reference.gb] \\\n\t-o [genetic_code] \\\n\t-p [threads] \\\n\t-m [memory]\n\n # For trimmed single-end reads:\nmitofinder --megahit -j [seqid] \\\n\t-s [SE_reads.fastq.gz] \\\n\t-r [genbank_reference.gb] \\\n\t-o [genetic_code] \\\n\t-p [threads] \\\n\t-m [memory]\n\n # For one assembly (one or more contig(s))\nmitofinder -j [seqid] \\\n\t-a [assembly.fasta] \\\n\t-r [genbank_reference.gb] \\\n\t-o [genetic_code] \\\n\t-p [threads] \\\n\t-m [memory]\n"
 		exit()
 	if args.citation == True:
-		txt="\n\nIf you use MitoFinder, please cite:\n\n- Allio, R., Schomaker Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B. & Delsuc, F. (2020). MitoFinder: Efficient automated large-scale extraction of mitogenomic data in target enrichment phylogenomics. Mol Ecol Resour. https://doi.org/10.1111/1755-0998.13160\n\nPlease also cite the following references depending on the option chosen for the assembly step in MitoFinder:\n\n- Li, D., Luo, R., Liu, C. M., Leung, C. M., Ting, H. F., Sadakane, K., Yamashita, H. & Lam, T. W. (2016). MEGAHIT v1.0: a fast and scalable metagenome assembler driven by advanced methodologies and community practices. Methods, 102(6), 3-11.\n- Nurk, S., Meleshko, D., Korobeynikov, A., & Pevzner, P. A. (2017). metaSPAdes: a new versatile metagenomic assembler. Genome research, 27(5), 824-834.\n- Peng, Y., Leung, H. C., Yiu, S. M., & Chin, F. Y. (2012). IDBA-UD: a de novo assembler for single-cell and metagenomic sequencing data with highly uneven depth. Bioinformatics, 28(11), 1420-1428.\n\nFor tRNAs annotation:\n\n- Laslett, D., & Canback, B. (2008). ARWEN: a program to detect tRNA genes in metazoan mitochondrial nucleotide sequences. Bioinformatics, 24(2), 172-175.\n\n"
+		txt="\n\nIf you use MitoFinder, please cite:\n- Allio, R., Schomaker Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B. & Delsuc, F. (2020). MitoFinder: Efficient automated large-scale extraction of mitogenomic data in target enrichment phylogenomics. Mol Ecol Resour. 20, 892-905. https://doi.org/10.1111/1755-0998.13160\n\nPlease also cite the following references depending on the option chosen for the assembly step in MitoFinder:\n- Li, D., Luo, R., Liu, C. M., Leung, C. M., Ting, H. F., Sadakane, K., Yamashita, H. & Lam, T. W. (2016). MEGAHIT v1.0: a fast and scalable metagenome assembler driven by advanced methodologies and community practices. Methods, 102(6), 3-11.\n- Nurk, S., Meleshko, D., Korobeynikov, A., & Pevzner, P. A. (2017). metaSPAdes: a new versatile metagenomic assembler. Genome research, 27(5), 824-834.\n- Peng, Y., Leung, H. C., Yiu, S. M., & Chin, F. Y. (2012). IDBA-UD: a de novo assembler for single-cell and metagenomic sequencing data with highly uneven depth. Bioinformatics, 28(11), 1420-1428.\n\nFor tRNAs annotation, depending on the option chosen:\n- MiTFi: Juhling, F., Putz, J., Bernt, M., Donath, A., Middendorf, M., Florentz, C., & Stadler, P. F. (2012). Improved systematic tRNA gene annotation allows new insights into the evolution of mitochondrial tRNA structures and into the mechanisms of mitochondrial genome rearrangements. Nucleic acids research, 40(7), 2833-2845.\n- Laslett, D., & Canback, B. (2008). ARWEN: a program to detect tRNA genes in metazoan mitochondrial nucleotide sequences. Bioinformatics, 24(2), 172-175.\n- Chan, P. P., & Lowe, T. M. (2019). tRNAscan-SE: searching for tRNA genes in genomic sequences. In Gene Prediction (pp. 1-14). Humana, New York, NY. \n\n"
 		txt=txt.replace(u"\u2013","-")
 		print txt
 		exit()
 	
-	if args.rename == "y":
-		args.rename = "yes"
-	if args.rename == "n":
-		args.rename = "no"
-	if args.rename.lower() != "yes" and args.rename != "no":
-		print "\nERROR: unrecognized value \""+args.rename+"\" for argument: --rename-contig. Please use \"yes\" or \"no\"."
-		exit()
-	if args.Assembly != "" and args.rename == "Yes": #changing default in that case
-		args.rename = "no"
-	
 	args.rename=args.rename.lower()
 
 	if args.versionCheck == True:
-		print "MitoFinder version 1.3"
+		print "MitoFinder version 1.4"
 		exit()
 
-	if args.PE1 == "" and args.PE2 == "" and args.SE == "" and args.Assembly == "" :
-		print "\nERROR: Read or assembly files are not specified.\n Please, use -1 -2 -s or -a option to specify input data."
-		exit()
-
-	if args.refSeqFile == "":
-		print "\nERROR: Reference file is required (-r option)"
-		exit()
-	if args.organismType == "":
-		print "\nERROR: Genetic code is required (-o option) \n\
-		1. The Standard Code \n\
-		2. The Vertebrate Mitochondrial Code\n\
-		3. The Yeast Mitochondrial Code\n\
-		4. The Mold, Protozoan, and Coelenterate Mitochondrial Code \n\
-		   and the Mycoplasma/Spiroplasma Code\n\
-		5. The Invertebrate Mitochondrial Code\n\
-		6. The Ciliate, Dasycladacean and Hexamita Nuclear Code\n\
-		9. The Echinoderm and Flatworm Mitochondrial Code\n\
-		10. The Euplotid Nuclear Code\n\
-		11. The Bacterial, Archaeal and Plant Plastid Code\n\
-		12. The Alternative Yeast Nuclear Code\n\
-		13. The Ascidian Mitochondrial Code\n\
-		14. The Alternative Flatworm Mitochondrial Code\n\
-		16. Chlorophycean Mitochondrial Code\n\
-		21. Trematode Mitochondrial Code\n\
-		22. Scenedesmus obliquus Mitochondrial Code\n\
-		23. Thraustochytrium Mitochondrial Code\n\
-		24. Pterobranchia Mitochondrial Code\n\
-		25. Candidate Division SR1 and Gracilibacteria Code\n"
-		exit()
 	if args.organismType != "":
 		args.organismType=int(args.organismType)
 	if args.processName == "":
@@ -217,8 +178,83 @@ if __name__ == "__main__":
 		
 	print "Job name = "+args.processName
 	
-	args.refSeqFile=os.path.join(initial_path,args.refSeqFile)
+	if args.PE1 == "" and args.PE2 == "" and args.SE == "" and args.Assembly == "" :
+		print "\nERROR: Read or assembly files are not specified.\n Please, use -1 -2 -s or -a option to specify input data."
+		logfile.write("\nERROR: Read or assembly files are not specified.\n Please, use -1 -2 -s or -a option to specify input data.\n")
+		exit()
 
+	if args.refSeqFile == "":
+		print "\nERROR: Reference file is required (-r option)"
+		logfile.write("\nERROR: Reference file is required (-r option).\n")
+		exit()
+	args.refSeqFile=os.path.join(initial_path,args.refSeqFile)
+	
+	if args.organismType == "":
+		print "\nERROR: Genetic code is required (-o option) \n\
+		1. The Standard Code \n\
+		2. The Vertebrate Mitochondrial Code\n\
+		3. The Yeast Mitochondrial Code\n\
+		4. The Mold, Protozoan, and Coelenterate Mitochondrial Code \n\
+		   and the Mycoplasma/Spiroplasma Code\n\
+		5. The Invertebrate Mitochondrial Code\n\
+		6. The Ciliate, Dasycladacean and Hexamita Nuclear Code\n\
+		9. The Echinoderm and Flatworm Mitochondrial Code\n\
+		10. The Euplotid Nuclear Code\n\
+		11. The Bacterial, Archaeal and Plant Plastid Code\n\
+		12. The Alternative Yeast Nuclear Code\n\
+		13. The Ascidian Mitochondrial Code\n\
+		14. The Alternative Flatworm Mitochondrial Code\n\
+		16. Chlorophycean Mitochondrial Code\n\
+		21. Trematode Mitochondrial Code\n\
+		22. Scenedesmus obliquus Mitochondrial Code\n\
+		23. Thraustochytrium Mitochondrial Code\n\
+		24. Pterobranchia Mitochondrial Code\n\
+		25. Candidate Division SR1 and Gracilibacteria Code\n"
+		logfile.write("\nERROR: Genetic code is required (-o option) \n\
+		1. The Standard Code \n\
+		2. The Vertebrate Mitochondrial Code\n\
+		3. The Yeast Mitochondrial Code\n\
+		4. The Mold, Protozoan, and Coelenterate Mitochondrial Code \n\
+		   and the Mycoplasma/Spiroplasma Code\n\
+		5. The Invertebrate Mitochondrial Code\n\
+		6. The Ciliate, Dasycladacean and Hexamita Nuclear Code\n\
+		9. The Echinoderm and Flatworm Mitochondrial Code\n\
+		10. The Euplotid Nuclear Code\n\
+		11. The Bacterial, Archaeal and Plant Plastid Code\n\
+		12. The Alternative Yeast Nuclear Code\n\
+		13. The Ascidian Mitochondrial Code\n\
+		14. The Alternative Flatworm Mitochondrial Code\n\
+		16. Chlorophycean Mitochondrial Code\n\
+		21. Trematode Mitochondrial Code\n\
+		22. Scenedesmus obliquus Mitochondrial Code\n\
+		23. Thraustochytrium Mitochondrial Code\n\
+		24. Pterobranchia Mitochondrial Code\n\
+		25. Candidate Division SR1 and Gracilibacteria Code\n\n")
+		exit()
+
+	if args.rename == "y":
+		args.rename = "yes"
+	if args.rename == "n":
+		args.rename = "no"
+	if args.rename.lower() != "yes" and args.rename != "no":
+		print "\nERROR: unrecognized value \""+args.rename+"\" for argument: --rename-contig. Please use \"yes\" or \"no\"."
+		logfile.write("\nERROR: unrecognized value \""+args.rename+"\" for argument: --rename-contig. Please use \"yes\" or \"no\".\n")
+		exit()
+	if args.Assembly != "" and args.rename == "Yes": #changing default in that case
+		args.rename = "no"
+	
+	print str(args.tRNAannotation)
+	if args.tRNAannotation.lower() == "trnascan":
+		tRNA="trnascan"
+	elif args.tRNAannotation.lower() == "arwen":
+		tRNA="arwen"
+	elif args.tRNAannotation.lower() == "mitfi":
+		tRNA="mitfi"
+	else:
+		print "ERROR: Option \""+str(args.tRNAannotation) + "\" not recognized for -t/--tRNA-annotation.\nPlease use \"arwen\", \"mitfi\" ot \"trnascan\".\nAborting."
+		logfile.write("ERROR: Option \""+str(args.tRNAannotation) + "\" not recognized for -t/--tRNA-annotation.\nPlease use \"arwen\", \"mitfi\" ot \"trnascan\".\nAborting.\n")
+		exit()
+	
 	if args.PE1 != "":
 		args.PE1=os.path.join(initial_path,args.PE1)
 		q1="q1="+args.PE1	
@@ -333,42 +369,44 @@ if __name__ == "__main__":
 					pathToMetaspadesFolder = line.replace('\n','').replace(' ','').split('=')[-1]
 				elif configPart  == 'arwenfolder':
 					pathToArwenFolder = line.replace('\n','').replace(' ','').split('=')[-1]
+				elif configPart  == 'trnascanfolder':
+					pathTotRNAscanFolder = line.replace('\n','').replace(' ','').split('=')[-1]
+				elif configPart  == 'mitfifolder':
+					pathToMitfiFolder = line.replace('\n','').replace(' ','').split('=')[-1]
 				
 					
 	#if config file has 'default' in the folder field, use the default program folders given with the script
 	if pathToMegahitFolder.lower() == 'default':
 		pathToMegahitFolder = os.path.join(module_dir, 'megahit/')
-	'''	logfile.write('WARNING: MEGAHIT is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
-		print 'WARNING: Megahit is still set in its default folder. Change it in the config file if you encounter problems running this script.'
-	'''
+
 	if blastFolder.lower() == 'default':
 		blastFolder = os.path.join(module_dir, 'blast/bin/')
-	'''	logfile.write('WARNING: Blast is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
-		print 'WARNING: Blast is still set in its default folder. Change it in the config file if you encounter problems running this script.'
-	'''
+
 	if pathToIdbaFolder.lower() == 'default':
 		pathToIdbaFolder = os.path.join(module_dir, 'idba/bin/')
-	'''	logfile.write('WARNING: IDBA-UD is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
-		print 'WARNING: IDBA-UD is still set in its default folder. Change it in the config file if you encounter problems running this script.'
-	'''
+
 	if pathToMetaspadesFolder.lower() == 'default':
 		pathToMetaspadesFolder = os.path.join(module_dir, 'metaspades/bin/')
-	'''	logfile.write('WARNING: MetaSPAdes is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
-		print 'WARNING: MetaSPAdes is still set in its default folder. Change it in the config file if you encounter problems running this script.'
-	'''
+
 	if pathToArwenFolder.lower() == 'default':
 		pathToArwenFolder = os.path.join(module_dir, 'arwen/')
-	'''	logfile.write('WARNING: Arwen is still set in its default folder. Change it in the config file if you encounter problems running this script.\n')
-		print 'WARNING: Arwen is still set in its default folder. Change it in the config file if you encounter problems running this script.'
-	'''
+
+	if pathTotRNAscanFolder.lower() == 'default':
+		pathTotRNAscanFolder = os.path.join(module_dir, 'trnascanSE/tRNAscan-SE-2.0/')
+
+	if pathToMitfiFolder.lower() == 'default':
+		pathToMitfiFolder = os.path.join(module_dir, 'mitfi/')
+	
 	print 'Program folders:'
 	print 'MEGAHIT = %s' % pathToMegahitFolder
 	print 'MetaSPAdes folder = %s' % pathToMetaspadesFolder
 	print 'IDBA-UD folder = %s' % pathToIdbaFolder
 	print 'Blast folder = %s' % blastFolder
-	print 'Arwen folder = %s' % pathToArwenFolder
+	print 'ARWEN folder = %s' % pathToArwenFolder
+	print 'MiTFi folder = %s' % pathToMitfiFolder
+	print 'tRNAscan-SE folder = %s' % pathTotRNAscanFolder
 	print ''
-	logfile.write("Program folders:\n"+'MEGAHIT = %s' % pathToMegahitFolder+"\n"+'Blast folder = %s' % blastFolder+"\n"+'IDBA-UD folder = %s' % pathToIdbaFolder+"\n"+'MetaSPAdes folder = %s' % pathToMetaspadesFolder+"\n"+'Arwen folder = %s' % pathToArwenFolder+"\n\n")
+	logfile.write("Program folders:\n"+'MEGAHIT = %s' % pathToMegahitFolder+"\n"+'Blast folder = %s' % blastFolder+"\n"+'IDBA-UD folder = %s' % pathToIdbaFolder+"\n"+'MetaSPAdes folder = %s' % pathToMetaspadesFolder+"\n"+'ARWEN folder = %s' % pathToArwenFolder+"\n"+'MiTFi folder = %s' % pathToMitfiFolder+"\n"+'tRNAscan-SE folder = %s' % pathTotRNAscanFolder+"\n\n")
 	
 	try :
 		command =  blastFolder + "makeblastdb -h "
@@ -405,7 +443,6 @@ if __name__ == "__main__":
 		print "Aborting"
 		logfile.write(blastFolder + "blastx is not executable\n"+"Please check the installation and the path indicated above and restart Mitofinder.\n"+"Aborting\n")
 		exit()
-	
 
 
 	if args.refSeqFile == None:
@@ -441,7 +478,7 @@ if __name__ == "__main__":
 			listOfImportantFeatures = {}
 			
 			recordCount=record.count("LOCUS")
-			
+			s=0
 			if record.count("LOCUS") > 1:
 				c=0
 				for line in range(1,record.count("LOCUS")+1):
@@ -459,9 +496,15 @@ if __name__ == "__main__":
 							elif 'product' in feature.qualifiers:
 								featureName = feature.qualifiers['product'][0]
 							featureName = ''.join(featureName.split())
-								
-							importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
-							importantFeaturesFile.write(str(feature.extract(record).seq)+'\n')
+							featureName = featureName.replace("/","-")
+							
+							if not "A" in feature.extract(record).seq.upper() and not "C" in feature.extract(record).seq.upper() and not "G" in feature.extract(record).seq.upper() and not "T" in feature.extract(record).seq.upper():
+								print "WARNING: no nucleotide sequence have been found for the gene "+str(featureName)+" for the reference "+str(record.id)+"."
+								logfile.write("WARNING: no nucleotide sequence have been found for the gene "+str(featureName)+" for the reference "+str(record.id)+".")
+							else:	
+								importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
+								importantFeaturesFile.write(str(feature.extract(record).seq)+'\n')
+								s=1
 							translatedGene.write('>' + record.id + "@" + featureName + '\n')
 							
 							if 'translation' in feature.qualifiers:
@@ -476,19 +519,27 @@ if __name__ == "__main__":
 							if 'gene' in feature.qualifiers:
 								featureName = feature.qualifiers['gene'][0]
 								featureName = ''.join(featureName.split())
-								
-								importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
-								importantFeaturesFile.write(str(feature.extract(record).seq) + '\n')
-								listOfImportantFeatures[featureName] = feature
+								if not "A" in feature.extract(record).seq.upper() and not "C" in feature.extract(record).seq.upper() and not "G" in feature.extract(record).seq.upper() and not "T" in feature.extract(record).seq.upper():
+									print "WARNING: no nucleotides sequence have been found for the gene "+str(featureName)+" for the reference "+str(record.id)+"."
+								else:
+									importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
+									importantFeaturesFile.write(str(feature.extract(record).seq) + '\n')
+									listOfImportantFeatures[featureName] = feature
+									s=1
 							
 							elif 'product' in feature.qualifiers:
 								featureName = feature.qualifiers['product'][0]
 								featureName = ''.join(featureName.split())
 								
-								importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
-								importantFeaturesFile.write(str(feature.extract(record).seq) + '\n')
-								listOfImportantFeatures[featureName] = feature
-
+								if not "A" in feature.extract(record).seq.upper() and not "C" in feature.extract(record).seq.upper() and not "G" in feature.extract(record).seq.upper() and not "T" in feature.extract(record).seq.upper():
+									print "WARNING: no nucleotide sequence have been found for the gene "+str(featureName)+" for the reference "+str(record.id)+"."
+									logfile.write("WARNING: no nucleotide sequence have been found for the gene "+str(featureName)+" for the reference "+str(record.id)+".")
+								else:
+									importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
+									importantFeaturesFile.write(str(feature.extract(record).seq) + '\n')
+									listOfImportantFeatures[featureName] = feature
+									s=1
+				os.remove(args.processName+"_tmp.gb")
 
 			else:
 				record = SeqIO.read(open(gbk_filename), "genbank", generic_dna)
@@ -499,9 +550,14 @@ if __name__ == "__main__":
 						elif 'product' in feature.qualifiers:
 							featureName = feature.qualifiers['product'][0]
 						featureName = ''.join(featureName.split())
-							
-						importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
-						importantFeaturesFile.write(str(feature.extract(record).seq)+'\n')
+						featureName = featureName.replace("/","-")
+						if not "A" in feature.extract(record).seq.upper() and not "C" in feature.extract(record).seq.upper() and not "G" in feature.extract(record).seq.upper() and not "T" in feature.extract(record).seq.upper():
+							print "WARNING: no nucleotide sequence have been found for the gene "+str(featureName)+" for the reference "+str(record.id)+"."
+							logfile.write("WARNING: no nucleotide sequence have been found for the gene "+str(featureName)+" for the reference "+str(record.id)+".")
+						else:	
+							importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
+							importantFeaturesFile.write(str(feature.extract(record).seq)+'\n')
+							s=1
 						translatedGene.write('>' + record.id + "@" + featureName + '\n')
 
 						if 'translation' in feature.qualifiers:
@@ -515,29 +571,35 @@ if __name__ == "__main__":
 						if 'gene' in feature.qualifiers:
 							featureName = feature.qualifiers['gene'][0]
 							featureName = ''.join(featureName.split())
-							
-							importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
-							importantFeaturesFile.write(str(feature.extract(record).seq) + '\n')
+							if not "A" in feature.extract(record).seq.upper() and not "C" in feature.extract(record).seq.upper() and not "G" in feature.extract(record).seq.upper() and not "T" in feature.extract(record).seq.upper():
+								print "WARNING: no nucleotide sequence have been found for the gene "+str(featureName)+" for the reference "+str(record.id)+"."
+								logfile.write("WARNING: no nucleotide sequence have been found for the gene "+str(featureName)+" for the reference "+str(record.id)+".")
+							else:	
+								importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
+								importantFeaturesFile.write(str(feature.extract(record).seq) + '\n')
+								s=1
 							listOfImportantFeatures[featureName] = feature			
 						
 						elif 'product' in feature.qualifiers:
 							featureName = feature.qualifiers['product'][0]
 							featureName = ''.join(featureName.split())
-
-							importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
-							importantFeaturesFile.write(str(feature.extract(record).seq) + '\n')
+							if not "A" in feature.extract(record).seq.upper() and not "C" in feature.extract(record).seq.upper() and not "G" in feature.extract(record).seq.upper() and not "T" in feature.extract(record).seq.upper():
+								print "WARNING: no nucleotide sequence have been found for the gene "+str(featureName)+" for the reference "+str(record.id)+"."
+								logfile.write("WARNING: no nucleotide sequence have been found for the gene "+str(featureName)+" for the reference "+str(record.id)+".")
+							else:
+								importantFeaturesFile.write('>' + record.id + "@" + featureName + '\n')
+								importantFeaturesFile.write(str(feature.extract(record).seq) + '\n')
+								s=1
 							listOfImportantFeatures[featureName] = feature			
 						
-#			for seq_record in SeqIO.parse(input_handle, "genbank") :
-#				print "Dealing with GenBank record %s" % seq_record.id
-#				output_handle.write(">%s %s\n%s\n" % (
-#					seq_record.id,
-#					seq_record.description,
-#					seq_record.seq))
-#			
 			output_handle.close()
 			translatedGene.close()
 			contigdatabase.close()
+			
+			if s == 0:
+				print "\nERROR: MitoFinder didn't found any nucleotide sequence in the reference(s) file(s).\nAborting"
+				logfile.write("ERROR: MitoFinder didn't found any nucleotide sequence in the reference(s) file(s).\nAborting")
+				exit()
 			
 			#create a gene database
 			os.chdir(pathtowork)
@@ -547,36 +609,6 @@ if __name__ == "__main__":
 				os.remove(f)
 			for f in glob.glob("./*tmp/ref*database.fasta*"):
 				os.remove(f)
-			"""if os.path.isfile("ref_COX1_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_COX1_database.fasta")
-			if os.path.isfile("ref_COX2_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_COX2_database.fasta")
-			if os.path.isfile("ref_COX3_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_COX3_database.fasta")
-			if os.path.isfile("ref_CYTB_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_CYTB_database.fasta")
-			if os.path.isfile("ref_ND1_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_ND1_database.fasta")
-			if os.path.isfile("ref_ND2_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_ND2_database.fasta")
-			if os.path.isfile("ref_ND3_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_ND3_database.fasta")
-			if os.path.isfile("ref_ND4_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_ND4_database.fasta")
-			if os.path.isfile("ref_ND4L_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_ND4L_database.fasta")
-			if os.path.isfile("ref_ND5_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_ND5_database.fasta")
-			if os.path.isfile("ref_ND6_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_ND6_database.fasta")
-			if os.path.isfile("ref_ATP6_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_ATP6_database.fasta")
-			if os.path.isfile("ref_ATP8_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_ATP8_database.fasta")
-			if os.path.isfile("ref_rrnL_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_rrnL_database.fasta")
-			if os.path.isfile("ref_rrnS_database.fasta") == True:
-				os.remove(pathtowork+"/"+"ref_rrnS_database.fasta")"""
 			
 			for name, seq in read_fasta(open("translated_genes_for_database.fasta")):
 				namesp=name
@@ -619,8 +651,7 @@ if __name__ == "__main__":
 						print "Gene named \""+name+"\" in the reference file is not recognized by MitoFinder."
 						print "MitoFinder will try to annotate it."
 						logfile.write("Gene named \""+name+"\" in the reference file is not recognized by MitoFinder."+"\n"+"MitoFinder will try to annotate it."+"\n\n")
-						'''with open(pathtowork+"/genes_list", "a") as genelist:
-							genelist.write(name+"\n")'''
+
 					elif args.newG == True and dico_genes.has_key(name):
 						pass
 					elif args.ignore == True and args.newG == False:
@@ -639,33 +670,7 @@ if __name__ == "__main__":
 			for name, seq in read_fasta(open(faa_filename)):
 				namesp=name
 				name=name.split("@")[1]
-				if name.lower() == "coi" or name.lower() == "coxi" or name.lower() == "co1" or name.lower() == "cox1" or name.lower().replace(" ","") == "cytochromecoxidasesubunit1" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubuniti":
-					name="COX1"
-				elif name.lower() == "coii" or name.lower() == "coxii" or name.lower() == "co2" or name.lower() == "cox2" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunit2" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunitii":
-					name="COX2"
-				elif name.lower() == "coiii" or name.lower() == "coxiii" or name.lower() == "co3" or name.lower() == "cox3" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunit3" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunitiii":
-					name="COX3"
-				elif name.lower() == "cytb" or name.lower() == "cob" or name.lower().replace(" ","").replace("-","") == "cytochromeb":
-					name="CYTB"
-				elif name.lower() == "nd1" or name.lower() == "nad1" or name.lower() == "ndh1" or name.lower() == "nadh1" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunit1" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubuniti":
-					name="ND1"
-				elif name.lower() == "nd2" or name.lower() == "nad2" or name.lower() == "ndh2" or name.lower() == "nadh2" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunit2" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunitii":
-					name="ND2"
-				elif name.lower() == "nd3" or name.lower() == "nad3" or name.lower() == "ndh3" or name.lower() == "nadh3" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunit3" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunitiii":
-					name="ND3"
-				elif name.lower() == "nd4" or name.lower() == "nad4" or name.lower() == "ndh4" or name.lower() == "nadh4" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunit4" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunitiv":
-					name="ND4"
-				elif name.lower() == "nd4l" or name.lower() == "nad4l" or name.lower() == "ndh4l" or name.lower() == "nadh4l" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunit4l" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunitivl":
-					name="ND4L"
-				elif name.lower() == "nd5" or name.lower() == "nad5" or name.lower() == "ndh5" or name.lower() == "nadh5" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunit5" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunitv":
-					name="ND5"
-				elif name.lower() == "nd6" or name.lower() == "nad6" or name.lower() == "ndh6" or name.lower() == "nadh6" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunit6" or name.lower().replace(" ","").replace("-","") == "nadhdehydrogenasesubunitvi":
-					name="ND6"
-				elif name.lower() == "atp8" or name.lower().replace(" ","").replace("-","") == "atpsynthasef0subunit8" or name.lower().replace(" ","").replace("-","") == "atpase8":
-					name="ATP8"
-				elif name.lower() == "atp6" or name.lower().replace(" ","").replace("-","") == "atpsynthasef0subunit6" or name.lower().replace(" ","").replace("-","") == "atpase6":
-					name="ATP6"
-				elif name.lower().replace(" ","").replace("-","") == "rrnl" or name.lower().replace(" ","").replace("-","") == "16sribosomalrna" or name.lower().replace(" ","").replace("-","") == "largesubunitribosomalrna" or name.lower().replace(" ","").replace("-","") == "lrrna" or name.lower().replace(" ","").replace("-","") == "16sribosomalrna" or name.lower().replace(" ","").replace("-","") == "16srrna" or name.lower().replace(" ","").replace("-","") == "rnr2" or name.lower().replace(" ","").replace("-","") == "mtrnr2" or name.lower().replace(" ","").replace("-","") == "rrn16" or name.lower().replace(" ","").replace("-","") == "rnl" or name.lower().replace(" ","").replace("-","") == "lsu":
+				if name.lower().replace(" ","").replace("-","") == "rrnl" or name.lower().replace(" ","").replace("-","") == "16sribosomalrna" or name.lower().replace(" ","").replace("-","") == "largesubunitribosomalrna" or name.lower().replace(" ","").replace("-","") == "lrrna" or name.lower().replace(" ","").replace("-","") == "16sribosomalrna" or name.lower().replace(" ","").replace("-","") == "16srrna" or name.lower().replace(" ","").replace("-","") == "rnr2" or name.lower().replace(" ","").replace("-","") == "mtrnr2" or name.lower().replace(" ","").replace("-","") == "rrn16" or name.lower().replace(" ","").replace("-","") == "rnl" or name.lower().replace(" ","").replace("-","") == "lsu":
 					name="rrnL"
 				elif name.lower().replace(" ","").replace("-","") == "rrns" or name.lower().replace(" ","").replace("-","") == "12sribosomalrna" or name.lower().replace(" ","").replace("-","") == "smallsubunitribosomalrna" or name.lower().replace(" ","").replace("-","") == "srrna" or name.lower().replace(" ","").replace("-","") == "12sribosomalrna" or name.lower().replace(" ","").replace("-","") == "12srrna" or name.lower().replace(" ","").replace("-","") == "rnr1" or name.lower().replace(" ","").replace("-","") == "mtrnr1" or name.lower().replace(" ","").replace("-","") == "rrn12" or name.lower().replace(" ","").replace("-","") == "rns" or name.lower().replace(" ","").replace("-","") == "ssu":
 					name="rrnS"
@@ -730,30 +735,8 @@ if __name__ == "__main__":
 			print "WARNING: "+i+" is not in the reference file. MitoFinder will not annotate this gene."
 			logfile.write("WARNING: "+i+" is not in the reference file. MitoFinder will not annotate this gene.\n")
 
-	pathOfFinalResults = pathtowork + "/" + args.processName + '_Final_Results/'
-	if os.path.exists(pathOfFinalResults): 
-		shutil.rmtree(pathOfFinalResults)
-	if not os.path.exists(pathOfFinalResults): 
-		os.makedirs(pathOfFinalResults)
-	
-	Assembly=True
 		
-#	if args.Annotate == True:
-#		print "Annotation option selected"
-#		args.megahit=False
-#		Assembly=False
-#		print "Mitofinder will annotate this contig :"
-#		print args.CONTIG
-#		if args.CONTIG[-6:] != '.fasta' and args.CONTIG[-3:] != '.fa' and args.CONTIG[-4:] != '.fst' and args.CONTIG[-4:] != '.faa' and args.CONTIG[-4:] != '.fna':
-#			print "\n ERROR : contig file must be in fasta format (.fasta)."
-#			print "Please, change your input file format (-c) and restart Mitofinder"
-#			print "Aborting\n"
-#					
-#		if os.path.exists(pathOfFinalResults+"/link_contig.fasta"):
-#			os.remove(pathOfFinalResults+"/link_contig.fasta")
-#		os.symlink(args.CONTIG, pathOfFinalResults+"/link_contig.fasta")
-#		args.CONTIG=pathOfFinalResults+"/link_contig.fasta"
-
+	Assembly=True
 	if args.Assembly != "":
 		args.Assembly=os.path.join(initial_path,args.Assembly)
 		args.megahit = False
@@ -763,7 +746,20 @@ if __name__ == "__main__":
 			os.remove(pathtowork+"/"+args.processName+"_link.scafSeq")
 		os.symlink(args.Assembly, pathtowork+"/"+args.processName+"_link.scafSeq")
 		link_file=args.processName+"_link.scafSeq"
-			
+	
+	assembler=""
+	if args.megahit == True and args.idba == False and args.metaspades == False:
+		assembler="_megahit"
+	if args.idba == True:
+		assembler="_idba"
+	if args.metaspades == True:
+		assembler="_metaspades"
+	pathOfFinalResults = pathtowork + "/" + args.processName + "_MitoFinder" + assembler + "_" + tRNA + '_Final_Results/'
+	if os.path.exists(pathOfFinalResults): 
+		shutil.rmtree(pathOfFinalResults)
+	if not os.path.exists(pathOfFinalResults): 
+		os.makedirs(pathOfFinalResults)
+		
 	if Assembly == True:
 		logfile.close()
 		#let's call megahit
@@ -818,7 +814,6 @@ if __name__ == "__main__":
 
 		print "Formatting database for mitochondrial contigs identification..."
 		logfile.write("Formatting database for mitochondrial contigs identification...\n")
-		
 		command = blastFolder+"/makeblastdb -in " + link_file + " -dbtype nucl"
 		
 		args1 = shlex.split(command)
@@ -845,10 +840,11 @@ if __name__ == "__main__":
 				
 		dico_direction={}
 		dico_score={}
+		sup=0
 		for line in mitoblast:
 			#testedGene=line.split("\t")[0].split("@")[1]
 			contig=line.split("\t")[1].split("\t")[0]
-			if float(dico_size_contig.get(contig)) >= args.contigSize:
+			if float(dico_size_contig.get(contig)) >= args.contigSizeMin and float(dico_size_contig.get(contig)) <= args.contigSizeMax :
 				score=float(line.split("\t")[11])
 				ident=line.split("\t")[2]
 				start=float(line.split("\t")[8])
@@ -866,30 +862,30 @@ if __name__ == "__main__":
 						dico_score[contig]=score
 				else:
 					dico_score[contig]=score
-				"""if float(ident) >= float(args.blastIdentityNucl):
-					if dico_contig.has_key(testedGene):
-						if score > dico_score.get(testedGene):
-							dico_contig[testedGene]=contig
-							dico_score[testedGene]=score
-						elif args.numt == 1:
-							c+=1
-							dico_contig[c]=contig
-							dico_score[c]=score
-					else:
-						dico_contig[testedGene]=contig
-						dico_score[testedGene]=score"""
-		
+
+			elif float(dico_size_contig.get(contig)) >= args.contigSizeMin and float(dico_size_contig.get(contig)) >= args.contigSizeMax:
+				sup=1
+				
 		sorted_y = sorted(dico_score.items(), key=operator.itemgetter(1), reverse = True)
 		sorted_dico_score = collections.OrderedDict(sorted_y)
 		
 		if len(collections.OrderedDict(sorted_y)) == 0:
-			print "MitoFinder dit not found any mitochondrial contig" 
-			print ""
-			logfile.write("MitoFinder dit not found any mitochondrial contig\n\n")
-			time=datetime.now() - start_time
-			print "Total wall-clock time used by MitoFinder = "+str(time)
-			logfile.write("\nTotal wall-clock time used by MitoFinder = "+str(time)+"\n")
-			exit()
+			if sup == 0:	
+				print "MitoFinder dit not found any mitochondrial contig" 
+				print ""
+				logfile.write("MitoFinder dit not found any mitochondrial contig\n\n")
+				time=datetime.now() - start_time
+				print "Total wall-clock time used by MitoFinder = "+str(time)
+				logfile.write("\nTotal wall-clock time used by MitoFinder = "+str(time)+"\n")
+				exit()
+			elif sup == 1:
+				print "MitoFinder dit not found any mitochondrial contig with a size lower than "+str(args.contigSizeMax)+" bp."
+				print ""
+				logfile.write("MitoFinder dit not found any mitochondrial contig with a size lower than "+str(args.contigSizeMax)+" bp.\n\n")
+				time=datetime.now() - start_time
+				print "Total wall-clock time used by MitoFinder = "+str(time)
+				logfile.write("\nTotal wall-clock time used by MitoFinder = "+str(time)+"\n")
+				exit()
 		elif len(collections.OrderedDict(sorted_y)) == 1:
 			print ''
 			print 'MitoFinder found a single mitochondrial contig'
@@ -933,14 +929,6 @@ if __name__ == "__main__":
 					dico_final_direction[key]="-"
 			else:
 				dico_final_direction[key]=values
-
-		"""ID_dico={}
-		fl=0
-		for r in SeqIO.parse(pathtowork+"/"+link_file,"fasta"):
-			if dico_contig.has_key(r.id):
-				if len(r.seq) >= args.contigSize:
-					fl+=1
-					ID_dico[r.id]=dico_contig.get(r.id)"""
 						
 		if fl == 1:
 			fout=open(pathtowork+"/"+args.processName+'_contig.fasta','w')
@@ -953,25 +941,22 @@ if __name__ == "__main__":
 			command = module_dir+"/circularizationCheck.py " + pathOfResult + " " + str(args.circularSize) + " " + str(args.circularOffSet) 
 			args1 = shlex.split(command)
 			fourthStep = Popen(args1, stdout=subprocess.PIPE, stderr=open(os.devnull, 'wb')).communicate()[0]
-			fourthStep = fourthStep.replace('(','')
-			fourthStep = fourthStep.replace(')','')
-			fourthStep = fourthStep.split(',')
-	
+			fourthStep = fourthStep.rstrip().replace(" ","").replace("(","").replace(")","").split(",")
 			#circularizationcheck will return a tuple with (True, start, end)
 			print ''
 			logfile.write('\n')
 			
 			resultFile = args.processName + '.fasta'
 	
-			if fourthStep[0] == True:
+			if fourthStep[0] == "True":
 				print 'Evidences of circularization were found!'
-				print 'Sequence is going to be trimmed according to circularization position. \nMAF and CAF files are unaltered.'
+				print 'Sequence is going to be trimmed according to circularization position. \n'
 				print ''
-				logfile.write('Evidences of circularization were found!\n'+'Sequence is going to be trimmed according to circularization position. \nMAF and CAF files are unaltered.\n\n')
+				logfile.write('Evidences of circularization were found!\n'+'Sequence is going to be trimmed according to circularization position. \n\n')
 				with open(resultFile, "w") as outputResult: #create draft file to be checked and annotated
 					finalResults = SeqIO.read(open(pathOfResult, 'rU'), "fasta", generic_dna)
-					finalResults.seq = finalResults.seq.upper()
-					count = SeqIO.write(finalResults[fourthStep[2]:], outputResult, "fasta") #trims according to circularization position
+					finalResults.seq = finalResults.seq[int(fourthStep[2]):].upper()
+					count = SeqIO.write(finalResults, outputResult, "fasta") #trims according to circularization position
 			else:
 				print 'Evidences of circularization could not be found, but everyother step was successful'
 				print ''
@@ -981,7 +966,7 @@ if __name__ == "__main__":
 					finalResults.seq = finalResults.seq.upper()
 					count = SeqIO.write(finalResults, outputResult, "fasta") #no need to trim, since circularization wasn't found
 			
-			pathOfFinalResults = pathtowork + "/"+ args.processName + '_Final_Results/'
+			pathOfFinalResults = pathtowork + "/" + args.processName + "_MitoFinder" + assembler + "_" + tRNA + '_Final_Results/'
 			if not os.path.exists(pathOfFinalResults): 
 				os.makedirs(pathOfFinalResults)
 			
@@ -999,7 +984,7 @@ if __name__ == "__main__":
 			finalStatsFile.write('Statistics for final sequence:\n')
 			finalStatsFile.write('Length: ' + str(len(finalResults.seq)) + "\n")
 			finalStatsFile.write('GC content: ' + ("{0:.2f}".format(SeqUtils.GC(finalResults.seq))) + '%\n')
-			if fourthStep[0] == True:
+			if fourthStep[0] == "True":
 				finalStatsFile.write("Circularization: Yes\n")
 			else:
 				finalStatsFile.write("Circularization: Not found\n")
@@ -1014,7 +999,6 @@ if __name__ == "__main__":
 			rename.wait()	
 			
 			os.remove(resultFile)
-			#shutil.copyfile(resultFile, pathOfFinalResults+"/"+args.processName+"_mtDNA_contig.fasta")
 			
 			
 			# Annotating with gene_checker
@@ -1075,14 +1059,14 @@ if __name__ == "__main__":
 					refFile.close()
 
 				if args.gap == 1 or args.numt == 1:
-					command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt) + " " + str(args.gap)
+					command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt) + " " + str(args.gap) + " " + tRNA
 					args1 = shlex.split(command)
-					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_error.log', 'a'))
 					fifthStep.wait()	
 				else:
-					command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
+					command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk) + " " + tRNA
 					args1 = shlex.split(command)
-					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_error.log', 'a'))
 					fifthStep.wait()	
 			
 			else:
@@ -1095,24 +1079,44 @@ if __name__ == "__main__":
 				best_ref.close()
 				
 				if args.gap == 1 or args.numt == 1:
-					command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt) + " " + str(args.gap)
+					command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt) + " " + str(args.gap) + " " + tRNA
 					args1 = shlex.split(command)
-					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_error.log', 'a'))
 					fifthStep.wait()	
 				else:
-					command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
+					command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.fasta" + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk) + " " + tRNA
 					args1 = shlex.split(command)
-					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'w'), stderr=open('geneChecker_erreur.log', 'w'))
+					fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'w'), stderr=open('geneChecker_error.log', 'w'))
 					fifthStep.wait()
 
-			test_arwen=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.arwen"
-			if os.path.isfile(test_arwen) == True:
-				print "tRNA annotation with Arwen run well.\n"
-				logfile.write("tRNA annotation with Arwen run well.\n\n")
-			else:
-				print "ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_erreur.log or geneChecker.log to see what happened\nAborting\n"
-				logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_erreur.log or geneChecker.log to see what happened\nAborting\n\n")
-				exit()
+			if tRNA == "arwen":
+				test_arwen=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.arwen"
+				if os.path.isfile(test_arwen) == True:
+					print "tRNA annotation with Arwen run well.\n"
+					logfile.write("tRNA annotation with Arwen run well.\n\n")
+				else:
+					print "ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n"
+					logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n\n")
+					exit()
+			elif tRNA == "trnascan":
+				test_trnascan=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.trnascan"
+				if os.path.isfile(test_trnascan) == True:
+					print "tRNA annotation with tRNAscan-SE run well.\n"
+					logfile.write("tRNA annotation with tRNAscan-SE run well.\n\n")
+				else:
+					print "ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n"
+					logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n\n")
+					exit()
+			elif tRNA == "mitfi":
+				test_mitfi=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.mitfi"
+				if os.path.isfile(test_mitfi) == True:
+					print "tRNA annotation with MitFi run well.\n"
+					logfile.write("tRNA annotation with MitFi run well.\n\n")
+				else:
+					print "ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n"
+					logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n\n")
+					exit()
+			
 			test_gene_checker=pathOfFinalResults+args.processName+"_mtDNA_contig.gb"
 			if os.path.isfile(test_gene_checker) == True:
 				print "Annotation completed\n"
@@ -1126,8 +1130,8 @@ if __name__ == "__main__":
 		elif fl > 1:	
 			if os.path.isfile(pathtowork+"/"+'geneChecker.log') == True:
 				os.remove(pathtowork+"/"+'geneChecker.log')
-			if os.path.isfile(pathtowork+"/"+'geneChecker_erreur.log') == True:
-				os.remove(pathtowork+"/"+'geneChecker_erreur.log')
+			if os.path.isfile(pathtowork+"/"+'geneChecker_error.log') == True:
+				os.remove(pathtowork+"/"+'geneChecker_error.log')
 			
 			# Extract every contigs one by one
 			contg_list=open(pathtowork+"/"+'contig_list.txt','w')
@@ -1150,7 +1154,7 @@ if __name__ == "__main__":
 					finalResults.seq = finalResults.seq.upper()
 					count = SeqIO.write(finalResults, outputResult, "fasta") #no need to trim, since circularization wasn't found
 				
-				pathOfFinalResults = pathtowork + "/" + args.processName + '_Final_Results/'
+				pathOfFinalResults = pathtowork + "/" + args.processName + "_MitoFinder" + assembler + "_" + tRNA + '_Final_Results/'
 				if not os.path.exists(pathOfFinalResults): 
 					os.makedirs(pathOfFinalResults)
 				
@@ -1251,14 +1255,14 @@ if __name__ == "__main__":
 
 				if recordCount > 1:
 					if args.gap == 1 or args.numt == 1:
-						command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_contig_" + str(c) + ".fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt)+ " " + str(args.gap)
+						command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_contig_" + str(c) + ".fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt) + " " + str(args.gap) + " " + tRNA
 						args1 = shlex.split(command)
-						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_error.log', 'a'))
 						fifthStep.wait()	
 					else:
-						command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_contig_" + str(c) + ".fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
+						command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_contig_" + str(c) + ".fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk) + " " + tRNA
 						args1 = shlex.split(command)
-						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_error.log', 'a'))
 						fifthStep.wait()
 				
 				else:
@@ -1271,26 +1275,44 @@ if __name__ == "__main__":
 					best_ref.close()
 					
 					if args.gap == 1 or args.numt == 1:
-						command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_contigs.fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt)+ " " + str(args.gap)
+						command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_contigs.fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt) + " " + str(args.gap) + " " + tRNA
 						args1 = shlex.split(command)
-						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_error.log', 'a'))
 						fifthStep.wait()
 					else:
-						command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_contigs.fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
+						command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_contigs.fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk) + " " + tRNA
 						args1 = shlex.split(command)
-						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'w'), stderr=open('geneChecker_erreur.log', 'w'))
+						fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'w'), stderr=open('geneChecker_error.log', 'w'))
 						fifthStep.wait()
 	
 			
-				test_arwen=pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".arwen"
-				
-				if os.path.isfile(test_arwen) == True:
-					print "tRNA annotation with Arwen run well for mtDNA contig "+str(c)+".\n"
-					logfile.write("tRNA annotation with Arwen run well for mtDNA contig "+str(c)+".\n"+"\n")
-				else:
-					print "ERROR: tRNA annotation with Arwen failed\nPlease check  "+ pathtowork + "/geneChecker_erreur.log or geneChecker.log to see what happened\nAborting\n"
-					logfile.write("ERROR: tRNA annotation with Arwen failed\nPlease check  "+ pathtowork + "/geneChecker_erreur.log or geneChecker.log to see what happened\nAborting\n\n")
-					exit()
+				if tRNA == "arwen":
+					test_arwen=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.arwen"
+					if os.path.isfile(test_arwen) == True:
+						print "tRNA annotation with Arwen run well.\n"
+						logfile.write("tRNA annotation with Arwen run well.\n\n")
+					else:
+						print "ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n"
+						logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n\n")
+						exit()
+				elif tRNA == "trnascan":
+					test_trnascan=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.trnascan"
+					if os.path.isfile(test_trnascan) == True:
+						print "tRNA annotation with tRNAscan-SE run well.\n"
+						logfile.write("tRNA annotation with tRNAscan-SE run well.\n\n")
+					else:
+						print "ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n"
+						logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n\n")
+						exit()
+				elif tRNA == "mitfi":
+					test_mitfi=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.mitfi"
+					if os.path.isfile(test_mitfi) == True:
+						print "tRNA annotation with MitFi run well.\n"
+						logfile.write("tRNA annotation with MitFi run well.\n\n")
+					else:
+						print "ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n"
+						logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n\n")
+						exit()		
 				test_gene_checker=pathOfFinalResults+args.processName+"_mtDNA_contig_"+str(c)+".gb"
 				if os.path.isfile(test_gene_checker) == True:
 					print "Annotation completed\n"
@@ -1300,110 +1322,8 @@ if __name__ == "__main__":
 					logfile.write("ERROR: Gene annotation failed for mtDNA contig "+str(c)+".\nPlease check  "+ pathtowork + "/geneChecker_error.log to see what happened\nAborting\n"+"\n")
 					exit()
 				c+=1		
-			
 	
-	else:	
-		if recordCount > 1: #if more than 1 ref
-			if os.path.isfile(pathtowork+'/ref_for_mtDNA_contig.fasta') == True:
-				os.remove(pathtowork+'/ref_for_mtDNA_contig.fasta')
-			
-			for line in open(pathtowork+"/genes_list"):
-				if line.rstrip() != "rrnL" and line.rstrip() != "rrnS":
-					gene=line.rstrip()
-					command = blastFolder+"/makeblastdb -in " + pathtowork+"/ref_" + str(gene+ "_database.fasta") + " -dbtype prot" #need to formatdb refseq first
-					args1 = shlex.split(command)
-					formatDB = Popen(args1, stdout=open(os.devnull, 'wb'))
-					formatDB.wait()
-					with open(pathtowork+'/'+gene+'_blast_out.txt','w') as BlastResultGene:
-						command = blastFolder+"/blastx -db " + "ref_" + gene+ "_database.fasta" + " -query "+ args.CONTIG + " -evalue " + str(blasteVal) + " -outfmt 6" + " -query_gencode " + str(args.organismType) + " -seg no"
-						args1 = shlex.split(command)
-						blast = Popen(args1, stdout=BlastResultGene)
-						blast.wait()
-				if line.rstrip() == "rrnL" or line.rstrip() == "rrnS":
-					gene=line.rstrip()
-					command = blastFolder+"/makeblastdb -in " + pathtowork+"/ref_" + str(gene+ "_database.fasta") + " -dbtype nucl" #need to formatdb refseq first
-					args1 = shlex.split(command)
-					formatDB = Popen(args1, stdout=open(os.devnull, 'wb'))
-					formatDB.wait()
-					with open(pathtowork+'/'+gene+'_blast_out.txt','w') as BlastResultGene:
-						command = blastFolder+"/blastn -db " + "ref_" + gene+ "_database.fasta"+ " -query "+ args.CONTIG + " -evalue " + str(blasteVal) + " -outfmt 6 -perc_identity " + str(args.blastIdentityNucl) + " -dust no"
-						args1 = shlex.split(command)
-						blast = Popen(args1, stdout=BlastResultGene)
-						blast.wait()
-				
-				dico_query={}
-				bestScore=0		
-				for line in open(pathtowork+'/'+gene+'_blast_out.txt'):
-					query=line.split("\t")[1].split("\t")[0]
-					testedGene=line.split("\t")[1].split("@")[1].split("\t")[0]
-					score=line.split("\t")[11]
-					if dico_query.has_key(testedGene):
-						if score > bestScore:
-							dico_query[testedGene]=query
-							bestScore=score
-					else:
-						dico_query[testedGene]=query					
-						bestScore=score
-				
-				refFile=open(pathtowork+'/ref_for_mtDNA_contig.fasta','a')
-				for cle, valeur in dico_query.items():
-					for name, seq in read_fasta(open(pathtowork+"/ref_"+gene+ "_database.fasta")):
-						if name.replace(">","") == valeur:
-							refFile.write(name+"\n"+seq+"\n")
-			
-				refFile.close()
-				
-			if args.gap == 1 or args.numt == 1:
-				command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_contigs.fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt)+ " " + str(args.gap)
-				args1 = shlex.split(command)
-				fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
-				fifthStep.wait()
-			else:
-				command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_contigs.fasta" + " " + pathOfFinalResults+"/"+args.processName+"_mtDNA_contig_"+str(c)+".fasta" + " " + args.processName+"_mtDNA_contig_"+str(c)+".gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
-				args1 = shlex.split(command)
-				fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
-				fifthStep.wait()	
-		
-		else:
-			print "Running Annotation\n"
-			logfile.write("Running Annotation\n"+"\n")
-
-			best_ref=open(pathtowork + "/ref_for_mtDNA_contig.fasta","w")
-			for line in open(pathtowork+"/genes_list"):
-				gene=line.rstrip()
-				for name, seq in read_fasta(open(pathtowork+"/ref_"+gene+ "_database.fasta")):
-					best_ref.write(name+"\n"+seq+"\n")
-			best_ref.close()
-			
-			if args.gap == 1 or args.numt == 1:
-				command = module_dir+"/geneChecker_fasta_gaps.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + args.CONTIG + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)+ " " + str(args.intronsize) + " " + str(args.numt) + " " + str(args.gap)
-				args1 = shlex.split(command)
-				fifthStep = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
-				fifthStep.wait()
-			else:
-				command = module_dir+"/geneChecker_fasta.py " + pathtowork + "/ref_for_mtDNA_contig.fasta" + " " + args.CONTIG + " " + args.processName+"_mtDNA_contig.gb" + " " + str(args.organismType) + " " + str(args.aligncutoff) + " " + str(args.coveCutOff) + " " + str(blasteVal) + " " + str(args.blastIdentityProt) + " " + str(args.blastIdentityNucl) + " " + str(args.genbk)+ " " + str(args.nWalk)
-				args1 = shlex.split(command)
-				fifthStep = Popen(args1, cwd=pathOfFinalResults,stdout=open('geneChecker.log', 'w'), stderr=open('geneChecker_erreur.log', 'w'))
-				fifthStep.wait()
-		
-		test_arwen=args.CONTIG.split("/")[-1]
-		test_arwen=test_arwen[0:-6] + ".arwen"
-		if os.path.isfile(pathOfFinalResults+test_arwen) == True:
-			print "tRNA annotation with Arwen run well.\n"
-			logfile.write("tRNA annotation with Arwen run well.\n"+"\n")
-		else:
-			print "ERROR: tRNA annotation with Arwen failed\nPlease check  "+ pathtowork + "/geneChecker_erreur.log or geneChecker.log to see what happened\nAborting\n"
-			logfile.write( "ERROR: tRNA annotation with Arwen failed\nPlease check  "+ pathtowork + "/geneChecker_erreur.log or geneChecker.log to see what happened\nAborting\n"+"\n")
-			exit()
-		test_gene_checker=pathOfFinalResults+args.processName+"_mtDNA_contig.gb"
-		if os.path.isfile(test_gene_checker) == True:
-			print "Annotation is done\n"
-			logfile.write("Annotation is done\n"+"\n")
-		else:
-			print "ERROR: Gene annotation failed\nPlease check  "+ pathtowork + "/geneChecker_error.log to see what happened\nAborting\n"
-			logfile.write("ERROR: Gene annotation failed\nPlease check  "+ pathtowork + "/geneChecker_error.log to see what happened\nAborting\n"+"\n")
-			exit()
-		
+	
 	# Creating GFF and fasta file
 	
 	print "\nCreating GFF and fasta files.\n"
@@ -1515,13 +1435,13 @@ if __name__ == "__main__":
 		for f in sorted(glob.glob(pathOfFinalResults+"/*_raw.gff"), key=os.path.getmtime):
 			command = module_dir+"/sort_gff.py " + f + " " + args.processName +".1 " + str(args.organismType) + " " + str(args.rename)
 			args1 = shlex.split(command)
-			sort_gff = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+			sort_gff = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_error.log', 'a'))
 			sort_gff.wait()	
 	else:
 		for f in sorted(glob.glob(pathOfFinalResults+"/*_raw.gff"), key=os.path.getmtime):
 			command = module_dir+"/sort_gff.py " + f + " " + args.processName +"."+ f.split("_raw")[0][-1] + " " + str(args.organismType) + " " + str(args.rename)
 			args1 = shlex.split(command)
-			sort_gff = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_erreur.log', 'a'))
+			sort_gff = Popen(args1, cwd=pathOfFinalResults, stdout=open('geneChecker.log', 'a'), stderr=open('geneChecker_error.log', 'a'))
 			sort_gff.wait()	
 	
 	#check genes (doublon ?)
@@ -1599,6 +1519,29 @@ if __name__ == "__main__":
 	
 	
 	# Cleaning 
+		
+	trna_folder=pathtowork+"/"+args.processName+"_"+tRNA
+	if os.path.exists(pathtowork+"/"+args.processName+"_"+tRNA):
+		shutil.rmtree(pathtowork+"/"+args.processName+"_"+tRNA)
+	if not os.path.exists(pathtowork+"/"+args.processName+"_"+tRNA):
+		os.makedirs(pathtowork+"/"+args.processName+"_"+tRNA)
+	if tRNA == "arwen":
+		for f in glob.glob(pathOfFinalResults+"*.arwen"):
+			shutil.copy(f, trna_folder+"/")
+			os.remove(f)
+		shutil.copy(pathOfFinalResults+"ARWEN.log", trna_folder+"/")
+		os.remove(pathOfFinalResults+"ARWEN.log")
+	elif tRNA == "trnascan":
+		for f in glob.glob(pathOfFinalResults+"*.trnascan"):
+			shutil.copy(f, trna_folder+"/")
+			os.remove(f)
+		shutil.copy(pathOfFinalResults+"tRNAscan-SE.log", trna_folder+"/")
+		os.remove(pathOfFinalResults+"tRNAscan-SE.log")
+	elif tRNA == "mitfi":
+		for f in glob.glob(pathOfFinalResults+"*.mitfi"):
+			shutil.copy(f, trna_folder+"/")
+			os.remove(f)
+	
 	tmpfiles=(pathtowork+"/"+args.processName+"_tmp")
 	if os.path.exists(tmpfiles): 
 		shutil.rmtree(tmpfiles)
@@ -1609,15 +1552,12 @@ if __name__ == "__main__":
 		os.remove(f)
 	for f in glob.glob(pathOfFinalResults+"/*.fasta.n*"):
 		os.remove(f)
+	for f in glob.glob(pathOfFinalResults+"/*cmsearch*"):
+		os.remove(f)
 	for f in glob.glob(pathtowork+"/*.fasta.n*"):
 		os.remove(f)
 	for f in glob.glob(pathOfFinalResults+"/important_fea*.fasta.*"):
 		os.remove(f)
-	for f in glob.glob(pathOfFinalResults+"*.arwen"):
-		shutil.copy(f, tmpfiles+"/")
-		os.remove(f)
-	shutil.copy(pathOfFinalResults+"Arwen.log", tmpfiles+"/")
-	os.remove(pathOfFinalResults+"Arwen.log")
 	for f in glob.glob(pathOfFinalResults+"*_raw.gff"):
 		shutil.copy(f, tmpfiles+"/")
 		os.remove(f)

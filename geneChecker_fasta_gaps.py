@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.3
+#Version: 1.4
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
@@ -511,9 +511,10 @@ if __name__ == "__main__":
 	percent_equality_nucl=sys.argv[9]
 	genbank=sys.argv[10]
 	nWalk=int(sys.argv[11])
-	gapsize=float(sys.argv[12])
+	intron=float(sys.argv[12])
 	numt=int(sys.argv[13])
-	intron=int(sys.argv[14])
+	gapsize=int(sys.argv[14])
+	tRNAscan=sys.argv[15]
 	if sys.argv[1] == '-h' or sys.argv[1] == '--help':
 		print 'Usage: genbank_reference fasta_file output_file organism_type(integer, default=2) alignCutOff(float, default=45) coveCutOff(7)'
 		print 'Only the first, second, and third arguments are required.'
@@ -559,9 +560,9 @@ if __name__ == "__main__":
 		print 'Features found: %s' % len(x[0])
 		print 'Total features: %s' % len(x[1])
 		print ''
-		print('Running arwen...')
+		print('Running tRNA annotation with '+tRNAscan)
 		presentFeatures = x[0]
-		assemblyCheck = tRNAscanChecker.tRNAscanCheck(resultFile, True, False, organismType, coveCutOff) #returns a Assembly object with statistics and alignment info 
+		assemblyCheck = tRNAscanChecker.tRNAscanCheck(resultFile, True, False, organismType, coveCutOff, False, False, tRNAscan) #returns a Assembly object with statistics and alignment info 
 		tRNAs = assemblyCheck.tRNAs
 		
 		listOfFeaturesToOutput = []
@@ -614,7 +615,7 @@ if __name__ == "__main__":
 				listOfFeaturesToOutput.append(thisFeatureFound)
 
 		listOfFeaturesToOutput.sort()
-		print 'Total features found after Arwen: ',len(listOfFeaturesToOutput)
+		print 'Total features found after '+str(tRNAscan)+': ',len(listOfFeaturesToOutput)
 
 		finalResults = genbankOutput.genbankOutput(outputFile, resultFile, listOfFeaturesToOutput, False, 900, nWalk)
 

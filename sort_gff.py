@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.3
+#Version: 1.4
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
@@ -137,7 +137,7 @@ for name, seq in read_fasta(fasta):
 
 for line in open(sys.argv[1]):
 	dico[line.rstrip().split("\t")[8]]=line.rstrip()
-	
+
 for line in open(sys.argv[1]):
 	t=1
 	line=line.rstrip()
@@ -152,18 +152,22 @@ for line in open(sys.argv[1]):
 			tgene=v.split("\t")[8]
 			tstart=int(v.split("\t")[3])
 			tstop=int(v.split("\t")[4])
-			if tgene != gene and tchro == chro and tstart <= start and tstop >= start+6:
+			if tgene != gene and tchro == chro and tstart <= start and tstop >= stop:
+					print gene+" = "+str(start)+","+str(stop)
+					print tgene+" = "+str(tstart)+","+str(tstop)
 					t=0
 					dicotrna[gene]=gene
 					break
 			elif tgene != gene and tchro == chro and tstart >= start and tstop <= stop:
+					print gene+" = "+str(start)+","+str(stop)
+					print tgene+" = "+str(tstart)+","+str(tstop)
 					t=0
 					dicotrna[gene]=gene
 					break		
-			elif tgene != gene and tchro == chro and tstart <= stop-6 and tstop >= stop:
+			"""elif tgene != gene and tchro == chro and tstart <= start and tstop >= stop:
 					t=0
 					dicotrna[gene]=gene
-					break
+					break"""
 	dicof[start]=line.rstrip()	
 
 dicog={}
