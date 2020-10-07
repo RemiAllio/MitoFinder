@@ -1108,14 +1108,19 @@ if __name__ == "__main__":
 					logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n\n")
 					exit()
 			elif tRNA == "mitfi":
-				test_mitfi=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.mitfi"
-				if os.path.isfile(test_mitfi) == True:
+				def check_if_string_in_file(f, string):
+					with open(f, 'r') as read_obj:
+						for line in read_obj:
+							if string in line:
+								return True
+					return False
+				if check_if_string_in_file(pathtowork + "/geneChecker.log","MiTFi failed.") or (os.stat(pathOfFinalResults+"MiTFi.log").st_size != 0 and not check_if_string_in_file(pathOfFinalResults+"MiTFi.log","hits")) :
+					print "ERROR: tRNA annotation failed.\nTo see what happened, please check:\n"+ pathtowork + "/geneChecker_error.log \n"+ pathtowork + "/geneChecker.log \nor "+pathOfFinalResults+"MiTFi.log\nAborting\n"
+					logfile.write("ERROR: tRNA annotation failed.\nTo see what happened, please check:\n"+ pathtowork + "/geneChecker_error.log \n"+ pathtowork + "/geneChecker.log \nor "+pathOfFinalResults+"MiTFi.log\nAborting\n\n")
+					exit()
+				else:
 					print "tRNA annotation with MitFi run well.\n"
 					logfile.write("tRNA annotation with MitFi run well.\n\n")
-				else:
-					print "ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n"
-					logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n\n")
-					exit()
 			
 			test_gene_checker=pathOfFinalResults+args.processName+"_mtDNA_contig.gb"
 			if os.path.isfile(test_gene_checker) == True:
@@ -1305,14 +1310,19 @@ if __name__ == "__main__":
 						logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n\n")
 						exit()
 				elif tRNA == "mitfi":
-					test_mitfi=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.mitfi"
-					if os.path.isfile(test_mitfi) == True:
+					def check_if_string_in_file(f, string):
+						with open(f, 'r') as read_obj:
+							for line in read_obj:
+								if string in line:
+									return True
+						return False
+					if check_if_string_in_file(pathtowork + "/geneChecker.log","MiTFi failed.") or (os.stat(pathOfFinalResults+"MiTFi.log").st_size != 0 and not check_if_string_in_file(pathOfFinalResults+"MiTFi.log","hits")) :
+						print "ERROR: tRNA annotation failed.\nTo see what happened, please check:\n"+ pathtowork + "/geneChecker_error.log \n"+ pathtowork + "/geneChecker.log \nor "+pathOfFinalResults+"MiTFi.log\nAborting\n"
+						logfile.write("ERROR: tRNA annotation failed.\nTo see what happened, please check:\n"+ pathtowork + "/geneChecker_error.log \n"+ pathtowork + "/geneChecker.log \nor "+pathOfFinalResults+"MiTFi.log\nto see what happened\nAborting\n\n")
+						exit()
+					else:
 						print "tRNA annotation with MitFi run well.\n"
 						logfile.write("tRNA annotation with MitFi run well.\n\n")
-					else:
-						print "ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n"
-						logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n\n")
-						exit()		
 				test_gene_checker=pathOfFinalResults+args.processName+"_mtDNA_contig_"+str(c)+".gb"
 				if os.path.isfile(test_gene_checker) == True:
 					print "Annotation completed\n"
@@ -1541,7 +1551,9 @@ if __name__ == "__main__":
 		for f in glob.glob(pathOfFinalResults+"*.mitfi"):
 			shutil.copy(f, trna_folder+"/")
 			os.remove(f)
-	
+		shutil.copy(pathOfFinalResults+"MiTFi.log", trna_folder+"/")
+		os.remove(pathOfFinalResults+"MiTFi.log")
+		
 	tmpfiles=(pathtowork+"/"+args.processName+"_tmp")
 	if os.path.exists(tmpfiles): 
 		shutil.rmtree(tmpfiles)

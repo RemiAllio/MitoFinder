@@ -260,26 +260,26 @@ def tRNAscanCheck(resultFile = None, hasCircularized = False, skipTRNA = False, 
 			os.remove(outputName)
 
 		if tRNAscan == "mitfi":
-			command = "ln -s "+MitFiFolder+"cmsearch ./" 
-			args = shlex.split(command)
-			tRNAscanRun = Popen(args, cwd=MitFiFolder)
+			out=outputName
 			try:
-				with open(outputName,"w") as tRNAscanLog:
+				with open("MiTFi.log","w") as tRNAscanLog:
 					if MitFiFolder.lower() == 'installed':
-						command = "java -jar mitfi.jar -code "+ str(organismType) + " " + scanInput 
+						command = "java -jar mitfi.jar -code "+ str(organismType) + " " + scanInput
 						args = shlex.split(command)
-						tRNAscanRun = Popen(args, stdout=tRNAscanLog, stderr=tRNAscanLog)
+						tRNAscanRun = Popen(args, stdout=open(outputName,"w"), stderr=tRNAscanLog)
 					else:
-						command = "java -jar "+ MitFiFolder +"mitfi.jar -code "+ str(organismType) + " " + scanInput 
+						command = "java -jar "+ MitFiFolder +"mitfi.jar -code "+ str(organismType) + " " + scanInput
 						args = shlex.split(command)
-						tRNAscanRun = Popen(args, cwd=MitFiFolder, stdout=tRNAscanLog, stderr=tRNAscanLog)
+						tRNAscanRun = Popen(args, cwd=MitFiFolder, stdout=open(outputName,"w"), stderr=tRNAscanLog)
 					tRNAscanRun.wait()
 	
 				thisSequenceResult = Assembly(resultFile, outputName, hasCircularized, tRNAscan, organismType)
 				return thisSequenceResult
 			except:
+				if os.path.exists(out): #remove result file if it already exists so that tRNAscan doesn't throw another error
+					os.remove(out)
 				print ''
-				print "MitFi failed."
+				print "MiTFi failed."
 				print ''
 				return False
 
