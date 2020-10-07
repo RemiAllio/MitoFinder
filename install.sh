@@ -45,3 +45,6 @@ cd infernal-1.0.2
 ./configure  --prefix=$(pwd)/exec
 make
 make install
+
+cd "$wd"/
+touch install.sh.ok

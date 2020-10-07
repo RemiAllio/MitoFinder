@@ -230,13 +230,13 @@ Depending on the proximity of your reference, you can play with the following pa
 If you want to run a test with assembly and annotation steps:    
 ```shell
 cd PATH/TO/MITOFINDER/test_case/
-mitofinder -j Aphaenogaster_megommata_SRR1303315 -1 Aphaenogaster_megommata_SRR1303315_R1_cleaned.fastq.gz -2 Aphaenogaster_megommata_SRR1303315_R2_cleaned.fastq.gz -r reference.gb -o 5 -p 5 -m 10   
+../mitofinder -j Aphaenogaster_megommata_SRR1303315 -1 Aphaenogaster_megommata_SRR1303315_R1_cleaned.fastq.gz -2 Aphaenogaster_megommata_SRR1303315_R2_cleaned.fastq.gz -r reference.gb -o 5 -p 5 -m 10   
 ```  
   
 If you want to run a test with only the annotation step:  
 ```shell
 cd PATH/TO/MITOFINDER/test_case/
-mitofinder -j Hospitalitermes_medioflavus_NCBI -a Hospitalitermes_medioflavus_NCBI.fasta -r Hospitalitermes_medioflavus_NCBI.gb -o 5
+../mitofinder -j Hospitalitermes_medioflavus_NCBI -a Hospitalitermes_medioflavus_NCBI.fasta -r Hospitalitermes_medioflavus_NCBI.gb -o 5
 ```  
     
 # Detailed options  
