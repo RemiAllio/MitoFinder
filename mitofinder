@@ -96,10 +96,10 @@ if __name__ == "__main__":
 					default=0, type=int, dest='maxContig')
 	parser.add_argument('--cds-merge', help='This option tells MitoFinder to not merge the exons in the NT and AA fasta files. ', default=True, dest='merge', action='store_false') 
 	parser.add_argument('--out-gb', help='Do not create annotation output file in GenBank format.', default=True, dest='genbk', action='store_false') 
-	parser.add_argument('--contig-size-min', help='Minimum size of a contig to be considered. Default = 1000',
-					default=1000, type=float, dest='contigSizeMin')
-	parser.add_argument('--contig-size-max', help='Maximum size of a contig to be considered. Default = 25000',
-					default=25000, type=float, dest='contigSizeMax')				
+	parser.add_argument('--min-contig-size', help='Minimum size of a contig to be considered. Default = 1000',
+					default=1000, type=float, dest='MinContigSize')
+	parser.add_argument('--max-contig-size', help='Maximum size of a contig to be considered. Default = 25000',
+					default=25000, type=float, dest='MaxContigSize')				
 	parser.add_argument('--rename-contig', help='\"yes/no\" If \"yes\", the contigs matching the reference(s) are renamed. Default is \"yes\" for de novo assembly and \"no\" for existing assembly (-a option)', default="Yes", dest='rename') 
 	parser.add_argument('--blast-identity-nucl', help='Nucleotide identity percentage for a hit to be retained. Default = 50',
 					default=50, type=float, dest='blastIdentityNucl')
@@ -851,7 +851,7 @@ if __name__ == "__main__":
 		for line in mitoblast:
 			#testedGene=line.split("\t")[0].split("@")[1]
 			contig=line.split("\t")[1].split("\t")[0]
-			if float(dico_size_contig.get(contig)) >= args.contigSizeMin and float(dico_size_contig.get(contig)) <= args.contigSizeMax :
+			if float(dico_size_contig.get(contig)) >= args.MinContigSize and float(dico_size_contig.get(contig)) <= args.MaxContigSize :
 				score=float(line.split("\t")[11])
 				ident=line.split("\t")[2]
 				start=float(line.split("\t")[8])
@@ -870,7 +870,7 @@ if __name__ == "__main__":
 				else:
 					dico_score[contig]=score
 
-			elif float(dico_size_contig.get(contig)) >= args.contigSizeMin and float(dico_size_contig.get(contig)) >= args.contigSizeMax:
+			elif float(dico_size_contig.get(contig)) >= args.MinContigSize and float(dico_size_contig.get(contig)) >= args.MaxContigSize:
 				sup=1
 				
 		sorted_y = sorted(dico_score.items(), key=operator.itemgetter(1), reverse = True)
@@ -886,9 +886,9 @@ if __name__ == "__main__":
 				logfile.write("\nTotal wall-clock time used by MitoFinder = "+str(time)+"\n")
 				exit()
 			elif sup == 1:
-				print "MitoFinder dit not found any mitochondrial contig with a size lower than "+str(args.contigSizeMax)+" bp."
+				print "MitoFinder dit not found any mitochondrial contig with a size lower than "+str(args.MaxContigSize)+" bp."
 				print ""
-				logfile.write("MitoFinder dit not found any mitochondrial contig with a size lower than "+str(args.contigSizeMax)+" bp.\n\n")
+				logfile.write("MitoFinder dit not found any mitochondrial contig with a size lower than "+str(args.MaxContigSize)+" bp.\n\n")
 				time=datetime.now() - start_time
 				print "Total wall-clock time used by MitoFinder = "+str(time)
 				logfile.write("\nTotal wall-clock time used by MitoFinder = "+str(time)+"\n")
