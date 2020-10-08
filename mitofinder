@@ -180,12 +180,23 @@ if __name__ == "__main__":
 
 		
 	print "Job name = "+args.processName
-
+	
 	if not os.path.exists(module_dir+"/install.sh.ok"):
 		print "\nERROR: MitoFinder is not installed.\nNo such file or directory: "+module_dir+"/install.sh.ok\nPlease run ./install.sh in the MitoFinder directory.\nAborting."
-		logfile.write("\nERROR: MitoFinder is not installed.\nNo such file or directory: "+module_dir+"/install.sh.ok\nPlease run ./install.sh in the MitoFinder directory.\nAborting.")
+		logfile.write("\nERROR: MitoFinder is not installed.\nNo such file or directory: "+module_dir+"/install.sh.ok\nPlease run ./install.sh in the MitoFinder directory.\nAborting.\n")
 		exit()
-		
+	if args.tRNAannotation.lower() == "mitfi":
+		try:
+			command =  "java"
+			args1 = shlex.split(command)
+			java_test = Popen(args1, stdout=open("test_java.ok","w"),stderr=open("test_java.ok","w"))
+			java_test.wait()
+			if os.path.exists("test_java.ok"):
+				os.remove("test_java.ok")
+		except:
+			print "\nERROR: java is not installed/loaded.\nPlease install/load java to run MitoFinder with MiTFi."
+			logfile.write("\nERROR: java is not installed/loaded.\nPlease install/load java to run MitoFinder with MiTFi.")
+			exit()
 	if args.PE1 == "" and args.PE2 == "" and args.SE == "" and args.Assembly == "" :
 		print "\nERROR: Read or assembly files are not specified.\n Please, use -1 -2 -s or -a option to specify input data."
 		logfile.write("\nERROR: Read or assembly files are not specified.\n Please, use -1 -2 -s or -a option to specify input data.\n")
@@ -382,7 +393,6 @@ if __name__ == "__main__":
 					pathToMitfiFolder = line.replace('\n','').replace(' ','').split('=')[-1]
 				
 					
-	#if config file has 'default' in the folder field, use the default program folders given with the script
 	if pathToMegahitFolder.lower() == 'default':
 		pathToMegahitFolder = os.path.join(module_dir, 'megahit/')
 

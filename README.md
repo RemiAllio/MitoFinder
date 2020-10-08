@@ -14,7 +14,7 @@ read sequencing data.
   
 # Requirements
 
-This software is suitable for all linux-like systems with automake, autoconf, java and gcc installed (Unfortunately not Windows < v.10).
+This software is suitable for all linux-like systems with ```automake```, ```autoconf```, ```gcc``` installed (Unfortunately not Windows < v.10).
 The pipeline is mainly written in **python 2.7**.
 
 # Table of content
@@ -42,6 +42,9 @@ Before starting, MitoFinder installation requires ```automake``` and ```autoconf
 ```shell  
 sudo apt-get install automake autoconf  
 ```  
+  
+If you want to use MiTFi for the tRNA annotation step (recommended), ```java``` needs to be installed. To install it : ```sudo apt install default-jre```  
+  
   
 Clone mitofinder from [GitHub](https://github.com/RemiAllio/MitoFinder)  
   
