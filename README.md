@@ -43,8 +43,11 @@ Before starting, MitoFinder installation requires ```automake``` and ```autoconf
 sudo apt-get install automake autoconf  
 ```  
   
-If you want to use MiTFi for the tRNA annotation step (recommended), ```java``` needs to be installed. To install it : ```sudo apt install default-jre```  
+If you want to use MiTFi for the tRNA annotation step (recommended), ```java``` needs to be installed. Here is the command to install it: 
   
+```shell 
+sudo apt install default-jre
+```  
   
 Clone mitofinder from [GitHub](https://github.com/RemiAllio/MitoFinder)  
   
@@ -169,6 +172,7 @@ To our knowledge, IDBA-UD is not supported for Mac OS at the moment.
 ### tRNA annotation 
 
 - **[MiTFi](https://academic.oup.com/nar/article/40/7/2833/1184754)** and **[tRNAscan-SE](https://link.springer.com/protocol/10.1007%2F978-1-4939-9173-0_1)** should be installed by MitoFinder when running the install.sh.  
+
 However, **MiTFi** requires ```java``` to be installed. If ```java``` is not installed, you can download the .dmg file to install it [here](https://www.oracle.com/java/technologies/javase-downloads.html).
   
 - **[ARWEN](https://academic.oup.com/bioinformatics/article/24/2/172/228155)**
