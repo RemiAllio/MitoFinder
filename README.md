@@ -76,7 +76,7 @@ PATH/TO/MITOFINDER/mitofinder -h
 ```shell
 cd PATH/TO/MITOFINDER/
 p=$(pwd)
-echo -e "\n#Path to mitofinder \nexport PATH=$PATH:$p" >> ~/.bashrc 
+echo -e "\n#Path to mitofinder \nexport PATH=\$PATH:$p" >> ~/.bashrc 
 source ~/.bashrc  
 ```
   
