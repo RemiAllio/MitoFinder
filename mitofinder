@@ -1309,7 +1309,7 @@ if __name__ == "__main__":
 	
 			
 				if tRNA == "arwen":
-					test_arwen=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.arwen"
+					test_arwen=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig"+str(c)+".arwen"
 					if os.path.isfile(test_arwen) == True:
 						print "tRNA annotation with Arwen run well.\n"
 						logfile.write("tRNA annotation with Arwen run well.\n\n")
@@ -1318,7 +1318,7 @@ if __name__ == "__main__":
 						logfile.write("ERROR: tRNA annotation failed.\nPlease check  "+ pathtowork + "/geneChecker_error.log or geneChecker.log to see what happened\nAborting\n\n")
 						exit()
 				elif tRNA == "trnascan":
-					test_trnascan=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig.trnascan"
+					test_trnascan=pathOfFinalResults + "/" + args.processName+"_mtDNA_contig"+str(c)+".trnascan"
 					if os.path.isfile(test_trnascan) == True:
 						print "tRNA annotation with tRNAscan-SE run well.\n"
 						logfile.write("tRNA annotation with tRNAscan-SE run well.\n\n")
