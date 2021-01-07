@@ -494,16 +494,16 @@ if __name__ == "__main__":
 			importantFeaturesFile = output_handle
 			listOfImportantFeatures = {}
 			
-			recordCount=record.count("LOCUS")
+			recordCount=record.count("LOCUS   ")
 			s=0
-			if record.count("LOCUS") > 1:
+			if record.count("LOCUS   ") > 1:
 				c=0
-				for line in range(1,record.count("LOCUS")+1):
+				for line in range(1,record.count("LOCUS   ")+1):
 					c+=1
 					refSeq=open(gbk_filename).read()
-					x=refSeq.split("LOCUS")[c]
+					x=refSeq.split("LOCUS   ")[c]
 					tmp=open(args.processName+"_tmp.gb","w")
-					tmp.write("LOCUS"+x)
+					tmp.write("LOCUS   "+x)
 					tmp.close()
 					record = SeqIO.read(open(args.processName+"_tmp.gb"), "genbank", generic_dna)
 					for feature in record.features:
@@ -527,7 +527,7 @@ if __name__ == "__main__":
 							if 'translation' in feature.qualifiers:
 								translatedGene.write(str(feature.qualifiers['translation'][0]) + '\n')
 							else:
-								translatedGene.write(str(feature.extract(record).seq.translate(table=organismType,to_stop=True))+'\n')
+								translatedGene.write(str(feature.extract(record).seq.translate(table=args.organismType,to_stop=True))+'\n')
 								print '		WARNING: Reference did not specify a CDS translation for %s. MitoFinder is creating its own from refSeq' % featureName
 								logfile.write('		WARNING: Reference did not specify a CDS translation for %s. MitoFinder is creating its from refSeq' % featureName + "\n")
 							
@@ -580,7 +580,7 @@ if __name__ == "__main__":
 						if 'translation' in feature.qualifiers:
 							translatedGene.write(str(feature.qualifiers['translation'][0]) + '\n')
 						else:
-							translatedGene.write(str(feature.extract(record).seq.translate(table=organismType,to_stop=True))+'\n')
+							translatedGene.write(str(feature.extract(record).seq.translate(table=args.organismType,to_stop=True))+'\n')
 							print '		WARNING: Reference did not specify a CDS translation for %s. MitoFinder is creating its from refSeq' % featureName
 							logfile.write('		WARNING: Reference did not specify a CDS translation for %s. MitoFinder is creating its from refSeq' % featureName +"\n")
 							
