@@ -100,7 +100,7 @@ if __name__ == "__main__":
 					default=1000, type=float, dest='MinContigSize')
 	parser.add_argument('--max-contig-size', help='Maximum size of a contig to be considered. Default = 25000',
 					default=25000, type=float, dest='MaxContigSize')				
-	parser.add_argument('--rename-contig', help='\"yes/no\" If \"yes\", the contigs matching the reference(s) are renamed. Default is \"yes\" for de novo assembly and \"no\" for existing assembly (-a option)', default="Yes", dest='rename') 
+	parser.add_argument('--rename-contig', help='\"yes/no\" If \"yes\", the contigs matching the reference(s) are renamed. Default is \"yes\" for de novo assembly and \"no\" for existing assembly (-a option)', default="default", dest='rename') 
 	parser.add_argument('--blast-identity-nucl', help='Nucleotide identity percentage for a hit to be retained. Default = 50',
 					default=50, type=float, dest='blastIdentityNucl')
 	parser.add_argument('--blast-identity-prot', help='Amino acid identity percentage for a hit to be retained. Default = 40',
@@ -152,8 +152,6 @@ if __name__ == "__main__":
 		print txt
 		exit()
 	
-	args.rename=args.rename.lower()
-
 	if args.versionCheck == True:
 		print "MitoFinder version 1.4"
 		exit()
@@ -251,6 +249,7 @@ if __name__ == "__main__":
 		25. Candidate Division SR1 and Gracilibacteria Code\n\n")
 		exit()
 
+	args.rename=args.rename.lower()
 	if args.rename == "y":
 		args.rename = "yes"
 	if args.rename == "n":
@@ -259,8 +258,10 @@ if __name__ == "__main__":
 		print "\nERROR: unrecognized value \""+args.rename+"\" for argument: --rename-contig. Please use \"yes\" or \"no\"."
 		logfile.write("\nERROR: unrecognized value \""+args.rename+"\" for argument: --rename-contig. Please use \"yes\" or \"no\".\n")
 		exit()
-	if args.Assembly != "" and args.rename == "Yes": #changing default in that case
+	if args.Assembly != "" and args.rename == "default": #changing default in that case
 		args.rename = "no"
+	if args.Assembly == "" and args.rename == "default":
+		args.rename = "yes"
 	
 	if args.tRNAannotation.lower() == "trnascan":
 		tRNA="trnascan"
