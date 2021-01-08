@@ -254,15 +254,15 @@ if __name__ == "__main__":
 		args.rename = "yes"
 	if args.rename == "n":
 		args.rename = "no"
-	if args.rename.lower() != "yes" and args.rename != "no":
-		print "\nERROR: unrecognized value \""+args.rename+"\" for argument: --rename-contig. Please use \"yes\" or \"no\"."
-		logfile.write("\nERROR: unrecognized value \""+args.rename+"\" for argument: --rename-contig. Please use \"yes\" or \"no\".\n")
-		exit()
 	if args.Assembly != "" and args.rename == "default": #changing default in that case
 		args.rename = "no"
 	if args.Assembly == "" and args.rename == "default":
 		args.rename = "yes"
-	
+	if args.rename.lower() != "yes" and args.rename != "no":
+		print "\nERROR: unrecognized value \""+args.rename+"\" for argument: --rename-contig. Please use \"yes\" or \"no\"."
+		logfile.write("\nERROR: unrecognized value \""+args.rename+"\" for argument: --rename-contig. Please use \"yes\" or \"no\".\n")
+		exit()
+		
 	if args.tRNAannotation.lower() == "trnascan":
 		tRNA="trnascan"
 	elif args.tRNAannotation.lower() == "arwen":
