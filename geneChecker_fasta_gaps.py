@@ -511,9 +511,9 @@ if __name__ == "__main__":
 	percent_equality_nucl=sys.argv[9]
 	genbank=sys.argv[10]
 	nWalk=int(sys.argv[11])
-	intron=float(sys.argv[12])
+	gapsize=float(sys.argv[12])
 	numt=int(sys.argv[13])
-	gapsize=int(sys.argv[14])
+	intron=int(sys.argv[14])
 	tRNAscan=sys.argv[15]
 	if sys.argv[1] == '-h' or sys.argv[1] == '--help':
 		print 'Usage: genbank_reference fasta_file output_file organism_type(integer, default=2) alignCutOff(float, default=45) coveCutOff(7)'
