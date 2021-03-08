@@ -15,7 +15,7 @@ ln -s "$p"/spades.py "$p"/metaspades.py
 cd "$wd"/trnascanSE
 tar -xvf infernal-1.1.3.tar.gz
 cd infernal-1.1.3
-./configure
+./configure --prefix=$(pwd)/exec
 make
 make install
 
