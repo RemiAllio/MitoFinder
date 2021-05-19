@@ -24,6 +24,9 @@ The pipeline is mainly written in **python 2.7**.
 	- [Linux](#get-and-install-mitofinder-linux)
 	- [MAC](#get-mitofinder-and-install-dependencies-mac-os)
 2. [How to use MitoFinder](#how-to-use-mitofinder)
+	- [Mitochondrial genome assembly and annotation](#mitochondrial-genome-assembly-and-annotation)
+	- [Find and/or annotate a mitochondrial genome](#find-andor-annotate-a-mitochondrial-genome)
+	- [Restart](#restart)
 	- [Test cases](#test-cases)
 3. [Detailed options](#detailed-options)
 4. [INPUT FILES](#input-files)
@@ -246,7 +249,7 @@ Second, you can choose the tool for the tRNA annotation step of MitoFinder using
 -t arwen	(ARWEN: faster)  
 -t trnascan	(tRNAscan-SE)  
 
-## Mitochondrial genome assembly  
+## Mitochondrial genome assembly and annotation 
 
 TIP: use mitofinder --example to print basic usage examples  
 
@@ -260,17 +263,16 @@ mitofinder -j [seqid] -1 [left_reads.fastq.gz] -2 [right_reads.fastq.gz] -r [gen
 mitofinder -j [seqid] -s [SE_reads.fastq.gz] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]
 ```
 
-### MitoFinder can also be run directly on a previously computed assembly (one or several contig.s in fasta format)
+## Find and/or annotate a mitochondrial genome
+
+MitoFinder can also be run directly on a previously computed assembly (one or several contig.s in fasta format)
 ```shell
 mitofinder -j [seqid] -a [assembly.fasta] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]
 ```
 
-### Restart
+## Restart
 Use the same command line.  
 **WARNING**: If you want to compute the assembly again (for example because it failed) you have to remove the assembly results' directory (--override option). If not, MitoFinder will skip the assembly step.  
-
-### Reference  
-Depending on the proximity of your reference, you can play with the following parameters : nWalk; --blast-eval; --blast-identity-nucl; --blast-identity-prot; --blast-size 
 
 ## Test cases  
 
@@ -504,6 +506,8 @@ For UCEs extraction:
 - [x] RefSeq (if available)  
 - [x] Sequence length from 12000 to 20000  
 4. Download complete record in GenBank format  
+
+Depending on the proximity of your reference, you can play with the following parameters : nWalk; --blast-eval; --blast-identity-nucl; --blast-identity-prot; --blast-size 
 
 ![](/image/NCBI.png)
 
