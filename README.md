@@ -14,12 +14,13 @@ read sequencing data.
   
 # Requirements
 
-This software is suitable for all linux-like systems with ```automake```, ```autoconf```, ```gcc``` installed (Unfortunately not Windows < v.10).
+This software is suitable for all linux-like systems with ```automake```, ```autoconf```, ```gcc``` (Unfortunately not Windows < v.10) or [Singularity version >= 3.0](https://sylabs.io/guides/3.0/user-guide/quick_start.html) installed.
 The pipeline is mainly written in **python 2.7**.
 
 # Table of content
 
 1. [Installation guide for MitoFinder](#installation-guide-for-mitofinder)
+	- [Using Singularity version >=3.0](#run-mitofinder-with-singularity)
 	- [Linux](#get-and-install-mitofinder-linux)
 	- [MAC](#get-mitofinder-and-install-dependencies-mac-os)
 2. [How to use MitoFinder](#how-to-use-mitofinder)
@@ -35,6 +36,45 @@ The pipeline is mainly written in **python 2.7**.
 
 # Installation guide for MitoFinder
 
+## Run MitoFinder with Singularity
+
+There are many cases where using a singularity container would be easier than installing MitoFinder from source. In particular, if you are working on a server (without administrator rights) or if your default version of python is python 3.x, I recommend you to use the singularity container available [here](https://github.com/RemiAllio/MitoFinder_container) to run MitoFinder.  
+
+If you have [Singularity version >= 3.0](https://sylabs.io/guides/3.0/user-guide/quick_start.html) installed, you can clone MitoFinder's container from [GitHub](https://github.com/RemiAllio/MitoFinder_container):
+```shell 
+git clone https://github.com/RemiAllio/MitoFinder_container.git
+cd MitoFinder_container
+```
+
+and then run it as follows:
+
+```shell
+singularity run PATH/TO/MITOFINDER/MitoFinder_v1.4 -h  
+```
+
+or:
+
+```shell
+PATH/TO/MITOFINDER/MitoFinder_v1.4 -h  
+```
+
+### Add MitoFinder's container to your path
+
+```shell
+cd PATH/TO/MITOFINDER/
+p=$(pwd)
+echo -e "\n#Path to MitoFinder \nexport PATH=\$PATH:$p" >> ~/.bashrc 
+source ~/.bashrc  
+```
+  
+**WARNING**: If you previously installed MitoFinder on your system and want to install a new version, you should replace the old MitoFinder PATH by the updated one in your ~/.bashrc file. To do so, you need to edit your ~/.bashrc file, remove the lines that add MitoFinder to the PATH, and close your terminal. Then, you should open a new terminal and re-execute the command lines from above.  
+**TIP**: If you are connected to cluster, you can use either ```nano``` or ```vi``` to edit the ~/.bashrc file.
+
+To check if the right version of MitoFinder is actually in your PATH:  
+```shell
+MitoFinder_v1.4 -v
+```
+
 ## Get and install MitoFinder (Linux)
 
 Before starting, MitoFinder installation requires ```automake``` and ```autoconf``` to be installed. Even if these two tools are often already installed in the linux system, here is the command to install them if necessary:  
@@ -49,7 +89,7 @@ If you want to use MiTFi for the tRNA annotation step (recommended), ```java``` 
 sudo apt install default-jre
 ```  
   
-Clone mitofinder from [GitHub](https://github.com/RemiAllio/MitoFinder)  
+Clone MitoFinder from [GitHub](https://github.com/RemiAllio/MitoFinder)  
   
 ```shell 
 git clone https://github.com/RemiAllio/MitoFinder.git
@@ -71,12 +111,12 @@ cd MitoFinder
 PATH/TO/MITOFINDER/mitofinder -h  
 ```
 
-### Add mitofinder to your path
+### Add MitoFinder to your path
 
 ```shell
 cd PATH/TO/MITOFINDER/
 p=$(pwd)
-echo -e "\n#Path to mitofinder \nexport PATH=\$PATH:$p" >> ~/.bashrc 
+echo -e "\n#Path to MitoFinder \nexport PATH=\$PATH:$p" >> ~/.bashrc 
 source ~/.bashrc  
 ```
   
@@ -99,7 +139,7 @@ brew install autoconf automake
 
 ### Get MitoFinder 
 
-Clone mitofinder from [GitHub](https://github.com/RemiAllio/MitoFinder)
+Clone MitoFinder from [GitHub](https://github.com/RemiAllio/MitoFinder)
 
 ```shell 
 git clone https://github.com/RemiAllio/MitoFinder.git
