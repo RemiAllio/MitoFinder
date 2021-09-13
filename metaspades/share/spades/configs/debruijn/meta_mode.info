@@ -2,6 +2,8 @@ mode    meta
 
 ; two-step pipeline
 two_step_rr true
+min_edge_length_for_is_count 900
+
 ; enables/disables usage of intermediate contigs in two-step pipeline
 use_intermediate_contigs true
 
@@ -54,7 +56,7 @@ simp
     red
     {
         enabled true
-        diff_mult  5.
+        diff_mult  10.
         unconditional_diff_mult 50.
     }
 
@@ -82,12 +84,19 @@ simp
         enabled true
         main_iteration_only true
         max_bulge_length_coefficient    30.     ; max_bulge_length = max_bulge_length_coefficient * k
-        max_coverage			1000000.0
+        max_coverage            1000000.0
         max_relative_coverage       0.5     ; bulge_cov < this * not_bulge_cov
-        max_delta           45
-        max_relative_delta		0.1
+        max_delta 45
+        max_relative_delta 0.1
+        min_identity 0.7
     }
 
+    ; suspecies bulge remover:
+    subspecies_br
+    {
+        enabled false
+    }
+    
     ; complex bulge remover
     cbr
     {

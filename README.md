@@ -1,4 +1,4 @@
-# MitoFinder version 1.4		
+# MitoFinder version 1.4.1		
 Allio, R., Schomaker-Bastos, A., Romiguier, J., Prosdocimi, F., Nabholz, B., & Delsuc, F. (2020) Mol Ecol Resour. 20, 892-905. ([publication link](https://doi.org/10.1111/1755-0998.13160))
 
 <p align="center">
@@ -308,14 +308,14 @@ cd PATH/TO/MITOFINDER/test_case/
   
 ```shell
 usage: mitofinder [-h] [--megahit] [--idba] [--metaspades] [-t TRNAANNOTATION]
-                  [-j PROCESSNAME] [-1 PE1] [-2 PE2] [-s SE] [-a ASSEMBLY]
-                  [-m MEM] [-l SHORTESTCONTIG] [-p PROCESSORSTOUSE]
-                  [-r REFSEQFILE] [-e BLASTEVAL] [-n NWALK] [--override]
-                  [--adjust-direction] [--ignore] [--new-genes]
-                  [--allow-intron] [--numt] [--intron-size INTRONSIZE]
-                  [--max-contig MAXCONTIG] [--cds-merge] [--out-gb]
-                  [--contig-size-min CONTIGSIZEMIN]
-                  [--contig-size-max CONTIGSIZEMAX] [--rename-contig RENAME]
+                  [-j PROCESSNAME] [-1 PE1] [-2 PE2] [-s SE] [-c CONFIG]
+                  [-a ASSEMBLY] [-m MEM] [-l SHORTESTCONTIG]
+                  [-p PROCESSORSTOUSE] [-r REFSEQFILE] [-e BLASTEVAL]
+                  [-n NWALK] [--override] [--adjust-direction] [--ignore]
+                  [--new-genes] [--allow-intron] [--numt]
+                  [--intron-size INTRONSIZE] [--max-contig MAXCONTIG]
+                  [--cds-merge] [--out-gb] [--min-contig-size MINCONTIGSIZE]
+                  [--max-contig-size MAXCONTIGSIZE] [--rename-contig RENAME]
                   [--blast-identity-nucl BLASTIDENTITYNUCL]
                   [--blast-identity-prot BLASTIDENTITYPROT]
                   [--blast-size ALIGNCUTOFF] [--circular-size CIRCULARSIZE]
@@ -341,6 +341,9 @@ optional arguments:
                         File with reverse paired-end reads
   -s SE, --Single-end SE
                         File with single-end reads
+  -c CONFIG, --config CONFIG
+                        Use this option to specify another Mitofinder.config
+                        file.
   -a ASSEMBLY, --assembly ASSEMBLY
                         File with your own assembly
   -m MEM, --max-memory MEM
@@ -388,10 +391,10 @@ optional arguments:
                         the NT and AA fasta files.
   --out-gb              Do not create annotation output file in GenBank
                         format.
-  --contig-size-min CONTIGSIZEMIN
+  --min-contig-size MINCONTIGSIZE
                         Minimum size of a contig to be considered. Default =
                         1000
-  --contig-size-max CONTIGSIZEMAX
+  --max-contig-size MAXCONTIGSIZE
                         Maximum size of a contig to be considered. Default =
                         25000
   --rename-contig RENAME
@@ -431,7 +434,7 @@ optional arguments:
                         Mitochondrial Code 24. Pterobranchia Mitochondrial
                         Code 25. Candidate Division SR1 and Gracilibacteria
                         Code
-  -v, --version         Version 1.4
+  -v, --version         Version 1.4.1
   --example             Print getting started examples
   --citation            How to cite MitoFinder
 ```

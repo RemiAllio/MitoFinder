@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.4
+#Version: 1.4.1
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
@@ -71,6 +71,7 @@ if __name__ == "__main__":
 	parser.add_argument('-1', '--Paired-end1', help='File with forward paired-end reads', default="", dest='PE1')	
 	parser.add_argument('-2', '--Paired-end2', help='File with reverse paired-end reads', default="", dest='PE2')	
 	parser.add_argument('-s', '--Single-end', help='File with single-end reads', default="", dest='SE')	
+	parser.add_argument('-c', '--config', help='Use this option to specify another Mitofinder.config file.', default="", dest='config')
 	parser.add_argument('-a', '--assembly', help='File with your own assembly', default="", dest='Assembly')	
 	parser.add_argument('-m', '--max-memory', help='max memory to use in Go (MEGAHIT or MetaSPAdes)', 
 						default="", dest='mem')
@@ -130,7 +131,7 @@ if __name__ == "__main__":
 					23. Thraustochytrium Mitochondrial Code\
 					24. Pterobranchia Mitochondrial Code\
 					25. Candidate Division SR1 and Gracilibacteria Code", default="", dest='organismType')
-	parser.add_argument('-v', '--version', help="Version 1.4", default=False, dest='versionCheck', action='store_true')
+	parser.add_argument('-v', '--version', help="Version 1.4.1", default=False, dest='versionCheck', action='store_true')
 	parser.add_argument('--example', help="Print getting started examples", default=False, dest='example', action='store_true')
 	parser.add_argument('--citation', help="How to cite MitoFinder", default=False, dest='citation', action='store_true')
 	
@@ -153,7 +154,7 @@ if __name__ == "__main__":
 		exit()
 	
 	if args.versionCheck == True:
-		print "MitoFinder version 1.4"
+		print "MitoFinder version 1.4.1"
 		exit()
 
 	if args.organismType != "":
@@ -362,7 +363,10 @@ if __name__ == "__main__":
 	'''
 	module_dir = os.path.dirname(__file__)
 	module_dir = os.path.abspath(module_dir)
-	cfg_full_path = os.path.join(module_dir, 'Mitofinder.config')
+	if args.config == "":
+		cfg_full_path = os.path.join(module_dir, 'Mitofinder.config')
+	else:
+		cfg_full_path = args.config
 	initial_path = os.getcwd()
 	#create output directory
 	
@@ -958,7 +962,7 @@ if __name__ == "__main__":
 			pathOfResult = pathtowork+"/"+args.processName+'_contig.fasta'
 			command = module_dir+"/circularizationCheck.py " + pathOfResult + " " + str(args.circularSize) + " " + str(args.circularOffSet) 
 			args1 = shlex.split(command)
-			fourthStep = Popen(args1, stdout=subprocess.PIPE, stderr=open(os.devnull, 'wb')).communicate()[0]
+			fourthStep = Popen(args1, stdout=subprocess.PIPE, stderr=open(os.devnull, 'wb'), shell=True).communicate()[0]
 			fourthStep = fourthStep.rstrip().replace(" ","").replace("(","").replace(")","").split(",")
 			#circularizationcheck will return a tuple with (True, start, end)
 			print ''
