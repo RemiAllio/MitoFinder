@@ -94,48 +94,32 @@ mitofinder -v
 
 ## Run MitoFinder with Singularity
 
-There are many cases where using a singularity container would be easier than installing MitoFinder from source. In particular, if you are working on a server (without administrator rights) or if your default version of python is python 3.x, I recommend you to use the singularity container available [here](https://github.com/RemiAllio/MitoFinder_container) to run MitoFinder.  
+There are many cases where using a singularity container would be easier than installing MitoFinder from source. In particular, if you are working on a server (without administrator rights) or if your default version of python is python 3.x, I recommend you to use the singularity container available [here](https://cloud.sylabs.io/library/_container/61557b8a7163109769dfaf38) to run MitoFinder.  
 
-If you have [Singularity version >= 3.0](https://sylabs.io/guides/3.0/user-guide/quick_start.html) installed, you can clone MitoFinder's container from [GitHub](https://github.com/RemiAllio/MitoFinder_container):
-
-**WARNING:** Given the large size of the Singularity container, we need to use the ```git-lfs clone``` command [described here](https://git-lfs.github.com/) instead of the usual ```git clone``` command.
-To be able to run it without root privileges, we need to download it:
+Since you have [Singularity version >= 3.0](https://sylabs.io/guides/3.0/user-guide/quick_start.html) installed, you can clone MitoFinder's container directly using singularity with the following command:
 
 ```shell 
-mkdir gitlfs && cd gitlfs
-wget https://github.com/git-lfs/git-lfs/releases/download/v2.13.2/git-lfs-linux-amd64-v2.13.2.tar.gz
-tar -xvf git-lfs-linux-amd64-v2.13.2.tar.gz
-git-lfs install
-echo "export PATH=\$PATH:$(pwd)" >> ~/.bashrc
-source ~/.bashrc
-cd ..
-```
-
-Then, clone MitoFinder's container from [GitHub](https://github.com/RemiAllio/MitoFinder_container) 
-  
-```shell 
-git-lfs clone https://github.com/RemiAllio/MitoFinder_container.git
-cd MitoFinder_container
+singularity pull --arch amd64 library://remiallio/default/mitofinder:v1.4.1 
 ```
 
 and then run it as follows:
 
 ```shell
-singularity run PATH/TO/MITOFINDER/MitoFinder_v1.4 -h  
+singularity run mitofinder_v1.4.1.sif -h  
 ```
 
 or:
 
 ```shell
-PATH/TO/MITOFINDER/MitoFinder_v1.4 -h  
+mitofinder_v1.4.1.sif -h  
 ```
 
 ### Add MitoFinder's container to your path
 
 ```shell
-cd PATH/TO/MITOFINDER/
+cd PATH/TO/MITOFINDER_IMAGE/
 p=$(pwd)
-echo -e "\n#Path to MitoFinder \nexport PATH=\$PATH:$p" >> ~/.bashrc 
+echo -e "\n#Path to MitoFinder image \nexport PATH=\$PATH:$p" >> ~/.bashrc 
 source ~/.bashrc  
 ```
   
@@ -144,7 +128,7 @@ source ~/.bashrc
 
 To check if the right version of MitoFinder is actually in your PATH:  
 ```shell
-MitoFinder_v1.4 -v
+mitofinder_v1.4.1.sif -v
 ```
 
 ## Get MitoFinder and install dependencies (Mac OS)
