@@ -96,6 +96,8 @@ mitofinder -v
 
 There are many cases where using a singularity container would be easier than installing MitoFinder from source. In particular, if you are working on a server (without administrator rights) or if your default version of python is python 3.x, I recommend you to use the singularity container available [here](https://cloud.sylabs.io/library/_container/61557b8a7163109769dfaf38) to run MitoFinder.  
 
+**→** [How to install singularity Singularity version >= 3.0](https://github.com/RemiAllio/MitoFinder_container/blob/main/README.md#get-and-install-singularity)  
+
 Since you have [Singularity version >= 3.0](https://sylabs.io/guides/3.0/user-guide/quick_start.html) installed, you can clone MitoFinder's container directly using singularity with the following command:
 
 ```shell 
@@ -112,6 +114,12 @@ or:
 
 ```shell
 mitofinder_v1.4.1.sif -h  
+```
+
+Then, you can get MitoFinder [test cases](https://github.com/RemiAllio/MitoFinder_container#test-cases) (optional)  
+**→** See [MitoFinder_container](https://github.com/RemiAllio/MitoFinder_container#singularity-container-for-mitofinder) github page. To clone this reduced repository:
+```shell
+git clone https://github.com/RemiAllio/MitoFinder_container.git
 ```
 
 ### Add MitoFinder's container to your path
