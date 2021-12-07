@@ -635,11 +635,11 @@ if __name__ == "__main__":
 			for name, seq in read_fasta(open("translated_genes_for_database.fasta")):
 				namesp=name
 				name=name.split("@")[1]
-				if name.lower() == "coi" or name.lower() == "coxi" or name.lower() == "co1" or name.lower() == "cox1" or name.lower().replace(" ","") == "cytochromecoxidasesubunit1" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubuniti":
+				if name.lower() == "coi" or name.lower() == "coxi" or name.lower() == "co1" or name.lower() == "cox1" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunit1" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubuniti" or name.lower().replace(" ","").replace("-","") == "cytochromeoxidasesubunit1" or name.lower().replace(" ","").replace("-","") == "cytochromeoxidasesubuniti":
 					name="COX1"
-				elif name.lower() == "coii" or name.lower() == "coxii" or name.lower() == "co2" or name.lower() == "cox2" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunit2" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunitii":
+				elif name.lower() == "coii" or name.lower() == "coxii" or name.lower() == "co2" or name.lower() == "cox2" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunit2" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunitii" or name.lower().replace(" ","").replace("-","") == "cytochromeoxidasesubunit2" or name.lower().replace(" ","").replace("-","") == "cytochromeoxidasesubunitii":
 					name="COX2"
-				elif name.lower() == "coiii" or name.lower() == "coxiii" or name.lower() == "co3" or name.lower() == "cox3" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunit3" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunitiii":
+				elif name.lower() == "coiii" or name.lower() == "coxiii" or name.lower() == "co3" or name.lower() == "cox3" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunit3" or name.lower().replace(" ","").replace("-","") == "cytochromecoxidasesubunitiii"  or name.lower().replace(" ","").replace("-","") == "cytochromeoxidasesubunit3" or name.lower().replace(" ","").replace("-","") == "cytochromeoxidasesubunitiii":
 					name="COX3"
 				elif name.lower() == "cytb" or name.lower() == "cob" or name.lower().replace(" ","").replace("-","") == "cytochromeb":
 					name="CYTB"
