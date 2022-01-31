@@ -259,17 +259,19 @@ Second, you can choose the tool for the tRNA annotation step of MitoFinder using
 
 ## Mitochondrial genome assembly and annotation 
 
-TIP: use mitofinder --example to print basic usage examples  
+**TIP**: use mitofinder --example to print basic usage examples.    
 
 ### Trimmed paired-end reads
 ```shell
 mitofinder -j [seqid] -1 [left_reads.fastq.gz] -2 [right_reads.fastq.gz] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]   
 ```
+**WARNING**: If you are using capture data (e.g. UCE), consider specifying the ```--min-contig-size``` parameter. The default value is 1,000 bp which may be too high for mitochondrial contigs assembled from off-target reads. The same applies for the parameter ```--blast-size``` (default: 30%).  
 
 ### Trimmed single-end reads
 ```shell
 mitofinder -j [seqid] -s [SE_reads.fastq.gz] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]
 ```
+**WARNING**: If you are using capture data (e.g. UCE), consider specifying the ```--min-contig-size``` parameter. The default value is 1,000 bp which may be too high for mitochondrial contigs assembled from off-target reads. The same applies for the parameter ```--blast-size``` (default: 30%).  
 
 ## Find and/or annotate a mitochondrial genome
 
@@ -277,6 +279,7 @@ MitoFinder can also be run directly on a previously computed assembly (one or se
 ```shell
 mitofinder -j [seqid] -a [assembly.fasta] -r [genbank_reference.gb] -o [genetic_code] -p [threads] -m [memory]
 ```
+**WARNING**: If you are using capture data (e.g. UCE), consider specifying the ```--min-contig-size``` parameter. The default value is 1,000 bp which may be too high for mitochondrial contigs assembled from off-target reads. The same applies for the parameter ```--blast-size``` (default: 30%).  
 
 ## Restart
 Use the same command line.  
