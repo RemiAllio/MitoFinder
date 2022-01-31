@@ -177,16 +177,16 @@ Once installed, you need to indicate the paths to the directory containing the e
 
 ### BLAST
 
-Given that MitoFinder uses makeblastdb, blastn, and blastx, you need to download the associated binaries available [here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/).
+Given that MitoFinder uses makeblastdb, blastn, and blastx, you need to download the associated binaries available [here](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/).
+**TIP**: ```wget``` can be install with Homebrew using ```brew install wget```
 
 ```shell
-wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/ncbi-blast-*-x64-macosx.tar.gz 
+wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.12.0+-x64-macosx.tar.gz  
 tar -xvf ncbi-blast-*-x64-macosx.tar.gz 
 cd ncbi-blast-*+/bin/
 ```  
 
 Once downloaded, you need to indicate the PATH to the directory containing the binaries ```makeblastdb```, ```blastn```, etc. in the **Mitofinder.config** file.  
-**TIP**: ```wget``` can be install with Homebrew using ```brew install wget```  
 
 ### Assemblers 
 
