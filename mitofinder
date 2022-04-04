@@ -1540,8 +1540,8 @@ if __name__ == "__main__":
 		logfile.write("\n/!\\ WARNING /!\\ "+str(double_gene)+" genes were found more than once suggesting either fragmentation, NUMT annotations, or potential contamination of your sequencing data.\nDifferent contigs may be part of different organisms thus \""+args.processName+"_final_genes_NT.fasta\""+" and \""+args.processName+"_final_genes_AA.fasta\" could be erroneous.\nWe recommend to check contigs and associated genes separately.\n")
 	
 	if args.gap == 1 and args.numt == 0:
-		print "\n/!\\ WARNING /!\\ You have shosen to use the \"allow-intron\" option. Given that the annotation of exons is only based on similarity (BLASTX), we highly recommend to double-check the annotation.\n"
-		logfile.write("\n/!\\ WARNING /!\\ You have shosen to use the \"allow-intron\" option. Given that the annotation of exons is only based on similarity (BLASTX), we highly recommend to double-check the annotation.\n")
+		print "\n/!\\ WARNING /!\\ You have chosen to use the \"allow-intron\" option. Given that the annotation of exons is only based on similarity (BLASTX), we highly recommend to double-check the annotation.\n"
+		logfile.write("\n/!\\ WARNING /!\\ You have chosen to use the \"allow-intron\" option. Given that the annotation of exons is only based on similarity (BLASTX), we highly recommend to double-check the annotation.\n")
 	
 	if args.gap == 1 and args.numt == 1:
 		print "\n/!\\ WARNING /!\\ You have chosen to search for both introns and numts sequences at the same. This is difficult task. In that sense, please be cautious about the results! Some options are limited, for example, nWalk = 0 so you need to have a pretty good reference to optimize the annotation step."
