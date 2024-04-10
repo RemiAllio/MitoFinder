@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2.7
 #Version: 1.4.2
 #Author: Allio Remi & Alex Schomaker
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
