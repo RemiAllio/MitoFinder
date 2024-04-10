@@ -1,7 +1,7 @@
 #!/usr/bin/python
-#Version: 1.0
-#Author: Alex Schomaker - alexschomaker@ufrj.br
-#LAMPADA - IBQM - UFRJ
+#Version: 1.4.2
+#Author: Allio Remi & Alex Schomaker
+#ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
 '''
 Copyright (c) 2014 Alex Schomaker Bastos - LAMPADA/UFRJ
@@ -259,7 +259,7 @@ def geneCheck(genBankReference, resultFile, cutoffEquality, usedOwnGenBankRefere
 def createImageOfAnnotation(sequenceObject, outputFile):
 	'''Creates an image of the annotation, with relative positions of features and it's size'''
 	try:
-		import ImageFont, Image, ImageDraw
+		from PIL import ImageFont, Image, ImageDraw
 	except:
 		print ''
 		print 'Could not import Image or ImageDraw library, no image of result being created.'

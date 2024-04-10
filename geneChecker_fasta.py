@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#Version: 1.4
+#Version: 1.4.2
 #Authors: Allio Remi & Schomaker-Bastos Alex
 #ISEM - CNRS - LAMPADA - IBQM - UFRJ
 
@@ -297,7 +297,7 @@ def geneCheck(fastaReference, resultFile, cutoffEquality_prot, cutoffEquality_nu
 def createImageOfAnnotation(sequenceObject, outputFile):
 	'''Creates an image of the annotation, with relative positions of features and their size'''
 	try:
-		import ImageFont, Image, ImageDraw
+		from PIL import ImageFont, Image, ImageDraw
 	except:
 		print ''
 		print 'Could not import Image or ImageDraw library, no image of result being created.'

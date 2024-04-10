@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2.7
 #Version: 1.0
 #Author: Alex Schomaker - alexschomaker@ufrj.br
 #LAMPADA - IBQM - UFRJ
