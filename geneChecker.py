@@ -313,9 +313,9 @@ def createImageOfAnnotation(sequenceObject, outputFile):
 
 			module_dir = os.path.dirname(__file__)
 			module_dir = os.path.abspath(module_dir)
-			font_full_path = os.path.join(module_dir, 'fonts/FreeSans.ttf')
+			#font_full_path = os.path.join(module_dir, 'fonts/FreeSans.ttf')
 
-			font = ImageFont.truetype(font_full_path,12)
+			font = ImageFont.load_default()
 
 			# Now, we'll do the drawing: 
 			draw.text(text_pos, text, fill="black", font=font)
