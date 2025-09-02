@@ -41,7 +41,7 @@ The pipeline is mainly written in **python 2.7**.
 
 ## Run MitoFinder with Singularity
 
-There are many cases where using a singularity container would be easier than installing MitoFinder from source. In particular, if you are working on a server (without administrator rights) or if your default version of python is python 3.x, I recommend you to use the singularity container available [here](https://cloud.sylabs.io/library/remiallio/default/mitofinder) to run MitoFinder.  
+There are many cases where using a singularity container would be easier than installing MitoFinder from source. In particular, if you are working on a server (without administrator rights) or if your default version of python is python 3.x, I recommend you to use the singularity container available [here](https://nlink.at/mitofinder_img) to run MitoFinder.  
 
 **→** [How to install Singularity version >= 3.0](https://github.com/RemiAllio/MitoFinder_container/blob/main/README.md#get-and-install-singularity)  
 
